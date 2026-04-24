@@ -11,8 +11,7 @@
     "lint": "eslint .",
     "i18n:init": "npm run i18n:clean && npm run i18n:scan",
     "i18n:scan": "i18next-scanner",
-    "i18n:clean": "rm -rf public/locales/**",
-    "postinstall": "npx patch-package --exclude nothing"
+    "i18n:clean": "rm -rf public/locales/**"
   },
   "author": "",
   "license": "ISC",
@@ -59,7 +58,6 @@
     "decimal.js": "^10.3.1",
     "dequal": "^1.0.0",
     "dexie": "^3.0.2",
-    "duckduckgo-images-api": "^1.0.5",
     "elliptic": "^6.5.3",
     "extract-colors": "^1.1.22",
     "file-saver": "^2.0.5",
@@ -94,7 +92,6 @@
     "secp256k1": "^4.0.2",
     "semver": "^6.3.0",
     "stackblur-canvas": "^2.5.0",
-    "twitter": "^1.7.1",
     "url-regex-safe": "^3.0.0",
     "use-deep-compare-effect": "^1.2.0",
     "uuid": "^8.3.2",
@@ -105,5 +102,10 @@
     "semi": false,
     "singleQuote": true,
     "bracketSpacing": false
+  },
+  "overrides": {
+    "fabric": {
+      "jsdom": "16.7.0"
+    }
   }
 }
