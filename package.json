@@ -97,7 +97,7 @@
     "stackblur-canvas": "^2.5.0",
     "url-regex-safe": "^3.0.0",
     "use-deep-compare-effect": "^1.2.0",
-    "uuid": "^8.3.2",
+    "uuid": "^11.1.1",
     "xstate": "^4.26.1"
   },
   "overrides": {
