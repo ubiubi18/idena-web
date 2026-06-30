@@ -52,11 +52,7 @@ import {
 import {useSuccessToast} from '../../../shared/hooks/use-toast'
 import {rem} from '../../../shared/theme'
 import {colorPickerColor} from '../utils'
-
-const ImageEditor =
-  typeof window !== 'undefined'
-    ? require('@toast-ui/react-image-editor').default
-    : null
+import ImageEditor from './simple-image-editor'
 
 const BottomMenu = {
   Main: 0,
@@ -549,7 +545,6 @@ export default function FlipEditor({
       if (containerEl) {
         containerEl.parentElement.style.height = rem(328)
         containerEl.addEventListener('contextmenu', e => {
-          console.log('eee', e)
           setContextMenuCursor({x: e.layerX, y: e.layerY})
           setShowContextMenu(true)
           setRightMenuPanel(RightMenu.None)

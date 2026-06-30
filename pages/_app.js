@@ -10,9 +10,6 @@ import 'focus-visible/dist/focus-visible'
 import {Box, ChakraProvider, extendTheme} from '@chakra-ui/react'
 import {uiTheme} from '../shared/theme'
 
-// eslint-disable-next-line import/no-extraneous-dependencies
-import 'tui-image-editor/dist/tui-image-editor.css'
-
 import {SettingsProvider} from '../shared/providers/settings-context'
 import {AuthProvider} from '../shared/providers/auth-context'
 import Flips from '../shared/components/flips'
