@@ -1,12 +1,8 @@
-// eslint-disable-next-line camelcase
-const {image_search} = require('duckduckgo-images-api')
+const {searchImages} = require('../../server/image-search')
 
 export default async (req, res) => {
   try {
-    const result = await image_search({
-      query: req.query.q,
-      moderate: true,
-    })
+    const result = await searchImages(req.query.q)
     return res.status(200).json(result)
   } catch (e) {
     return res.status(400).send(e.toString())
