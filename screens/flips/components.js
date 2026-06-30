@@ -39,7 +39,6 @@ import {useTranslation} from 'react-i18next'
 import {transparentize} from 'polished'
 import {useService} from '@xstate/react'
 import {EditIcon, ViewIcon} from '@chakra-ui/icons'
-import Jimp from 'jimp'
 import FlipEditor from './components/flip-editor'
 import {Step} from './types'
 import {formatKeywords, getAdversarialImage, protectFlipImage} from './utils'
@@ -52,6 +51,7 @@ import {
 import {rem} from '../../shared/theme'
 import {capitalize} from '../../shared/utils/string'
 import {reorder} from '../../shared/utils/arr'
+import {resizeImageToDataUrl} from '../../shared/utils/image-canvas'
 import {FlipType} from '../../shared/types'
 import {
   Tooltip,
@@ -873,12 +873,13 @@ export function FlipProtectStep({
 
     const regeneratedImageSrc = await protectFlipImage(imageSrc)
 
-    const compressedImage = await Jimp.read(regeneratedImageSrc).then(raw =>
-      raw
-        .resize(240, 180)
-        .quality(60) // jpeg quality
-        .getBase64Async('image/jpeg')
-    )
+    const compressedImage = await resizeImageToDataUrl(regeneratedImageSrc, {
+      width: 240,
+      height: 180,
+      type: 'image/jpeg',
+      quality: 0.6,
+      exact: true,
+    })
     if (advImageScr) {
       onChangeAdversarial(advImageScr)
     }

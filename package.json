@@ -15,6 +15,10 @@
   },
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": ">=24.15.0 <25",
+    "npm": ">=11.12.0"
+  },
   "devDependencies": {
     "@babel/core": "^7.6.0",
     "@testing-library/react": "^9.1.4",
@@ -68,7 +72,6 @@
     "i18next-browser-languagedetector": "^6.1.4",
     "i18next-http-backend": "^1.4.0",
     "idena-eciesjs": "^1.0.0",
-    "jimp": "^0.9.6",
     "js-sha3": "^0.8.0",
     "mousetrap": "^1.6.3",
     "multiformats": "^9.6.4",

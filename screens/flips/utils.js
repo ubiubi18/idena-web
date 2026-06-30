@@ -10,10 +10,10 @@
 /* eslint-disable no-use-before-define */
 import {encode} from 'rlp'
 import axios from 'axios'
-import Jimp from 'jimp'
 import CID from 'cids'
 import {loadPersistentStateValue, persistItem} from '../../shared/utils/persist'
 import {FlipType} from '../../shared/types'
+import {resizeImageToDataUrl} from '../../shared/utils/image-canvas'
 import {
   areSame,
   areEqual,
@@ -975,12 +975,13 @@ export async function protectFlip({
   const compressedImages = await Promise.all(
     protectedFlips.map(image =>
       image
-        ? Jimp.read(image).then(raw =>
-            raw
-              .resize(240, 180)
-              .quality(60) // jpeg quality
-              .getBase64Async('image/jpeg')
-          )
+        ? resizeImageToDataUrl(image, {
+            width: 240,
+            height: 180,
+            type: 'image/jpeg',
+            quality: 0.6,
+            exact: true,
+          })
         : image
     )
   )
@@ -996,12 +997,15 @@ export async function prepareAdversarialImages(images, send) {
 
   await Promise.all(
     ids.map((img, idx) =>
-      Jimp.read(img.thumbnail).then(image => {
-        image.getBase64Async('image/png').then(async nextUrl => {
-          send('CHANGE_ADVERSARIAL', {
-            image: nextUrl,
-            currentIndex: idx,
-          })
+      resizeImageToDataUrl(img.thumbnail, {
+        width: 440,
+        height: 330,
+        type: 'image/png',
+        exact: false,
+      }).then(async nextUrl => {
+        send('CHANGE_ADVERSARIAL', {
+          image: nextUrl,
+          currentIndex: idx,
         })
       })
     )
