@@ -1,6 +1,6 @@
 import {assign, spawn, sendParent, createMachine} from 'xstate'
 import {log, send} from 'xstate/lib/actions'
-import nanoid from 'nanoid'
+import {nanoid} from 'nanoid'
 import {Evaluate} from '@idena/vrf-js'
 import CID from 'cids'
 import axios from 'axios'
