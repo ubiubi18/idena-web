@@ -1,7 +1,6 @@
 import {assign, spawn, sendParent, createMachine} from 'xstate'
 import {log, send} from 'xstate/lib/actions'
 import {nanoid} from 'nanoid'
-import {Evaluate} from '@idena/vrf-js'
 import CID from 'cids'
 import axios from 'axios'
 import {
@@ -29,6 +28,7 @@ import db from '../../shared/utils/db'
 import {fetchWordPairs} from '../../shared/api/validation'
 import {privateKeyToAddress} from '../../shared/utils/crypto'
 import {hexToUint8Array, toHexString} from '../../shared/utils/buffers'
+import {Evaluate} from '../../shared/utils/vrf'
 import {FlipDeleteAttachment} from '../../shared/models/flipDeleteAttachment'
 import {Transaction} from '../../shared/models/transaction'
 

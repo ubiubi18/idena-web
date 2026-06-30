@@ -4,7 +4,6 @@ import {Machine, assign, createMachine} from 'xstate'
 import {decode} from 'rlp'
 import {choose, log, send} from 'xstate/lib/actions'
 import dayjs from 'dayjs'
-import {Evaluate} from '@idena/vrf-js'
 import BN from 'bn.js'
 import {
   fetchFlipHashes,
@@ -43,6 +42,7 @@ import {
 } from '../../shared/utils/crypto'
 import {Transaction} from '../../shared/models/transaction'
 import {toHexString, hexToUint8Array} from '../../shared/utils/buffers'
+import {Evaluate} from '../../shared/utils/vrf'
 import {ShortAnswerAttachment} from '../../shared/models/shortAnswerAttachment'
 import {LongAnswerAttachment} from '../../shared/models/longAnswerAttachment'
 import db from '../../shared/utils/db'

@@ -24,6 +24,9 @@ jobs:
       - name: Install deps
         run: npm ci
 
+      - name: Run privacy audit
+        run: npm run audit:privacy
+
       - name: Run image search tests
         run: npm test -- --runInBand server/image-search.test.js
 
