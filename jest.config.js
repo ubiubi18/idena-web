@@ -1,5 +1,9 @@
 module.exports = {
   testEnvironment: 'jsdom',
+  transform: {
+    '^.+\\.[jt]sx?$': ['babel-jest', {presets: ['next/babel']}],
+  },
+  transformIgnorePatterns: ['/node_modules/(?!@noble/)'],
   moduleNameMapper: {
     '^dexie$': '<rootDir>/node_modules/dexie/dist/dexie.js',
   },

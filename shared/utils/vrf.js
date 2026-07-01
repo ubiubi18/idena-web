@@ -109,16 +109,16 @@ export function Evaluate(privateKey, message) {
   const randomSecret = randomScalar()
   const pointH = h1(message)
   const currentPublicKey = basePoint.multiply(currentSecret)
-  const vrf = pointH.multiply(currentSecret).toRawBytes(false)
+  const vrf = pointH.multiply(currentSecret).toBytes(false)
   const randomG = basePoint.multiply(randomSecret)
   const randomH = pointH.multiply(randomSecret)
   const challenge = h2([
-    ...basePoint.toRawBytes(false),
-    ...pointH.toRawBytes(false),
-    ...currentPublicKey.toRawBytes(false),
+    ...basePoint.toBytes(false),
+    ...pointH.toBytes(false),
+    ...currentPublicKey.toBytes(false),
     ...vrf,
-    ...randomG.toRawBytes(false),
-    ...randomH.toRawBytes(false),
+    ...randomG.toBytes(false),
+    ...randomH.toBytes(false),
   ])
   const response = modOrder(randomSecret - challenge * currentSecret)
   const proof = [...leftPad32(challenge), ...leftPad32(response), ...vrf]
@@ -143,12 +143,12 @@ export function ProofHoHash(publicKey, data, proof) {
   const responseH = pointH.multiply(response)
   const challengeVrf = pointVrf.multiply(challenge)
   const verificationChallenge = h2([
-    ...basePoint.toRawBytes(false),
-    ...pointH.toRawBytes(false),
-    ...currentPublicKey.toRawBytes(false),
+    ...basePoint.toBytes(false),
+    ...pointH.toBytes(false),
+    ...currentPublicKey.toBytes(false),
     ...vrf,
-    ...responseG.add(challengePublicKey).toRawBytes(false),
-    ...responseH.add(challengeVrf).toRawBytes(false),
+    ...responseG.add(challengePublicKey).toBytes(false),
+    ...responseH.add(challengeVrf).toBytes(false),
   ])
   const expectedChallenge = leftPad32(verificationChallenge)
 
