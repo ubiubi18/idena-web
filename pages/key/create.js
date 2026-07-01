@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react'
 import React, {useState, useEffect} from 'react'
 import {useRouter} from 'next/router'
-import QRCode from 'qrcode.react'
+import {QRCodeSVG as QRCode} from 'qrcode.react'
 import {saveAs} from 'file-saver'
 import {useTranslation} from 'react-i18next'
 import {

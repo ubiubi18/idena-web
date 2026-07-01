@@ -29,7 +29,7 @@ import {
 } from '@chakra-ui/react'
 import React, {forwardRef, useRef, useState} from 'react'
 import {useTranslation} from 'react-i18next'
-import QRCode from 'qrcode.react'
+import {QRCodeSVG as QRCode} from 'qrcode.react'
 import {transparentize} from '@chakra-ui/theme-tools'
 import {useInfiniteQuery} from 'react-query'
 import {

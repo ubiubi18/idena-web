@@ -11,7 +11,7 @@ import {
   useClipboard,
   useDisclosure,
 } from '@chakra-ui/react'
-import QRCode from 'qrcode.react'
+import {QRCodeSVG as QRCode} from 'qrcode.react'
 import {saveAs} from 'file-saver'
 import {useRouter} from 'next/router'
 import {rem} from '../../shared/theme'
