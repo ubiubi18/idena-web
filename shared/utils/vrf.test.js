@@ -20,6 +20,9 @@ describe('VRF utilities', () => {
     const publicKey = hexToUint8Array(privateKeyToPublicKey(testVectorKey))
     const verifiedIndex = ProofHoHash(publicKey, seed, proof)
 
+    expect(toHexString(index, true)).toBe(
+      '0x27b4ac0c5652dc4b33984829d5f887462a5b035208889489329041f87f69ca16'
+    )
     expect(toHexString(index, true)).toBe(toHexString(verifiedIndex, true))
     expect(index).toHaveLength(32)
     expect(proof).toHaveLength(129)

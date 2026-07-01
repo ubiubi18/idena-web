@@ -143,6 +143,7 @@ describe('create answers attachment', () => {
     expect(privateKeyToAddress(key)).toBe(
       '0xa79b11814a162129a6dC136885C1c92EE1336Ffc'.toLowerCase()
     )
+    expect(privateKeyToAddress(`0x${key}`)).toBe(privateKeyToAddress(key))
   })
 
   it('sign and check', () => {

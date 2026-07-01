@@ -1,8 +1,8 @@
 import sha3 from 'js-sha3'
-import secp256k1 from 'secp256k1'
 import BN from 'bn.js'
 import messages from './proto/models_pb'
 import {toBuffer, hexToUint8Array, toHexString} from '../utils/buffers'
+import {signHash} from '../utils/secp256k1'
 
 export class Transaction {
   constructor(nonce, epoch, type, to, amount, maxFee, tips, payload) {
@@ -47,10 +47,7 @@ export class Transaction {
       this._createProtoTxData().serializeBinary()
     )
 
-    const {signature, recid} = secp256k1.ecdsaSign(
-      new Uint8Array(hash),
-      typeof key === 'string' ? hexToUint8Array(key) : new Uint8Array(key)
-    )
+    const {signature, recid} = signHash(hash, key)
 
     this.signature = Buffer.from([...signature, recid])
 

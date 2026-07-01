@@ -1,23 +1,21 @@
 /* eslint-disable no-bitwise */
 import sha3 from 'js-sha3'
 import BN from 'bn.js'
-import {ec as EC} from 'elliptic'
-import secp256k1 from 'secp256k1'
 import eciesjs from 'idena-eciesjs'
 import crypto from 'crypto'
 import {hexToUint8Array, toHexString} from './buffers'
+import {
+  curveOrder,
+  publicKeyCreate,
+  recoverPublicKey,
+  signHash,
+} from './secp256k1'
 import PrivateKeysPackage from '../models/privateKeysPackage'
 import PublicFlipKey from '../models/publicFlipKey'
 import {FlipGrade} from '../types'
 
-const ec = new EC('secp256k1')
-
 export function privateKeyToPublicKey(key) {
-  const pubKey = ec
-    .keyFromPrivate(key)
-    .getPublic()
-    .encode('array')
-  return toHexString(pubKey, true)
+  return toHexString(publicKeyCreate(key, false), true)
 }
 
 function pubKeyToAddr(pubKey) {
@@ -28,12 +26,7 @@ export function privateKeyToAddress(key) {
   if (!key) {
     return '0x0000000000000000000000000000000000000000'
   }
-  const pubKey = ec
-    .keyFromPrivate(key)
-    .getPublic()
-    .encode('array')
-
-  return pubKeyToAddr(pubKey)
+  return pubKeyToAddr(publicKeyCreate(key, false))
 }
 
 export function generatePrivateKey() {
@@ -110,10 +103,7 @@ export function createShortAnswersHash(key, epoch, hashesInOrder, answers) {
 
 export function generateShortAnswersSalt(epoch, key) {
   const hash = sha3.keccak_256.array(`short-answers-salt-${epoch}`)
-  const {signature, recid} = secp256k1.ecdsaSign(
-    new Uint8Array(hash),
-    typeof key === 'string' ? hexToUint8Array(key) : new Uint8Array(key)
-  )
+  const {signature, recid} = signHash(hash, key)
 
   return sha3.sha3_256.array([...signature, recid])
 }
@@ -158,21 +148,18 @@ export function generateFlipKey(isPublic, epoch, key) {
 
   const hash = sha3.keccak_256.array(seedStart + epoch.toString())
 
-  const {signature, recid} = secp256k1.ecdsaSign(
-    new Uint8Array(hash),
-    typeof key === 'string' ? hexToUint8Array(key) : new Uint8Array(key)
-  )
+  const {signature, recid} = signHash(hash, key)
   const result = generateKeyFromSeed([...signature, recid])
 
   return [...Array(32 - result.length).fill(0), ...result]
 }
 
 function generateKeyFromSeed(seed) {
-  const size = ec.n.bitLength() / 8 + 8
+  const size = 40
   const b = seed.slice(0, size)
 
   let k = new BN(b)
-  const n = ec.n.sub(new BN(1))
+  const n = new BN((curveOrder - 1n).toString())
   k = k.mod(n)
   k = k.add(new BN(1))
   return k.toArray()
@@ -186,7 +173,7 @@ export function encryptFlipData(publicHex, privateHex, privateKey, epoch) {
   let encryptedPrivateData
   try {
     encryptedPublicData = eciesjs.encrypt(
-      secp256k1.publicKeyCreate(new Uint8Array(publicFlipKey)),
+      publicKeyCreate(publicFlipKey),
       publicHex
     )
   } catch (e) {
@@ -197,7 +184,7 @@ export function encryptFlipData(publicHex, privateHex, privateKey, epoch) {
 
   try {
     encryptedPrivateData = eciesjs.encrypt(
-      secp256k1.publicKeyCreate(new Uint8Array(privateFlipKey)),
+      publicKeyCreate(privateFlipKey),
       privateHex
     )
   } catch (e) {
@@ -215,10 +202,7 @@ export function encryptFlipData(publicHex, privateHex, privateKey, epoch) {
 export function signMessage(data, key) {
   const hash = sha3.keccak_256.array(data)
 
-  const {signature, recid} = secp256k1.ecdsaSign(
-    new Uint8Array(hash),
-    typeof key === 'string' ? hexToUint8Array(key) : new Uint8Array(key)
-  )
+  const {signature, recid} = signHash(hash, key)
 
   return Buffer.from([...signature, recid])
 }
@@ -236,20 +220,14 @@ export function dnaSign(data, key, format = SignedDataFormat.DoubleHash) {
       }`
       const hash = sha3.keccak_256.array(message)
 
-      const {signature, recid} = secp256k1.ecdsaSign(
-        new Uint8Array(hash),
-        typeof key === 'string' ? hexToUint8Array(key) : new Uint8Array(key)
-      )
+      const {signature, recid} = signHash(hash, key)
       return Buffer.from([...signature, recid])
     }
     case SignedDataFormat.DoubleHash: {
       const hash = sha3.keccak_256.array(data)
       const hash2 = sha3.keccak_256.array(hash)
 
-      const {signature, recid} = secp256k1.ecdsaSign(
-        new Uint8Array(hash2),
-        typeof key === 'string' ? hexToUint8Array(key) : new Uint8Array(key)
-      )
+      const {signature, recid} = signHash(hash2, key)
 
       return Buffer.from([...signature, recid])
     }
@@ -262,17 +240,7 @@ export function checkSignature(data, signature) {
   try {
     const hash = sha3.keccak_256.array(data)
 
-    const sigArr =
-      typeof signature === 'string'
-        ? hexToUint8Array(signature)
-        : new Uint8Array(signature)
-
-    const pubKey = secp256k1.ecdsaRecover(
-      sigArr.slice(0, sigArr.length - 1),
-      sigArr[sigArr.length - 1],
-      new Uint8Array(hash),
-      false
-    )
+    const pubKey = recoverPublicKey(hash, signature, false)
 
     return pubKeyToAddr(pubKey)
   } catch (e) {

@@ -1,11 +1,7 @@
 // Adapted from @idena/vrf-js; see THIRD_PARTY_NOTICES.md.
-import BN from 'bn.js'
-import {ec as EC} from 'elliptic'
 import {sha256} from 'js-sha256'
 import {sha512} from 'js-sha512'
-
-const ec = new EC('secp256k1')
-const one = new BN(1)
+import {basePoint, curveOrder, pointFromBytes, privateKeyBytes} from './secp256k1'
 
 function toBytesInt32(num) {
   return new Uint8Array([
@@ -17,7 +13,22 @@ function toBytesInt32(num) {
 }
 
 function byteLength() {
-  return Math.ceil(ec.n.bitLength() / 8)
+  return 32
+}
+
+function bytesToBigInt(bytes) {
+  return BigInt(`0x${Buffer.from(bytes).toString('hex') || '0'}`)
+}
+
+function bigIntToBytes(value) {
+  const hex = value.toString(16)
+  const padded = hex.length % 2 ? `0${hex}` : hex
+  return Array.from(Buffer.from(padded, 'hex'))
+}
+
+function modOrder(value) {
+  const result = value % curveOrder
+  return result >= 0n ? result : result + curveOrder
 }
 
 function randomScalar() {
@@ -27,45 +38,43 @@ function randomScalar() {
   }
 
   const bytes = new Uint8Array(byteLength())
-  let scalar = new BN(0)
+  let scalar = 0n
 
-  while (scalar.isZero() || scalar.cmp(ec.curve.n) >= 0) {
+  while (scalar === 0n || scalar >= curveOrder) {
     crypto.getRandomValues(bytes)
-    scalar = new BN(bytes)
+    scalar = bytesToBigInt(bytes)
   }
 
   return scalar
 }
 
-function unmarshal(data) {
+function pointFromCompressedBytes(data) {
   const compressedPointPrefix = data[0]
   if (compressedPointPrefix !== 2 && compressedPointPrefix !== 3) {
-    return [null, null]
+    return null
   }
-  if (data.length !== 1 + byteLength()) return [null, null]
+  if (data.length !== 1 + byteLength()) return null
 
   try {
-    const point = ec.curve.pointFromX(new BN(data.slice(1)))
-    return [point.x, point.y]
+    return pointFromBytes(data)
   } catch (_) {
-    return [null, null]
+    return null
   }
 }
 
 function h1(message) {
-  let x = null
-  let y = null
+  let point = null
   let i = 0
 
-  while (x === null && i < 100) {
+  while (point === null && i < 100) {
     const hash = sha512.array(new Uint8Array([...toBytesInt32(i), ...message]))
-    const point = unmarshal([2, ...hash].slice(0, byteLength() + 1))
-    x = point[0]
-    y = point[1]
+    point = pointFromCompressedBytes([2, ...hash].slice(0, byteLength() + 1))
     i += 1
   }
 
-  return ec.curve.point(x, y)
+  if (!point) throw new Error('invalid vrf hash point')
+
+  return point
 }
 
 function h2(message) {
@@ -74,75 +83,78 @@ function h2(message) {
   // eslint-disable-next-line no-constant-condition
   while (true) {
     const hash = sha512.array(new Uint8Array([...toBytesInt32(i), ...message]))
-    const k = new BN(hash.slice(0, byteLength()))
+    const k = bytesToBigInt(hash.slice(0, byteLength()))
 
-    if (k.cmp(ec.curve.n.sub(one)) === -1) return k.add(one)
+    if (k < curveOrder - 1n) return k + 1n
 
     i += 1
   }
 }
 
 function leftPad32(value) {
-  return [...new Array(32 - value.byteLength()).fill(0), ...value.toArray()]
+  const bytes = bigIntToBytes(value)
+  return [...new Array(32 - bytes.length).fill(0), ...bytes]
 }
 
 function decodePoint(data) {
   try {
-    return ec.curve.decodePoint(data)
+    return pointFromBytes(data)
   } catch (_) {
     return null
   }
 }
 
 export function Evaluate(privateKey, message) {
-  const currentKey = ec.keyFromPrivate(privateKey)
-  const currentSecret = currentKey.getPrivate()
+  const currentSecret = bytesToBigInt(privateKeyBytes(privateKey))
   const randomSecret = randomScalar()
   const pointH = h1(message)
-  const vrf = pointH.mul(currentSecret).encode()
-  const randomG = ec.curve.g.mul(randomSecret)
-  const randomH = pointH.mul(randomSecret)
+  const currentPublicKey = basePoint.multiply(currentSecret)
+  const vrf = pointH.multiply(currentSecret).toRawBytes(false)
+  const randomG = basePoint.multiply(randomSecret)
+  const randomH = pointH.multiply(randomSecret)
   const challenge = h2([
-    ...ec.curve.g.encode(),
-    ...pointH.encode(),
-    ...currentKey.getPublic().encode(),
+    ...basePoint.toRawBytes(false),
+    ...pointH.toRawBytes(false),
+    ...currentPublicKey.toRawBytes(false),
     ...vrf,
-    ...randomG.encode(),
-    ...randomH.encode(),
+    ...randomG.toRawBytes(false),
+    ...randomH.toRawBytes(false),
   ])
-  const response = randomSecret.sub(challenge.mul(currentSecret)).umod(ec.curve.n)
+  const response = modOrder(randomSecret - challenge * currentSecret)
   const proof = [...leftPad32(challenge), ...leftPad32(response), ...vrf]
 
   return [sha256.array(new Uint8Array(vrf)), proof]
 }
 
 export function ProofHoHash(publicKey, data, proof) {
-  const currentKey = ec.keyFromPublic(publicKey)
+  const currentPublicKey = pointFromBytes(publicKey)
   if (proof.length !== 129) throw new Error('invalid vrf')
 
-  const challenge = proof.slice(0, 32)
-  const response = proof.slice(32, 64)
+  const challenge = bytesToBigInt(proof.slice(0, 32))
+  const response = bytesToBigInt(proof.slice(32, 64))
   const vrf = proof.slice(64, 129)
   const pointVrf = decodePoint(vrf)
 
   if (!pointVrf) throw new Error('invalid vrf')
 
-  const responseG = ec.curve.g.mul(response)
-  const challengePublicKey = currentKey.getPublic().mul(challenge)
+  const responseG = basePoint.multiply(response)
+  const challengePublicKey = currentPublicKey.multiply(challenge)
   const pointH = h1(data)
-  const responseH = pointH.mul(response)
-  const challengeVrf = pointVrf.mul(challenge)
+  const responseH = pointH.multiply(response)
+  const challengeVrf = pointVrf.multiply(challenge)
   const verificationChallenge = h2([
-    ...ec.curve.g.encode(),
-    ...pointH.encode(),
-    ...currentKey.getPublic().encode(),
+    ...basePoint.toRawBytes(false),
+    ...pointH.toRawBytes(false),
+    ...currentPublicKey.toRawBytes(false),
     ...vrf,
-    ...responseG.add(challengePublicKey).encode(),
-    ...responseH.add(challengeVrf).encode(),
+    ...responseG.add(challengePublicKey).toRawBytes(false),
+    ...responseH.add(challengeVrf).toRawBytes(false),
   ])
   const expectedChallenge = leftPad32(verificationChallenge)
 
-  if (!expectedChallenge.every((byte, index) => byte === challenge[index])) {
+  if (
+    !expectedChallenge.every((byte, index) => byte === proof.slice(0, 32)[index])
+  ) {
     throw new Error('invalid vrf')
   }
 

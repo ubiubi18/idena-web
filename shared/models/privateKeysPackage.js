@@ -1,8 +1,7 @@
 import sha3 from 'js-sha3'
-import secp256k1 from 'secp256k1'
 import eciesjs from 'idena-eciesjs'
 import messages from './proto/models_pb'
-import {hexToUint8Array} from '../utils/buffers'
+import {publicKeyCreate, signHash} from '../utils/secp256k1'
 
 export default class PrivateKeysPackage {
   constructor(epoch, keysArray, publicFlipKey, privateFlipKey) {
@@ -13,7 +12,7 @@ export default class PrivateKeysPackage {
     const binary = protoKeys.serializeBinary()
 
     this.data = eciesjs.encrypt(
-      secp256k1.publicKeyCreate(new Uint8Array(publicFlipKey)),
+      publicKeyCreate(publicFlipKey),
       binary
     )
     this.epoch = epoch
@@ -26,10 +25,7 @@ export default class PrivateKeysPackage {
 
     const hash = sha3.keccak_256.array(data.serializeBinary())
 
-    const {signature, recid} = secp256k1.ecdsaSign(
-      new Uint8Array(hash),
-      hexToUint8Array(key)
-    )
+    const {signature, recid} = signHash(hash, key)
 
     this.signature = Buffer.from([...signature, recid])
 
