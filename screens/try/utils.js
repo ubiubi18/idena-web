@@ -58,7 +58,7 @@ export function loadWords(flips, cb) {
         data: {
           hash,
           words: await Promise.all(
-            keywords?.map(async id => ({
+            keywords?.map(async (id) => ({
               id,
               ...(await loadKeyword(id)),
             })) ?? []
@@ -74,7 +74,7 @@ export function loadWords(flips, cb) {
 }
 
 export async function fetchFlips(hashes, cb) {
-  return forEachAsync(hashes, async hash => {
+  return forEachAsync(hashes, async (hash) => {
     const flip = await getFlip(hash)
     if (flip) {
       const images = await Promise.all(flip.images.map(toBlob))

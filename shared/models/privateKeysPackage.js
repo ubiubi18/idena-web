@@ -7,14 +7,11 @@ export default class PrivateKeysPackage {
   constructor(epoch, keysArray, publicFlipKey, privateFlipKey) {
     const protoKeys = new messages.ProtoFlipPrivateKeys()
     protoKeys.setKeysList(
-      keysArray.map(candidate => eciesjs.encrypt(candidate, privateFlipKey))
+      keysArray.map((candidate) => eciesjs.encrypt(candidate, privateFlipKey))
     )
     const binary = protoKeys.serializeBinary()
 
-    this.data = eciesjs.encrypt(
-      publicKeyCreate(publicFlipKey),
-      binary
-    )
+    this.data = eciesjs.encrypt(publicKeyCreate(publicFlipKey), binary)
     this.epoch = epoch
   }
 

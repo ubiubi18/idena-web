@@ -71,9 +71,10 @@ export function DnaSignInDialog({
 
   const [isAuthenticating, setIsAuthenticating] = React.useState()
 
-  const callbackUrlObject = React.useMemo(() => new URL(callbackUrl), [
-    callbackUrl,
-  ])
+  const callbackUrlObject = React.useMemo(
+    () => new URL(callbackUrl),
+    [callbackUrl]
+  )
 
   const callbackFaviconUrl = React.useMemo(
     () => faviconUrl || new URL('favicon.ico', callbackUrlObject.origin),
@@ -137,8 +138,8 @@ export function DnaSignInDialog({
               token,
               coinbase,
             })
-              .then(nonce => dnaSign(nonce, privateKey))
-              .then(bytes =>
+              .then((nonce) => dnaSign(nonce, privateKey))
+              .then((bytes) =>
                 authenticate(authenticationEndpoint, {
                   token,
                   signature: toHexString(bytes, true),
@@ -159,7 +160,7 @@ export function DnaSignInDialog({
                   onSignInError(`Invalid callback URL: ${callbackUrl}`)
                 }
               })
-              .catch(error => {
+              .catch((error) => {
                 setIsAuthenticating(false)
                 onSignInError(error?.response?.data?.error)
               })
@@ -201,15 +202,15 @@ export function DnaSendDialog({
 
   const [confirmationAmount, setConfirmationAmount] = React.useState()
 
-  const areSameAmounts = React.useMemo(() => +confirmationAmount === +amount, [
-    amount,
-    confirmationAmount,
-  ])
+  const areSameAmounts = React.useMemo(
+    () => +confirmationAmount === +amount,
+    [amount, confirmationAmount]
+  )
 
-  const isExceededBalance = React.useMemo(() => +amount > balance, [
-    amount,
-    balance,
-  ])
+  const isExceededBalance = React.useMemo(
+    () => +amount > balance,
+    [amount, balance]
+  )
 
   const [isSubmitting, setIsSubmitting] = React.useState()
 
@@ -261,7 +262,7 @@ export function DnaSendDialog({
               <Input
                 isDisabled={isExceededBalance}
                 value={confirmationAmount}
-                onChange={e => setConfirmationAmount(e.target.value)}
+                onChange={(e) => setConfirmationAmount(e.target.value)}
               />
               {Number.isFinite(+confirmationAmount) && !areSameAmounts && (
                 <DnaDialogAlertText>
@@ -281,16 +282,13 @@ export function DnaSendDialog({
           isLoading={isSubmitting}
           onClick={async () => {
             new Promise((resolve, reject) => {
-              if (shouldConfirmTx) {
-                return areSameAmounts
-                  ? resolve()
-                  : reject(
-                      new Error(
-                        t('Entered amount does not match target amount')
-                      )
-                    )
+              if (shouldConfirmTx && !areSameAmounts) {
+                reject(
+                  new Error(t('Entered amount does not match target amount'))
+                )
+              } else {
+                resolve()
               }
-              return resolve()
             })
               .then(() => setIsSubmitting(true))
               .then(async () => {
@@ -340,7 +338,7 @@ export function DnaSendDialog({
                     onHtml: ({url}) =>
                       sendDna().then(() => onDepositSuccess({hash, url})),
                   })
-                    .catch(error => {
+                    .catch((error) => {
                       console.error(error)
                       onDepositError({
                         error: error?.message,
@@ -394,7 +392,7 @@ export function DnaRawDialog({
     [tx]
   )
 
-  const toDna = num => +num / 10 ** 18
+  const toDna = (num) => +num / 10 ** 18
 
   const {type, to, amount: parsedAmount, maxFee: parsedMaxFee} = parsedTx
 
@@ -413,10 +411,10 @@ export function DnaRawDialog({
     [amount, confirmationAmount]
   )
 
-  const isExceededBalance = React.useMemo(() => +amount > balance, [
-    amount,
-    balance,
-  ])
+  const isExceededBalance = React.useMemo(
+    () => +amount > balance,
+    [amount, balance]
+  )
 
   const [isSubmitting, setIsSubmitting] = React.useState()
 
@@ -496,7 +494,7 @@ export function DnaRawDialog({
                 <Input
                   isDisabled={isExceededBalance}
                   value={confirmationAmount}
-                  onChange={e => setConfirmationAmount(e.target.value)}
+                  onChange={(e) => setConfirmationAmount(e.target.value)}
                 />
                 {Number.isFinite(+confirmationAmount) && !didConfirmAmount && (
                   <DnaDialogAlertText>
@@ -523,27 +521,21 @@ export function DnaRawDialog({
           isLoading={isSubmitting}
           onClick={async () => {
             new Promise((resolve, reject) => {
-              if (shouldConfirmTx) {
-                return didConfirmAmount
-                  ? resolve()
-                  : reject(
-                      new Error(
-                        t('Entered amount does not match target amount')
-                      )
-                    )
+              if (shouldConfirmTx && !didConfirmAmount) {
+                reject(
+                  new Error(t('Entered amount does not match target amount'))
+                )
+              } else {
+                resolve()
               }
-              return resolve()
             })
               .then(() => setIsSubmitting(true))
               .then(() =>
                 sendRawTx(
-                  new Transaction()
-                    .fromHex(tx)
-                    .sign(privateKey)
-                    .toHex(true)
+                  new Transaction().fromHex(tx).sign(privateKey).toHex(true)
                 )
               )
-              .then(hash => {
+              .then((hash) => {
                 if (isValidUrl(callbackUrl)) {
                   const callbackUrlWithHash = appendTxHash(callbackUrl, hash)
 
@@ -572,7 +564,7 @@ export function DnaRawDialog({
                     // eslint-disable-next-line no-shadow
                     onHtml: ({url}) => onSendSuccess({hash, url}),
                   })
-                    .catch(error => {
+                    .catch((error) => {
                       console.error(error)
                       onSendError({
                         error: error?.message,
@@ -710,7 +702,7 @@ export function DnaSendFailedDialog({
                   })
                 }
               },
-            }).catch(error => {
+            }).catch((error) => {
               console.error(error)
               onRetryFailed({
                 error: error?.message,

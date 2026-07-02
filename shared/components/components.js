@@ -262,7 +262,7 @@ export function Avatar({
       {...props}
     />
   ) : (
-    <Box boxSize={size} bg="gray.50" rounded={['mobile', 'lg']}></Box>
+    <Box boxSize={size} bg="gray.50" rounded={['mobile', 'lg']} />
   )
 }
 
@@ -468,18 +468,18 @@ export function FillCenter(props) {
   )
 }
 
-export const VDivider = React.forwardRef(function VDivider(props, ref) {
-  return (
-    <Divider
-      ref={ref}
-      orientation="vertical"
-      borderColor="gray.100"
-      h={6}
-      mx={0}
-      {...props}
-    />
-  )
-})
+export const VDivider = React.forwardRef((props, ref) => (
+  <Divider
+    ref={ref}
+    orientation="vertical"
+    borderColor="gray.100"
+    h={6}
+    mx={0}
+    {...props}
+  />
+))
+
+VDivider.displayName = 'VDivider'
 
 export function SmallText(props) {
   return <Text color="muted" fontSize="sm" {...props} />
@@ -602,18 +602,16 @@ export function Spinner({size = 8}) {
 `
 
   return (
-    <>
-      <Box
-        display="inline-block"
-        border="4px solid"
-        borderColor="blackAlpha.100"
-        borderLeftColor="blue.500"
-        borderRadius="50%"
-        w={size}
-        h={size}
-        animation={`${spin} 1.2s linear infinite`}
-      ></Box>
-    </>
+    <Box
+      display="inline-block"
+      border="4px solid"
+      borderColor="blackAlpha.100"
+      borderLeftColor="blue.500"
+      borderRadius="50%"
+      w={size}
+      h={size}
+      animation={`${spin} 1.2s linear infinite`}
+    />
   )
 }
 
@@ -696,7 +694,7 @@ export function NumberInput({
           if (onClamp) onClamp(clampedValue)
         }
       }}
-      onChange={e => {
+      onChange={(e) => {
         if (preventInvalidInput) {
           if (e.target.checkValidity()) onChange(e)
           // eslint-disable-next-line no-unused-expressions
@@ -806,16 +804,20 @@ export function Menu({children, zIndex, ...props}) {
   )
 }
 
-export const HDivider = React.forwardRef(function HDivider(props, ref) {
-  return <Divider ref={ref} borderColor="gray.100" my={0} {...props} />
-})
+export const HDivider = React.forwardRef((props, ref) => (
+  <Divider ref={ref} borderColor="gray.100" my={0} {...props} />
+))
+
+HDivider.displayName = 'HDivider'
 
 const FilterContext = React.createContext()
 
 export function FilterButtonList({value, onChange, children, ...props}) {
+  const context = React.useMemo(() => ({value, onChange}), [onChange, value])
+
   return (
     <HStack {...props}>
-      <FilterContext.Provider value={{value, onChange}}>
+      <FilterContext.Provider value={context}>
         {children}
       </FilterContext.Provider>
     </HStack>
@@ -823,16 +825,14 @@ export function FilterButtonList({value, onChange, children, ...props}) {
 }
 
 export function FilterButton({value, onClick, ...props}) {
-  const {
-    value: currentValue,
-    onChange: onChangeCurrentValue,
-  } = React.useContext(FilterContext)
+  const {value: currentValue, onChange: onChangeCurrentValue} =
+    React.useContext(FilterContext)
 
   return (
     <Button
       variant="tab"
       isActive={value === currentValue}
-      onClick={e => {
+      onClick={(e) => {
         onChangeCurrentValue(value)
         if (onClick) onClick(e)
       }}

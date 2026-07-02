@@ -90,7 +90,7 @@ export default function ImportKey() {
         </Flex>
         <Flex w="100%" mt="24px">
           <form
-            onSubmit={async e => {
+            onSubmit={async (e) => {
               e.preventDefault()
               addKey()
             }}
@@ -111,7 +111,7 @@ export default function ImportKey() {
                 value={state.key}
                 borderColor="xblack.008"
                 backgroundColor="xblack.016"
-                onChange={e => setState({...state, key: e.target.value})}
+                onChange={(e) => setState({...state, key: e.target.value})}
                 placeholder={t('Enter your private key backup')}
               />
               <Box
@@ -130,7 +130,7 @@ export default function ImportKey() {
                   onClick={() => {
                     setIsScanningQr(true)
                   }}
-                ></QrScanIcon>
+                />
               </Box>
             </Flex>
             <FormLabel
@@ -150,7 +150,7 @@ export default function ImportKey() {
                 width="100%"
                 borderColor="xblack.008"
                 backgroundColor="xblack.016"
-                onChange={e =>
+                onChange={(e) =>
                   setState({
                     ...state,
                     password: e.target.value,
@@ -170,7 +170,9 @@ export default function ImportKey() {
                 variant={variant}
                 value={state.saveKey}
                 isChecked={state.saveKey}
-                onChange={e => setState({...state, saveKey: e.target.checked})}
+                onChange={(e) =>
+                  setState({...state, saveKey: e.target.checked})
+                }
                 style={{fontWeight: 300}}
               >
                 {t('Save the encrypted key on this device')}
@@ -214,7 +216,7 @@ export default function ImportKey() {
       {isScanningQr && (
         <QrScanner
           isOpen={isScanningQr}
-          onScan={key => {
+          onScan={(key) => {
             if (key) {
               setState({key})
               setIsScanningQr(false)

@@ -129,7 +129,7 @@ function Nav({onClose}) {
           href="/home"
           icon={<ProfileIcon boxSize={[8, 5]} />}
           text={t('My Idena') || nickname}
-        ></NavItem>
+        />
         <NavItem
           href="/wallets"
           icon={<WalletIcon boxSize={[8, 5]} />}
@@ -141,18 +141,18 @@ function Nav({onClose}) {
               </TodoVotingCountBadge>
             ) : null
           }
-        ></NavItem>
+        />
         <NavItem
           href="/flips/list"
           baseHref="/flips"
           icon={<GalleryIcon boxSize={[8, 5]} />}
           text={t('Flips')}
-        ></NavItem>
+        />
         <NavItem
           href="/contacts"
           icon={<ContactsIcon boxSize={[8, 5]} />}
           text={t('Contacts')}
-        ></NavItem>
+        />
         <NavItem
           href="/oracles/list"
           baseHref="/oracles"
@@ -176,7 +176,7 @@ function Nav({onClose}) {
           href="/settings"
           icon={<SettingsIcon boxSize={[8, 5]} />}
           text={t('Settings')}
-        ></NavItem>
+        />
         <NavItem
           href=""
           icon={<DeleteIcon boxSize={[8, 5]} />}
@@ -185,7 +185,7 @@ function Nav({onClose}) {
             logout()
           }}
           text={t('Logout')}
-        ></NavItem>
+        />
       </List>
     </Flex>
   )
@@ -235,10 +235,8 @@ function ActionPanel({onClose}) {
   const [identity] = useIdentity()
   const onboardingPopoverPlacement = useBreakpointValue(['top', 'right'])
 
-  const [
-    currentOnboarding,
-    {showCurrentTask, dismissCurrentTask},
-  ] = useOnboarding()
+  const [currentOnboarding, {showCurrentTask, dismissCurrentTask}] =
+    useOnboarding()
 
   useEffect(() => {
     if (

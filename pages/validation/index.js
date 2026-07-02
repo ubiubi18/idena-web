@@ -98,7 +98,7 @@ function ValidationSession({
       },
     },
     state: loadValidationState(),
-    logger: async data => writeValidationLog(epoch, transformLog(data)),
+    logger: async (data) => writeValidationLog(epoch, transformLog(data)),
   })
 
   useEffect(() => {

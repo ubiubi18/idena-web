@@ -25,7 +25,7 @@ import {useAutoStartTestValidation} from '../../screens/try/hooks/use-start-test
 import {useRotatingAds} from '../../screens/ads/hooks'
 import {CertificateType} from '../../shared/types'
 
-const shouldForwardProp = prop =>
+const shouldForwardProp = (prop) =>
   isValidMotionProp(prop) || ['children'].includes(prop)
 
 const MotionBox = chakra(motion.div, {

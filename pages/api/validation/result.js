@@ -24,12 +24,12 @@ export default async (req, res) => {
       return res.status(400).send('validation has not started yet')
     }
 
-    const shortFlips = validation.flips.shortFlips.map(x => ({
+    const shortFlips = validation.flips.shortFlips.map((x) => ({
       ...x,
       correct: x.rightAnswer === x.answer,
     }))
 
-    const longFlips = validation.flips.longFlips.map(x => ({
+    const longFlips = validation.flips.longFlips.map((x) => ({
       ...x,
       correct: x.rightAnswer === x.answer,
       correctReport: Boolean(
@@ -37,11 +37,11 @@ export default async (req, res) => {
       ),
     }))
 
-    const correctShortAnswers = shortFlips.filter(x => x.correct).length
-    const correctLongAnswers = longFlips.filter(x => x.correct).length
+    const correctShortAnswers = shortFlips.filter((x) => x.correct).length
+    const correctLongAnswers = longFlips.filter((x) => x.correct).length
     const correctReports = longFlips
-      .filter(x => x.reason)
-      .filter(x => x.correctReport).length
+      .filter((x) => x.reason)
+      .filter((x) => x.correctReport).length
 
     let actionType = CertificateActionType.Passed
     if (

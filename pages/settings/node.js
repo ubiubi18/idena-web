@@ -28,7 +28,7 @@ import {Link} from '../../shared/components'
 import {ChevronDownIcon} from '../../shared/components/icons'
 import {useSuccessToast} from '../../shared/hooks/use-toast'
 
-const extractSecondaryNode = settingsState => {
+const extractSecondaryNode = (settingsState) => {
   if (
     !settingsState ||
     !settingsState.secondaryNodes ||
@@ -41,10 +41,8 @@ const extractSecondaryNode = settingsState => {
 
 function Settings() {
   const {t} = useTranslation()
-  const [
-    settingsState,
-    {saveConnection, saveSecondaryConnection},
-  ] = useSettings()
+  const [settingsState, {saveConnection, saveSecondaryConnection}] =
+    useSettings()
 
   const size = useBreakpointValue(['lg', 'md'])
   const flexDirection = useBreakpointValue(['column', 'row'])
@@ -62,9 +60,8 @@ function Settings() {
   const [nodeProvider, setNodeProvider] = useState('')
 
   useEffect(() => {
-    const {url: secondaryUrl, apiKey: secondaryApiKey} = extractSecondaryNode(
-      settingsState
-    )
+    const {url: secondaryUrl, apiKey: secondaryApiKey} =
+      extractSecondaryNode(settingsState)
     setState({
       url: settingsState.url,
       apiKey: settingsState.apiKey,
@@ -115,7 +112,7 @@ function Settings() {
             px={3}
             py={2}
           >
-            <AlertIcon name="info" color="red.500" size={5} mr={3}></AlertIcon>
+            <AlertIcon name="info" color="red.500" size={5} mr={3} />
             {t(
               'The shared node access is restricted. You cannot use the node for the upcoming validation ceremony.'
             )}
@@ -206,7 +203,7 @@ function Settings() {
             w={['100%', '360px']}
             size={size}
             value={state.url}
-            onChange={e => setState({...state, url: e.target.value})}
+            onChange={(e) => setState({...state, url: e.target.value})}
           />
         </FormControl>
         <FormControl as={Flex} direction={flexDirection} justify={flexJustify}>
@@ -224,7 +221,7 @@ function Settings() {
             w={['100%', '360px']}
             size={size}
             value={state.apiKey}
-            onChange={e => setState({...state, apiKey: e.target.value})}
+            onChange={(e) => setState({...state, apiKey: e.target.value})}
           />
         </FormControl>
 
@@ -239,7 +236,7 @@ function Settings() {
             px={3}
             py={2}
           >
-            <AlertIcon size={5} mr={3} colo="warning.500"></AlertIcon>
+            <AlertIcon size={5} mr={3} colo="warning.500" />
             {t(
               'Please do not use the API key on multiple devices at the same time as this will cause the validation failure.'
             )}
@@ -253,7 +250,7 @@ function Settings() {
               isChecked={state.useSecondary}
               h={4}
               className="toggle"
-              onChange={e =>
+              onChange={(e) =>
                 setState({...state, useSecondary: e.target.checked})
               }
             />
@@ -338,7 +335,7 @@ function Settings() {
                 w={['100%', '360px']}
                 size={size}
                 value={state.secondaryUrl}
-                onChange={e =>
+                onChange={(e) =>
                   setState({...state, secondaryUrl: e.target.value})
                 }
               />
@@ -362,7 +359,7 @@ function Settings() {
                 w={['100%', '360px']}
                 size={size}
                 value={state.secondaryApiKey}
-                onChange={e =>
+                onChange={(e) =>
                   setState({...state, secondaryApiKey: e.target.value})
                 }
               />

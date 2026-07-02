@@ -27,7 +27,7 @@ export async function fetchFlipHashes(address, type) {
       id: 1,
     },
     {
-      assert: res => res && res.length && res.length > 0,
+      assert: (res) => res && res.length && res.length > 0,
     }
   )
   const {result, error} = data
@@ -43,7 +43,7 @@ export async function fetchValidationIsReady() {
       id: 1,
     },
     {
-      assert: res => !!res,
+      assert: (res) => !!res,
     }
   )
   const {result, error} = data
@@ -59,7 +59,7 @@ export async function fetchPrivateEncryptionKeyCandidates(address) {
       id: 1,
     },
     {
-      assert: res => res && res.length && res.length > 0,
+      assert: (res) => res && res.length && res.length > 0,
     }
   )
   const {result, error} = data

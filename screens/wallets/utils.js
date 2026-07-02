@@ -14,5 +14,5 @@ export function transactionType(tx) {
   return type
 }
 
-export const isAddress = address =>
+export const isAddress = (address) =>
   address && address.length === 42 && address.substr(0, 2) === '0x'

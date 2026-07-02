@@ -20,7 +20,7 @@ export const queryClient = new QueryClient()
 export const dummyAddress = `0x${'2'.repeat(64)}`
 
 export function createRpcCaller({url, key}) {
-  return async function(method, ...params) {
+  return async function (method, ...params) {
     const {result, error} = await (
       await fetch(url, {
         method: 'POST',
@@ -57,10 +57,10 @@ export const toLocaleNumber = (locale, options) => {
     maximumFractionDigits: 18,
     ...options,
   })
-  return value => `${formatter.format(value)}`
+  return (value) => `${formatter.format(value)}`
 }
 
-export const toLocaleDna = (locale, options) => value =>
+export const toLocaleDna = (locale, options) => (value) =>
   `${toLocaleNumber(locale, options)(value)} iDNA`
 
 export const eitherState = (current, ...states) => states.some(current.matches)
@@ -89,7 +89,9 @@ export function mapIdentityToFriendlyStatus(status) {
 export function promiseTimeout(p, timeout) {
   return Promise.race([
     p,
-    new Promise((_, reject) => setTimeout(reject, timeout)),
+    new Promise((_, reject) => {
+      setTimeout(reject, timeout)
+    }),
   ])
 }
 
@@ -119,8 +121,10 @@ export function mapToFriendlyStatus(status) {
   }
 }
 
-export const byId = ({id: givenId}) => ({id: currentId}) =>
-  currentId === givenId
+export const byId =
+  ({id: givenId}) =>
+  ({id: currentId}) =>
+    currentId === givenId
 
 export function calculateInvitationRewardRatio(
   {startBlock, nextValidation},
@@ -134,16 +138,16 @@ export function calculateInvitationRewardRatio(
   return Math.max(1 - t ** 4 * 0.5, 0)
 }
 
-export const openExternalUrl = href => {
+export const openExternalUrl = (href) => {
   if (typeof window !== 'undefined') return window.open(href, '_blank')
 }
 
-export const toBlob = base64 => fetch(base64).then(res => res.blob())
+export const toBlob = (base64) => fetch(base64).then((res) => res.blob())
 
 export const isVercelProduction =
   process.env.NEXT_PUBLIC_VERCEL_ENV === 'production'
 
-export const lowerCase = str => str?.toLowerCase()
+export const lowerCase = (str) => str?.toLowerCase()
 
 export function areSameCaseInsensitive(a, b) {
   return a?.toUpperCase() === b?.toUpperCase()
@@ -207,7 +211,7 @@ export function omit(obj, keys) {
   )
 }
 
-export const prependHex = hex => (hex?.startsWith('0x') ? hex : `0x${hex}`)
+export const prependHex = (hex) => (hex?.startsWith('0x') ? hex : `0x${hex}`)
 
 export function hexToObject(hex) {
   try {

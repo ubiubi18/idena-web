@@ -70,10 +70,7 @@ export default async (req, res) => {
 
     const shortFlips = a.slice(0, 6)
     const longFlips = shuffle(
-      a
-        .slice(6, 18)
-        .concat(b.slice(0, 3))
-        .concat(c.slice(0, 3))
+      a.slice(6, 18).concat(b.slice(0, 3)).concat(c.slice(0, 3))
     )
 
     const result = {

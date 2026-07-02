@@ -49,10 +49,8 @@ export function AppProvider({tabId, ...props}) {
 
   const {updateRestrictedNotNow, resetRestrictedModal} = useExpired()
 
-  const [
-    idenaBotConnected,
-    {persist: persistIdenaBot, skip: skipIdenaBot},
-  ] = useIdenaBot()
+  const [idenaBotConnected, {persist: persistIdenaBot, skip: skipIdenaBot}] =
+    useIdenaBot()
 
   useEffect(() => {
     const refLink = router.query.ref
@@ -138,7 +136,7 @@ export function AppProvider({tabId, ...props}) {
         id: toastId,
         duration: null,
         // eslint-disable-next-line react/display-name
-        render: toastProps => (
+        render: (toastProps) => (
           <Toast
             status="error"
             title={t('Please check your local clock')}
@@ -199,20 +197,26 @@ export function AppProvider({tabId, ...props}) {
     checkRestoredKey()
   }, [checkRestoredKey])
 
-  return (
-    <AppContext.Provider
-      {...props}
-      value={[
-        {idenaBotConnected},
-        {
-          updateRestrictedNotNow,
-          resetRestrictedModal,
-          persistIdenaBot,
-          skipIdenaBot,
-        },
-      ]}
-    />
+  const value = React.useMemo(
+    () => [
+      {idenaBotConnected},
+      {
+        updateRestrictedNotNow,
+        resetRestrictedModal,
+        persistIdenaBot,
+        skipIdenaBot,
+      },
+    ],
+    [
+      idenaBotConnected,
+      persistIdenaBot,
+      resetRestrictedModal,
+      skipIdenaBot,
+      updateRestrictedNotNow,
+    ]
   )
+
+  return <AppContext.Provider {...props} value={value} />
 }
 
 export function useAppContext() {

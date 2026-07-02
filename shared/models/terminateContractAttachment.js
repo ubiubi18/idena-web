@@ -7,9 +7,8 @@ export class TerminateContractAttachment {
   }
 
   fromBytes(bytes) {
-    const protoAttachment = messages.ProtoTerminateContractAttachment.deserializeBinary(
-      bytes
-    )
+    const protoAttachment =
+      messages.ProtoTerminateContractAttachment.deserializeBinary(bytes)
 
     this.args = protoAttachment.getArgsList()
     this.clientType = protoAttachment.getClienttype()

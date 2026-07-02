@@ -74,13 +74,8 @@ export default function VotingListPage() {
     if (epochData && coinbase) send('START', {epoch: epochData.epoch, coinbase})
   }, [coinbase, epochData, send])
 
-  const {
-    votings,
-    filter,
-    statuses,
-    continuationToken,
-    startingVotingRef,
-  } = current.context
+  const {votings, filter, statuses, continuationToken, startingVotingRef} =
+    current.context
 
   const [todoCount] = useUnreadOraclesCount()
 
@@ -221,7 +216,7 @@ export default function VotingListPage() {
                 <Text fontWeight={500}>{t('Tags')}</Text>
                 {!current.matches('preload') && (
                   <Flex wrap="wrap">
-                    {votingStatuses(filter).map(status => (
+                    {votingStatuses(filter).map((status) => (
                       <VotingFilter
                         key={status}
                         isChecked={statuses.includes(status)}

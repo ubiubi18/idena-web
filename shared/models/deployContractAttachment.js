@@ -9,9 +9,8 @@ export class DeployContractAttachment {
   }
 
   fromBytes(bytes) {
-    const protoAttachment = messages.ProtoDeployContractAttachment.deserializeBinary(
-      bytes
-    )
+    const protoAttachment =
+      messages.ProtoDeployContractAttachment.deserializeBinary(bytes)
 
     this.codeHash = protoAttachment.getCodehash()
     this.args = protoAttachment.getArgsList()

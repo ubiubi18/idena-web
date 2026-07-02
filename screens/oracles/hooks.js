@@ -46,17 +46,17 @@ export function useDeferredVotes() {
     enabled: deferredVotes.length > 0,
   })
 
-  const addVote = async vote => {
+  const addVote = async (vote) => {
     await addDeferredVote({coinbase, ...vote})
     queryClient.invalidateQueries('useDeferredVotes')
   }
 
-  const deleteVote = async id => {
+  const deleteVote = async (id) => {
     await deleteDeferredVote(id)
     queryClient.invalidateQueries('useDeferredVotes')
   }
 
-  const estimateSendVote = async vote => {
+  const estimateSendVote = async (vote) => {
     const voteData = {
       method: 'sendVote',
       contractHash: vote.contractHash,
@@ -67,7 +67,7 @@ export function useDeferredVotes() {
     return estimateCallContract(privateKey, voteData)
   }
 
-  const estimateProlong = async contractHash => {
+  const estimateProlong = async (contractHash) => {
     try {
       await estimateCallContract(privateKey, {
         method: 'prolongVoting',
@@ -200,7 +200,7 @@ export function useDeferredVotes() {
     }
   }
 
-  const available = deferredVotes.filter(x => x.block < currentBlock)
+  const available = deferredVotes.filter((x) => x.block < currentBlock)
 
   return [
     {

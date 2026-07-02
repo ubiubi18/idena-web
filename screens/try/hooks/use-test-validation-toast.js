@@ -14,10 +14,8 @@ export function useTestValidationToast() {
 
   const toast = useToast()
 
-  const {
-    current: currentTrainingValidation,
-    epoch: testValidationEpoch,
-  } = useTestValidationState()
+  const {current: currentTrainingValidation, epoch: testValidationEpoch} =
+    useTestValidationState()
 
   React.useEffect(() => {
     if (currentTrainingValidation) {

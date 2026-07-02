@@ -105,10 +105,10 @@ export default function ValidationReport() {
 
   const toDna = toLocaleDna(i18n.language, {maximumFractionDigits: 3})
 
-  const maybeLocaleDna = amount =>
+  const maybeLocaleDna = (amount) =>
     !amount || Number.isNaN(amount) ? '–' : toDna(amount)
 
-  const maybeDna = amount =>
+  const maybeDna = (amount) =>
     !amount || Number.isNaN(amount)
       ? '–'
       : amount.toLocaleString(i18n.language, {maximumFractionDigits: 3})

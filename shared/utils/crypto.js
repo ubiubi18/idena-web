@@ -109,8 +109,8 @@ export function generateShortAnswersSalt(epoch, key) {
 }
 
 export function serializeAnswers(hashesInOrder, answers) {
-  const orderedAnswers = hashesInOrder.map(h => {
-    const item = answers.find(x => x.hash === h)
+  const orderedAnswers = hashesInOrder.map((h) => {
+    const item = answers.find((x) => x.hash === h)
     if (!item) {
       return {answer: 0, grade: FlipGrade.None}
     }

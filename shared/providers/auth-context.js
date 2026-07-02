@@ -1,5 +1,5 @@
 /* eslint-disable react/display-name */
-import {createContext, useContext, useState} from 'react'
+import {createContext, useCallback, useContext, useMemo, useState} from 'react'
 import {
   decryptPrivateKey,
   encryptPrivateKey,
@@ -22,60 +22,72 @@ function AuthProvider({children}) {
   const {encryptedKey} = useSettingsState()
   const {saveEncryptedKey, removeEncryptedKey} = useSettingsDispatch()
 
-  const setNewKey = (key, pass, persist) => {
-    const privateKey = decryptPrivateKey(key, pass)
-    const coinbase = privateKeyToAddress(privateKey)
-    if (persist) {
-      saveEncryptedKey(coinbase, key)
-    }
-    setState({
-      auth: true,
-      privateKey,
-      coinbase,
-    })
-  }
+  const setNewKey = useCallback(
+    (key, pass, persist) => {
+      const privateKey = decryptPrivateKey(key, pass)
+      const coinbase = privateKeyToAddress(privateKey)
+      if (persist) {
+        saveEncryptedKey(coinbase, key)
+      }
+      setState({
+        auth: true,
+        privateKey,
+        coinbase,
+      })
+    },
+    [saveEncryptedKey]
+  )
 
-  const decryptKey = (key, pass) => {
+  const decryptKey = useCallback((key, pass) => {
     try {
       return decryptPrivateKey(key, pass)
     } catch (e) {
       return null
     }
-  }
+  }, [])
 
-  const removeKey = () => {
+  const removeKey = useCallback(() => {
     removeEncryptedKey()
     setState(initialState)
-  }
+  }, [removeEncryptedKey])
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setState(initialState)
-  }
+  }, [])
 
-  const login = pass => {
-    const privateKey = decryptPrivateKey(encryptedKey, pass)
-    const coinbase = privateKeyToAddress(privateKey)
-    setState({
-      auth: true,
-      privateKey,
-      coinbase,
-    })
-  }
+  const login = useCallback(
+    (pass) => {
+      const privateKey = decryptPrivateKey(encryptedKey, pass)
+      const coinbase = privateKeyToAddress(privateKey)
+      setState({
+        auth: true,
+        privateKey,
+        coinbase,
+      })
+    },
+    [encryptedKey]
+  )
 
-  const exportKey = pass => encryptPrivateKey(state.privateKey, pass)
+  const exportKey = useCallback(
+    (pass) => encryptPrivateKey(state.privateKey, pass),
+    [state.privateKey]
+  )
+
+  const dispatch = useMemo(
+    () => ({
+      setNewKey,
+      decryptKey,
+      logout,
+      login,
+      exportKey,
+      removeKey,
+    }),
+    [decryptKey, exportKey, login, logout, removeKey, setNewKey]
+  )
 
   return (
     <AuthStateContext.Provider value={state}>
-      <AuthDispatchContext.Provider
-        value={{
-          setNewKey,
-          decryptKey,
-          logout,
-          login,
-          exportKey,
-          removeKey,
-        }}
-      >
+      <AuthDispatchContext.Provider value={dispatch}>
         {children}
       </AuthDispatchContext.Provider>
     </AuthStateContext.Provider>

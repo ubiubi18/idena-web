@@ -219,8 +219,8 @@ export default function ViewVotingPage() {
   }, [currentBlock, missingVoteChecked, isLoaded, privateKey, send])
 
   const eitherIdleState = (...states) =>
-    eitherState(current, ...states.map(s => `idle.${s}`.toLowerCase())) ||
-    states.some(s => areSameCaseInsensitive(status, s))
+    eitherState(current, ...states.map((s) => `idle.${s}`.toLowerCase())) ||
+    states.some((s) => areSameCaseInsensitive(status, s))
 
   const isClosed = eitherIdleState(
     VotingStatus.Archived,
@@ -284,6 +284,128 @@ export default function ViewVotingPage() {
       },
     })
   }, [onCloseCampaignDisclosure, redirect, successToast, t])
+
+  let oracleDescription
+  if (ad) {
+    oracleDescription = isMaliciousAdVoting ? (
+      <MaliciousAdOverlay>
+        <OracleAdDescription ad={ad} />
+      </MaliciousAdOverlay>
+    ) : (
+      <OracleAdDescription ad={ad} />
+    )
+  } else {
+    oracleDescription = (
+      <Text isTruncated lineHeight="tall" whiteSpace="pre-wrap">
+        <Linkify
+          onClick={(url) => {
+            send('FOLLOW_LINK', {url})
+          }}
+        >
+          {desc}
+        </Linkify>
+      </Text>
+    )
+  }
+
+  const selectedOptionList = (
+    <Stack spacing={3}>
+      {/* eslint-disable-next-line no-shadow */}
+      {options.map(({id, value}) => {
+        const isMine = id === selectedOption
+        return (
+          <Stack
+            key={id}
+            isInline
+            spacing={2}
+            align="center"
+            bg={isMine ? 'blue.012' : 'gray.50'}
+            borderRadius="md"
+            minH={8}
+            px={3}
+            py={2}
+            zIndex={1}
+          >
+            <Flex
+              align="center"
+              justify="center"
+              bg={isMine ? 'brandBlue.500' : 'transparent'}
+              borderRadius="full"
+              borderWidth={isMine ? 0 : '4px'}
+              borderColor="gray.100"
+              color="white"
+              w={4}
+              h={4}
+            >
+              {isMine && <OkIcon boxSize={3} />}
+            </Flex>
+
+            <Text isTruncated maxW="sm" title={value.length > 50 ? value : ''}>
+              {value}
+            </Text>
+          </Stack>
+        )
+      })}
+    </Stack>
+  )
+
+  const votingOptionSelector = (
+    <RadioGroup
+      value={String(selectedOption)}
+      onChange={(value) => {
+        send('SELECT_OPTION', {
+          option: Number(value),
+        })
+      }}
+    >
+      <Stack spacing={2}>
+        {/* eslint-disable-next-line no-shadow */}
+        {options.map(({id, value}) => (
+          <VotingOption
+            key={id}
+            value={String(id)}
+            isDisabled={eitherIdleState(
+              VotingStatus.Pending,
+              VotingStatus.Starting,
+              VotingStatus.Voted
+            )}
+            annotation={
+              isMaxWinnerThreshold
+                ? null
+                : t('{{count}} min. votes required', {
+                    count: toPercent(winnerThreshold / 100),
+                  })
+            }
+          >
+            {value}
+          </VotingOption>
+        ))}
+      </Stack>
+    </RadioGroup>
+  )
+
+  let votingOptions
+  if (isMaliciousAdVoting) {
+    votingOptions = eitherIdleState(VotingStatus.Voted) ? (
+      <Box>
+        <Text color="muted" fontSize="sm" mb={3}>
+          {t('Choose an option to vote')}
+        </Text>
+        {selectedOptionList}
+      </Box>
+    ) : null
+  } else {
+    votingOptions = (
+      <Box>
+        <Text color="muted" fontSize="sm" mb={3}>
+          {t('Choose an option to vote')}
+        </Text>
+        {eitherIdleState(VotingStatus.Voted, VotingStatus.CanBeProlonged)
+          ? selectedOptionList
+          : votingOptionSelector}
+      </Box>
+    )
+  }
 
   return (
     <>
@@ -355,31 +477,7 @@ export default function ViewVotingPage() {
                             ? t('Please reject malicious ad')
                             : title}
                         </Heading>
-                        {ad ? (
-                          <>
-                            {isMaliciousAdVoting ? (
-                              <MaliciousAdOverlay>
-                                <OracleAdDescription ad={ad} />
-                              </MaliciousAdOverlay>
-                            ) : (
-                              <OracleAdDescription ad={ad} />
-                            )}
-                          </>
-                        ) : (
-                          <Text
-                            isTruncated
-                            lineHeight="tall"
-                            whiteSpace="pre-wrap"
-                          >
-                            <Linkify
-                              onClick={url => {
-                                send('FOLLOW_LINK', {url})
-                              }}
-                            >
-                              {desc}
-                            </Linkify>
-                          </Text>
-                        )}
+                        {oracleDescription}
                       </Stack>
                       <Flex align="center">
                         {adCid && (
@@ -438,151 +536,7 @@ export default function ViewVotingPage() {
                     VotingStatus.CanBeProlonged
                   ) && (
                     <VotingSkeleton isLoaded={isLoaded}>
-                      {isMaliciousAdVoting ? (
-                        <>
-                          {eitherIdleState(VotingStatus.Voted) ? (
-                            <Box>
-                              <Text color="muted" fontSize="sm" mb={3}>
-                                {t('Choose an option to vote')}
-                              </Text>
-                              <Stack spacing={3}>
-                                {/* eslint-disable-next-line no-shadow */}
-                                {options.map(({id, value}) => {
-                                  const isMine = id === selectedOption
-                                  return (
-                                    <Stack
-                                      isInline
-                                      spacing={2}
-                                      align="center"
-                                      bg={isMine ? 'blue.012' : 'gray.50'}
-                                      borderRadius="md"
-                                      minH={8}
-                                      px={3}
-                                      py={2}
-                                      zIndex={1}
-                                    >
-                                      <Flex
-                                        align="center"
-                                        justify="center"
-                                        bg={
-                                          isMine
-                                            ? 'brandBlue.500'
-                                            : 'transparent'
-                                        }
-                                        borderRadius="full"
-                                        borderWidth={isMine ? 0 : '4px'}
-                                        borderColor="gray.100"
-                                        color="white"
-                                        w={4}
-                                        h={4}
-                                      >
-                                        {isMine && <OkIcon boxSize={3} />}
-                                      </Flex>
-
-                                      <Text
-                                        isTruncated
-                                        maxW="sm"
-                                        title={value.length > 50 ? value : ''}
-                                      >
-                                        {value}
-                                      </Text>
-                                    </Stack>
-                                  )
-                                })}
-                              </Stack>
-                            </Box>
-                          ) : null}
-                        </>
-                      ) : (
-                        <Box>
-                          <Text color="muted" fontSize="sm" mb={3}>
-                            {t('Choose an option to vote')}
-                          </Text>
-                          {eitherIdleState(
-                            VotingStatus.Voted,
-                            VotingStatus.CanBeProlonged
-                          ) ? (
-                            <Stack spacing={3}>
-                              {/* eslint-disable-next-line no-shadow */}
-                              {options.map(({id, value}) => {
-                                const isMine = id === selectedOption
-                                return (
-                                  <Stack
-                                    isInline
-                                    spacing={2}
-                                    align="center"
-                                    bg={isMine ? 'blue.012' : 'gray.50'}
-                                    borderRadius="md"
-                                    minH={8}
-                                    px={3}
-                                    py={2}
-                                    zIndex={1}
-                                  >
-                                    <Flex
-                                      align="center"
-                                      justify="center"
-                                      bg={
-                                        isMine ? 'brandBlue.500' : 'transparent'
-                                      }
-                                      borderRadius="full"
-                                      borderWidth={isMine ? 0 : '4px'}
-                                      borderColor="gray.100"
-                                      color="white"
-                                      w={4}
-                                      h={4}
-                                    >
-                                      {isMine && <OkIcon boxSize={3} />}
-                                    </Flex>
-
-                                    <Text
-                                      isTruncated
-                                      maxW="sm"
-                                      title={value.length > 50 ? value : ''}
-                                    >
-                                      {value}
-                                    </Text>
-                                  </Stack>
-                                )
-                              })}
-                            </Stack>
-                          ) : (
-                            <RadioGroup
-                              value={String(selectedOption)}
-                              onChange={value => {
-                                send('SELECT_OPTION', {
-                                  option: Number(value),
-                                })
-                              }}
-                            >
-                              <Stack spacing={2}>
-                                {/* eslint-disable-next-line no-shadow */}
-                                {options.map(({id, value}) => (
-                                  <VotingOption
-                                    key={id}
-                                    value={String(id)}
-                                    isDisabled={eitherIdleState(
-                                      VotingStatus.Pending,
-                                      VotingStatus.Starting,
-                                      VotingStatus.Voted
-                                    )}
-                                    annotation={
-                                      isMaxWinnerThreshold
-                                        ? null
-                                        : t('{{count}} min. votes required', {
-                                            count: toPercent(
-                                              winnerThreshold / 100
-                                            ),
-                                          })
-                                    }
-                                  >
-                                    {value}
-                                  </VotingOption>
-                                ))}
-                              </Stack>
-                            </RadioGroup>
-                          )}
-                        </Box>
-                      )}
+                      {votingOptions}
                     </VotingSkeleton>
                   )}
 
@@ -1136,7 +1090,7 @@ export default function ViewVotingPage() {
         onLaunch={({amount}) => {
           send('START_VOTING', {amount, privateKey})
         }}
-        onError={e => send('ERROR', e)}
+        onError={(e) => send('ERROR', e)}
       />
 
       <FinishDrawer

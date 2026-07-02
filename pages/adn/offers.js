@@ -34,7 +34,7 @@ export default function AdOfferList() {
   const orderedBurntCoins = React.useMemo(
     () =>
       (burntCoins ?? [])
-        .map(burn => ({
+        .map((burn) => ({
           ...burn,
           totalScore: calculateTotalAdScore({
             target: decodeAdTarget(burn?.target),
@@ -52,13 +52,11 @@ export default function AdOfferList() {
   const [selectedAd, setSelectedAd] = React.useState({})
 
   const burnDisclosure = useDisclosure()
-  const {
-    onOpen: onOpenBurnDisclosure,
-    onClose: onCloseBurnDisclosure,
-  } = burnDisclosure
+  const {onOpen: onOpenBurnDisclosure, onClose: onCloseBurnDisclosure} =
+    burnDisclosure
 
   const handlePreviewBurn = React.useCallback(
-    ad => {
+    (ad) => {
       setSelectedAd(ad)
       onOpenBurnDisclosure()
     },
@@ -104,7 +102,7 @@ export default function AdOfferList() {
           </Thead>
           <Tbody>
             {isFetched &&
-              orderedBurntCoins.map(burn => (
+              orderedBurntCoins.map((burn) => (
                 <AdOfferListItem
                   key={burn.key}
                   burn={burn}

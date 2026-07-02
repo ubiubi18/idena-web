@@ -80,10 +80,10 @@ export const flipsMachine = createMachine(
           src: async ({knownFlips, availableKeywords}) => {
             const persistedFlips = await db.table('ownFlips').toArray()
 
-            const persistedHashes = persistedFlips.map(flip => flip.hash)
+            const persistedHashes = persistedFlips.map((flip) => flip.hash)
 
             let missingFlips = knownFlips.filter(
-              hash => !persistedHashes.includes(hash)
+              (hash) => !persistedHashes.includes(hash)
             )
 
             if (missingFlips.length) {
@@ -129,7 +129,7 @@ export const flipsMachine = createMachine(
               actions: [
                 assign({
                   flips: ({privateKey, epoch}, {data: {persistedFlips}}) =>
-                    persistedFlips.map(flip => ({
+                    persistedFlips.map((flip) => ({
                       ...flip,
                       ref: spawn(
                         // eslint-disable-next-line no-use-before-define
@@ -248,7 +248,7 @@ export const flipsMachine = createMachine(
                 actions: [
                   assign({
                     flips: ({flips}, {id}) =>
-                      flips.filter(flip => flip.id !== id),
+                      flips.filter((flip) => flip.id !== id),
                   }),
                   log(),
                 ],
@@ -497,7 +497,7 @@ export const flipMachine = createMachine(
   },
   {
     services: {
-      publishFlip: context => publishFlip(context),
+      publishFlip: (context) => publishFlip(context),
       deleteFlip: async ({privateKey, hash}) => {
         const from = privateKeyToAddress(privateKey)
 
@@ -520,28 +520,30 @@ export const flipMachine = createMachine(
 
         return sendRawTx(`0x${hex}`)
       },
-      pollStatus: ({txHash}) => cb => {
-        let timeoutId
+      pollStatus:
+        ({txHash}) =>
+        (cb) => {
+          let timeoutId
 
-        const fetchStatus = async () => {
-          const {result} = await fetchTx(txHash)
-          if (result) {
-            if (result.blockHash !== HASH_IN_MEMPOOL) cb('MINED')
-            else {
-              timeoutId = setTimeout(fetchStatus, 10 * 1000)
-            }
-          } else cb('TX_NULL')
-        }
+          const fetchStatus = async () => {
+            const {result} = await fetchTx(txHash)
+            if (result) {
+              if (result.blockHash !== HASH_IN_MEMPOOL) cb('MINED')
+              else {
+                timeoutId = setTimeout(fetchStatus, 10 * 1000)
+              }
+            } else cb('TX_NULL')
+          }
 
-        fetchStatus()
+          fetchStatus()
 
-        return () => {
-          clearTimeout(timeoutId)
-        }
-      },
+          return () => {
+            clearTimeout(timeoutId)
+          }
+        },
     },
     actions: {
-      persistFlip: async context => createOrUpdateFlip(context),
+      persistFlip: async (context) => createOrUpdateFlip(context),
     },
   }
 )
@@ -694,7 +696,7 @@ export const flipMasterMachine = createMachine(
                             }),
                             showTranslation: ({locale}, {data}) =>
                               locale.toLowerCase() !== 'en' &&
-                              data?.every(w => w?.some(t => t?.confirmed)),
+                              data?.every((w) => w?.some((t) => t?.confirmed)),
                           }),
                           log(),
                         ],
@@ -871,7 +873,8 @@ export const flipMasterMachine = createMachine(
                     {
                       target: 'shuffling',
                       cond: ({images, protectedImages}) =>
-                        images.some(x => x) && !protectedImages.some(x => x),
+                        images.some((x) => x) &&
+                        !protectedImages.some((x) => x),
                     },
                   ],
                 },
@@ -1050,39 +1053,17 @@ export const flipMasterMachine = createMachine(
       loadKeywords: async ({availableKeywords, keywordPairId}) => {
         const {words} = availableKeywords.find(({id}) => id === keywordPairId)
         return Promise.all(
-          words.map(async id => ({id, ...(await loadKeyword(id))}))
+          words.map(async (id) => ({id, ...(await loadKeyword(id))}))
         )
       },
       loadTranslations: async ({availableKeywords, keywordPairId, locale}) => {
         const {words} = availableKeywords.find(({id}) => id === keywordPairId)
         return fetchKeywordTranslations(words, locale)
       },
-      persistFlip: (
-        {
-          id,
-          keywordPairId,
-          originalOrder,
-          order,
-          orderPermutations,
-          images,
-          protectedImages,
-          adversarialImageId,
-          keywords,
-          type,
-          createdAt,
-        },
-        event
-      ) => cb => {
-        const persistingEventTypes = [
-          'CHANGE_IMAGES',
-          'CHANGE_ORIGINAL_ORDER',
-          'CHANGE_ORDER',
-          'CHANGE_ADVERSARIAL_ID',
-          'CHANGE_PROTECTED_IMAGES',
-        ]
-
-        if (persistingEventTypes.includes(event.type)) {
-          let nextFlip = {
+      persistFlip:
+        (
+          {
+            id,
             keywordPairId,
             originalOrder,
             order,
@@ -1091,28 +1072,52 @@ export const flipMasterMachine = createMachine(
             protectedImages,
             adversarialImageId,
             keywords,
+            type,
+            createdAt,
+          },
+          event
+        ) =>
+        (cb) => {
+          const persistingEventTypes = [
+            'CHANGE_IMAGES',
+            'CHANGE_ORIGINAL_ORDER',
+            'CHANGE_ORDER',
+            'CHANGE_ADVERSARIAL_ID',
+            'CHANGE_PROTECTED_IMAGES',
+          ]
+
+          if (persistingEventTypes.includes(event.type)) {
+            let nextFlip = {
+              keywordPairId,
+              originalOrder,
+              order,
+              orderPermutations,
+              images,
+              protectedImages,
+              adversarialImageId,
+              keywords,
+            }
+
+            nextFlip = id
+              ? {
+                  ...nextFlip,
+                  id,
+                  type,
+                  createdAt,
+                  modifiedAt: new Date().toISOString(),
+                }
+              : {
+                  ...nextFlip,
+                  id: nanoid(),
+                  createdAt: new Date().toISOString(),
+                  type: FlipType.Draft,
+                }
+
+            createOrUpdateFlip(nextFlip).then(() =>
+              cb({type: 'PERSISTED', flip: nextFlip})
+            )
           }
-
-          nextFlip = id
-            ? {
-                ...nextFlip,
-                id,
-                type,
-                createdAt,
-                modifiedAt: new Date().toISOString(),
-              }
-            : {
-                ...nextFlip,
-                id: nanoid(),
-                createdAt: new Date().toISOString(),
-                type: FlipType.Draft,
-              }
-
-          createOrUpdateFlip(nextFlip).then(() =>
-            cb({type: 'PERSISTED', flip: nextFlip})
-          )
-        }
-      },
+        },
       voteForKeywordTranslation: async (_, e) => voteForKeywordTranslation(e),
       suggestKeywordTranslation: async (
         // eslint-disable-next-line no-shadow
@@ -1133,9 +1138,9 @@ export const flipMasterMachine = createMachine(
       changeOrder: assign({
         order: (_, {order}) => order,
         orderPermutations: ({originalOrder}, {order}) =>
-          order.map(n => originalOrder.findIndex(o => o === n)),
+          order.map((n) => originalOrder.findIndex((o) => o === n)),
       }),
-      persistFlip: async context => createOrUpdateFlip(context),
+      persistFlip: async (context) => createOrUpdateFlip(context),
     },
   }
 )
@@ -1188,7 +1193,7 @@ export const createViewFlipMachine = () =>
                   }),
                   showTranslation: ({locale}, {data}) =>
                     locale.toLowerCase() !== 'en' &&
-                    data?.every(w => w?.some(t => t?.confirmed)),
+                    data?.every((w) => w?.some((t) => t?.confirmed)),
                 }),
                 send('LOADED'),
                 log(),
@@ -1271,7 +1276,7 @@ export const createViewFlipMachine = () =>
           ),
       },
       actions: {
-        persistFlip: async context => createOrUpdateFlip(context),
+        persistFlip: async (context) => createOrUpdateFlip(context),
       },
     }
   )
@@ -1320,5 +1325,5 @@ export const imageSearchMachine = createMachine({
 })
 
 async function searchImages(q) {
-  return axios.get('/api/image-search', {params: {q}}).then(x => x.data)
+  return axios.get('/api/image-search', {params: {q}}).then((x) => x.data)
 }

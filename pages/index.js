@@ -13,5 +13,5 @@ export default function Index() {
     }
   }, [auth, router])
 
-  return <Layout canRedirect={false}></Layout>
+  return <Layout canRedirect={false} />
 }

@@ -70,7 +70,7 @@ export default function ViewFlipPage() {
           render: () => <Toast title={error} status="error" />,
         }),
     },
-    logger: msg => console.log(redact(msg)),
+    logger: (msg) => console.log(redact(msg)),
   })
 
   useEffect(() => {

@@ -8,7 +8,7 @@ export const useFailToast = () => useStatusToast('error')
 
 const DURATION = 5000
 
-const resolveToastParams = params =>
+const resolveToastParams = (params) =>
   // eslint-disable-next-line no-nested-ternary
   typeof params === 'string'
     ? {title: params}
@@ -20,7 +20,7 @@ export function useStatusToast(status) {
   const toast = useToast()
 
   return React.useCallback(
-    params =>
+    (params) =>
       toast({
         status,
         duration: DURATION,
@@ -43,7 +43,7 @@ export const useClosableToast = () => {
   const toastIdRef = React.useRef()
 
   const toast = React.useCallback(
-    params =>
+    (params) =>
       (toastIdRef.current = chakraToast({
         duration: DURATION,
         // eslint-disable-next-line react/display-name
@@ -71,7 +71,7 @@ export function useCloseToast() {
   const toast = useToast()
 
   return React.useCallback(
-    id => {
+    (id) => {
       if (toast.isActive(id)) {
         toast.close(id)
       }

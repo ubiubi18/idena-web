@@ -26,30 +26,30 @@ export function IdentityProvider(props) {
 
   const [identity, setIdentity] = useState(null)
 
-  const waitStateUpdate = (seconds = 120) => {
+  const waitStateUpdate = useCallback((seconds = 120) => {
     setWaitForUpdate({
       until: new Date().getTime() + seconds * 1000,
       fields: ['state'],
     })
-  }
+  }, [])
 
-  const waitFlipsUpdate = (seconds = 120) => {
+  const waitFlipsUpdate = useCallback((seconds = 120) => {
     setWaitForUpdate({
       until: new Date().getTime() + seconds * 1000,
       fields: ['flips'],
     })
-  }
+  }, [])
 
-  const waitOnlineUpdate = (seconds = 120) => {
+  const waitOnlineUpdate = useCallback((seconds = 120) => {
     setWaitForUpdate({
       until: new Date().getTime() + seconds * 1000,
       fields: ['online', 'delegatee'],
     })
-  }
+  }, [])
 
-  const stopWaiting = () => {
+  const stopWaiting = useCallback(() => {
     setWaitForUpdate(NOT_WAITING)
-  }
+  }, [])
 
   const {refetch} = useQuery(
     ['get-identity', apiKey, url],
@@ -73,7 +73,7 @@ export function IdentityProvider(props) {
             state !== IdentityStatus.Terminating &&
             waitForUpdate.until &&
             waitForUpdate.fields.some(
-              field => !deepEqual(identity[field], nextIdentity[field])
+              (field) => !deepEqual(identity[field], nextIdentity[field])
             )
           ) {
             stopWaiting()
@@ -111,7 +111,7 @@ export function IdentityProvider(props) {
   }, [coinbase, refetch])
 
   const killMe = useCallback(
-    async privateKey => {
+    async (privateKey) => {
       const rawTx = await getRawTx(
         TxType.KillTx,
         privateKeyToAddress(privateKey)
@@ -125,7 +125,7 @@ export function IdentityProvider(props) {
       waitStateUpdate()
       return result
     },
-    [identity]
+    [identity, waitStateUpdate]
   )
 
   const canMine =
@@ -150,33 +150,44 @@ export function IdentityProvider(props) {
     identity &&
     [IdentityStatus.Undefined, IdentityStatus.Invite].includes(identity.state)
 
-  return (
-    <IdentityContext.Provider
-      {...props}
-      value={[
-        {
-          ...identity,
-          canMine,
-          canActivateInvite,
-          isValidated: [
-            IdentityStatus.Newbie,
-            IdentityStatus.Verified,
-            IdentityStatus.Human,
-          ].includes(identity?.state),
-          canInvite: identity?.invites > 0,
-          canTerminate,
-          isWaitingForUpdate: waitForUpdate.fields.length > 0,
-        },
-        {
-          killMe,
-          waitStateUpdate,
-          waitFlipsUpdate,
-          waitOnlineUpdate,
-          forceUpdate,
-        },
-      ]}
-    />
+  const value = React.useMemo(
+    () => [
+      {
+        ...identity,
+        canMine,
+        canActivateInvite,
+        isValidated: [
+          IdentityStatus.Newbie,
+          IdentityStatus.Verified,
+          IdentityStatus.Human,
+        ].includes(identity?.state),
+        canInvite: identity?.invites > 0,
+        canTerminate,
+        isWaitingForUpdate: waitForUpdate.fields.length > 0,
+      },
+      {
+        killMe,
+        waitStateUpdate,
+        waitFlipsUpdate,
+        waitOnlineUpdate,
+        forceUpdate,
+      },
+    ],
+    [
+      canActivateInvite,
+      canMine,
+      canTerminate,
+      forceUpdate,
+      identity,
+      killMe,
+      waitFlipsUpdate,
+      waitForUpdate.fields.length,
+      waitOnlineUpdate,
+      waitStateUpdate,
+    ]
   )
+
+  return <IdentityContext.Provider {...props} value={value} />
 }
 
 export function useIdentity() {

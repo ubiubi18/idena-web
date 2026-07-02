@@ -202,12 +202,13 @@ function ProviderInfoDrawer({p, identity, onClose, onSubmit, ...props}) {
 }
 
 function mergeProviders(prev, provider) {
-  if (prev.find(x => x.id === provider.id)) return prev
+  if (prev.find((x) => x.id === provider.id)) return prev
 
-  const success = prev.filter(x => x.status === ProviderStatus.Success)
-  const outOfSync = prev.filter(x => x.status === ProviderStatus.OutOfSync)
+  const success = prev.filter((x) => x.status === ProviderStatus.Success)
+  const outOfSync = prev.filter((x) => x.status === ProviderStatus.OutOfSync)
   const error = prev.filter(
-    x => ![ProviderStatus.Success, ProviderStatus.OutOfSync].includes(x.status)
+    (x) =>
+      ![ProviderStatus.Success, ProviderStatus.OutOfSync].includes(x.status)
   )
   if (provider.status === ProviderStatus.Success) success.push(provider)
   else if (provider.status === ProviderStatus.OutOfSync)
@@ -266,12 +267,13 @@ export default function Rent() {
 
   useEffect(() => {
     async function updateStatus() {
-      const shuffled = shuffle(providers.filter(x => Boolean(x.slots)))
-      shuffled.forEach(provider => {
+      const shuffled = shuffle(providers.filter((x) => Boolean(x.slots)))
+      shuffled.forEach((provider) => {
         checkProviderSyncing(provider.data.url)
-          .then(response =>
-            setCheckedProviders(prev => {
-              const blocksLeft = indexerLastBlock - response?.currentBlock
+          .then((response) =>
+            setCheckedProviders((prev) => {
+              const blocksLeft =
+                indexerLastBlock - (response?.currentBlock ?? 0)
               return mergeProviders(prev, {
                 ...provider,
                 duration: response.duration,
@@ -284,7 +286,7 @@ export default function Rent() {
             })
           )
           .catch(() =>
-            setCheckedProviders(prev =>
+            setCheckedProviders((prev) =>
               mergeProviders(prev, {
                 ...provider,
                 duration: MAX_DURATION,
@@ -336,7 +338,7 @@ export default function Rent() {
             <Table>
               <Thead display={['none', 'table-header-group']}>
                 <Tr>
-                  <RoundedTh isLeft width={rem(40)}></RoundedTh>
+                  <RoundedTh isLeft width={rem(40)} />
                   <RoundedTh>{t('Node URL')}</RoundedTh>
                   <RoundedTh>{t('Owner')}</RoundedTh>
                   <RoundedTh>{t('Location')}</RoundedTh>
@@ -398,7 +400,7 @@ export default function Rent() {
                                 <ProviderStatusLabel
                                   status={p.status}
                                   blocksLeft={p.blocksLeft}
-                                ></ProviderStatusLabel>
+                                />
                               </Flex>
                               <Flex display="none">
                                 <Text

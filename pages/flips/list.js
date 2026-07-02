@@ -97,7 +97,7 @@ export default function FlipListPage() {
         failToast(error)
       },
     },
-    logger: msg => console.log(redact(msg)),
+    logger: (msg) => console.log(redact(msg)),
   })
 
   useEffect(() => {
@@ -268,12 +268,7 @@ export default function FlipListPage() {
               px={3}
               py={2}
             >
-              <AlertIcon
-                name="info"
-                color="red.500"
-                size={5}
-                mr={3}
-              ></AlertIcon>
+              <AlertIcon name="info" color="red.500" size={5} mr={3} />
               {t('You can not submit flips. Please get validated first. ')}
             </Alert>
           </Box>
@@ -292,7 +287,7 @@ export default function FlipListPage() {
 
         {current.matches('ready.dirty') && (
           <FlipCardList>
-            {filterFlips().map(flip => (
+            {filterFlips().map((flip) => (
               <FlipCard
                 key={flip.id}
                 flipService={flip.ref}
@@ -336,8 +331,9 @@ export default function FlipListPage() {
                 {Array.from({length: remainingOptionalFlips}, (flip, idx) => (
                   <OptionalFlipPlaceholder
                     key={idx}
-                    title={`Flip #${availableFlipsNumber -
-                      (remainingOptionalFlips - idx - 1)}`}
+                    title={`Flip #${
+                      availableFlipsNumber - (remainingOptionalFlips - idx - 1)
+                    }`}
                     {...flip}
                     isDisabled={remainingRequiredFlips > 0}
                   />

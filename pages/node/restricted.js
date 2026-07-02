@@ -98,7 +98,7 @@ export default function Restricted() {
   const variantRadio = useBreakpointValue(['mobileDark', 'initial'])
   const variantSecondary = useBreakpointValue(['primaryFlat', 'secondary'])
 
-  const notNow = forceDialog => {
+  const notNow = (forceDialog) => {
     if (dontShow || forceDialog) {
       return notNowDisclosure.onOpen()
     }
@@ -291,7 +291,7 @@ export default function Restricted() {
                         textAlign={['left', 'initial']}
                         value={dontShow}
                         isChecked={dontShow}
-                        onChange={e => setDontShow(e.target.checked)}
+                        onChange={(e) => setDontShow(e.target.checked)}
                         color="white"
                       >
                         {t('Don’t show again')}

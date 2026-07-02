@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useCallback,
+  useMemo,
 } from 'react'
 import {usePersistence} from '../hooks/use-persistent-state'
 import {loadPersistentState} from '../utils/persist'
@@ -367,28 +368,40 @@ function SettingsProvider({children}) {
   )
 
   const setLanguage = useCallback(
-    language => {
+    (language) => {
       dispatch({type: SET_LANGUAGE, data: {language}})
     },
     [dispatch]
   )
 
   const isNewUser = !state.url && !state.apiKey
+  const stateValue = useMemo(() => ({...state, isNewUser}), [isNewUser, state])
+  const dispatchValue = useMemo(
+    () => ({
+      saveEncryptedKey,
+      removeEncryptedKey,
+      saveConnection,
+      saveSecondaryConnection,
+      saveRestrictedConnection,
+      addPurchase,
+      addPurchasedKey,
+      setLanguage,
+    }),
+    [
+      addPurchase,
+      addPurchasedKey,
+      removeEncryptedKey,
+      saveConnection,
+      saveEncryptedKey,
+      saveRestrictedConnection,
+      saveSecondaryConnection,
+      setLanguage,
+    ]
+  )
 
   return (
-    <SettingsStateContext.Provider value={{...state, isNewUser}}>
-      <SettingsDispatchContext.Provider
-        value={{
-          saveEncryptedKey,
-          removeEncryptedKey,
-          saveConnection,
-          saveSecondaryConnection,
-          saveRestrictedConnection,
-          addPurchase,
-          addPurchasedKey,
-          setLanguage,
-        }}
-      >
+    <SettingsStateContext.Provider value={stateValue}>
+      <SettingsDispatchContext.Provider value={dispatchValue}>
         {children}
       </SettingsDispatchContext.Provider>
     </SettingsStateContext.Provider>

@@ -27,7 +27,7 @@ import {canValidate} from '../../screens/validation/utils'
 import {useIdentity} from '../../shared/providers/identity-context'
 import {useRotatingAds} from '../../screens/ads/hooks'
 
-const shouldForwardProp = prop =>
+const shouldForwardProp = (prop) =>
   isValidMotionProp(prop) || ['children'].includes(prop)
 
 const MotionBox = chakra(motion.div, {

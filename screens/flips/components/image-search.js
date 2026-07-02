@@ -51,7 +51,7 @@ export function ImageSearchDialog({onPick, onClose, onError, ...props}) {
           <Stack
             isInline
             as="form"
-            onSubmit={e => {
+            onSubmit={(e) => {
               e.preventDefault()
               send('SEARCH', {query})
             }}
@@ -68,7 +68,7 @@ export function ImageSearchDialog({onPick, onClose, onError, ...props}) {
                 bg="gray.50"
                 pl={10}
                 value={query}
-                onChange={e => setQuery(e.target.value)}
+                onChange={(e) => setQuery(e.target.value)}
               />
             </InputGroup>
             <PrimaryButton type="submit">Search</PrimaryButton>

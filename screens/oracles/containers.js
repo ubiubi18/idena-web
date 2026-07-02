@@ -148,10 +148,10 @@ export function VotingCard({votingRef, ...props}) {
 
   const isMining = eitherState(current, 'mining')
 
-  const sameString = a => b => a?.toLowerCase() === b?.toLowerCase()
+  const sameString = (a) => (b) => a?.toLowerCase() === b?.toLowerCase()
 
   const eitherIdleState = (...states) =>
-    eitherState(current, ...states.map(s => `idle.${s}`.toLowerCase())) ||
+    eitherState(current, ...states.map((s) => `idle.${s}`.toLowerCase())) ||
     states.some(sameString(status)) ||
     (isMining && states.some(sameString(prevStatus)))
 
@@ -390,8 +390,8 @@ export function VotingStatusBadge({status, ...props}) {
           bg: 'orange.010',
           color: 'orange.500',
         }
-      default:
       case VotingStatus.Archived:
+      default:
         return {
           bg: 'gray.100',
           color: 'muted',
@@ -438,7 +438,7 @@ export function AddFundDrawer({
       <OracleDrawerBody>
         <form
           id="addFund"
-          onSubmit={e => {
+          onSubmit={(e) => {
             e.preventDefault()
 
             onAddFund({amount, from})
@@ -455,7 +455,7 @@ export function AddFundDrawer({
             <DnaInput
               name="amountInput"
               value={amount}
-              onChange={e => {
+              onChange={(e) => {
                 setAmount(Number(e.target.value))
               }}
             />
@@ -609,7 +609,7 @@ export function ReviewVotingDrawer({
       <OracleDrawerBody>
         <form
           id="publishVoting"
-          onSubmit={e => {
+          onSubmit={(e) => {
             e.preventDefault()
 
             if (hasRequiredAmount && parseFloat(sendAmount) < ownerDeposit) {
@@ -637,7 +637,7 @@ export function ReviewVotingDrawer({
               <DnaInput
                 name="balanceInput"
                 value={sendAmount}
-                onChange={e => setSendAmount(e.target.value)}
+                onChange={(e) => setSendAmount(e.target.value)}
                 isInvalid={hasRequiredAmount && sendAmount < ownerDeposit}
               />
               <OracleFormHelper
@@ -775,7 +775,7 @@ export function VotingInspector({onTerminate, ...contract}) {
                   <Stack
                     as="form"
                     spacing={3}
-                    onSubmit={async e => {
+                    onSubmit={async (e) => {
                       e.preventDefault()
                       const {
                         readonlyCallMethod,
@@ -819,7 +819,7 @@ export function VotingInspector({onTerminate, ...contract}) {
                   <Stack
                     as="form"
                     spacing={3}
-                    onSubmit={async e => {
+                    onSubmit={async (e) => {
                       e.preventDefault()
 
                       const {readKey, readKeyFormat} = e.target.elements
@@ -852,7 +852,7 @@ export function VotingInspector({onTerminate, ...contract}) {
                   <Stack
                     as="form"
                     spacing={3}
-                    onSubmit={async e => {
+                    onSubmit={async (e) => {
                       e.preventDefault()
                       setResult(
                         await callRpc(
@@ -881,7 +881,7 @@ export function VotingInspector({onTerminate, ...contract}) {
                   <Stack
                     as="form"
                     spacing={3}
-                    onSubmit={async e => {
+                    onSubmit={async (e) => {
                       e.preventDefault()
                       setResult(
                         await callRpc(
@@ -944,7 +944,7 @@ export function VotingDurationInput({
       <PresetFormControlOptionList
         value={value}
         // eslint-disable-next-line no-shadow
-        onChange={value => {
+        onChange={(value) => {
           send('CHANGE', {id, value: Number(value)})
         }}
       >
@@ -1029,15 +1029,15 @@ export function VotingResult({votingService, ...props}) {
   })
 
   const eitherIdleState = (...states) =>
-    eitherState(current, ...states.map(s => `idle.${s}`.toLowerCase())) ||
-    states.some(s => areSameCaseInsensitive(status, s))
+    eitherState(current, ...states.map((s) => `idle.${s}`.toLowerCase())) ||
+    states.some((s) => areSameCaseInsensitive(status, s))
 
   const max = Math.max(...votes.map(({count}) => count))
 
   return (
     <Stack {...props}>
       {options.map(({id, value}) => {
-        const currentValue = votes.find(v => v.option === id)?.count ?? 0
+        const currentValue = votes.find((v) => v.option === id)?.count ?? 0
         return (
           <VotingResultBar
             key={id}
@@ -1163,7 +1163,7 @@ export function LaunchDrawer({
       <OracleDrawerBody>
         <form
           id="launchVoting"
-          onSubmit={e => {
+          onSubmit={(e) => {
             e.preventDefault()
 
             if (sendAmount < Math.max(0, ownerDeposit - balance)) {
@@ -1184,7 +1184,7 @@ export function LaunchDrawer({
           <OracleFormControl label={t('Send')}>
             <DnaInput
               name="balanceInput"
-              onChange={e => setSendAmount(Number(e.target.value))}
+              onChange={(e) => setSendAmount(Number(e.target.value))}
               value={sendAmount}
               isInvalid={sendAmount < Math.max(0, ownerDeposit - balance)}
             />
@@ -1241,7 +1241,7 @@ export function ProlongDrawer({
 
           <form
             id="prolongVoting"
-            onSubmit={e => {
+            onSubmit={(e) => {
               e.preventDefault()
               onProlong()
             }}
@@ -1301,7 +1301,7 @@ export function LaunchVotingDrawer({votingService}) {
       onLaunch={({amount}) => {
         send('START_VOTING', {amount, privateKey})
       }}
-      onError={e => send('ERROR', e)}
+      onError={(e) => send('ERROR', e)}
     />
   )
 }
@@ -1327,7 +1327,7 @@ export function VotingPhase({canFinish, canProlong, canTerminate, service}) {
   } = current.context
 
   const eitherIdleState = (...states) =>
-    eitherState(current, ...states.map(s => `idle.${s}`.toLowerCase()))
+    eitherState(current, ...states.map((s) => `idle.${s}`.toLowerCase()))
 
   const didDetermineWinner = hasWinner({
     votes,
@@ -1531,7 +1531,7 @@ export function FinishDrawer({
       <OracleDrawerBody>
         <form
           id="finishVoting"
-          onSubmit={e => {
+          onSubmit={(e) => {
             e.preventDefault()
             onFinish()
           }}
@@ -1590,7 +1590,7 @@ export function TerminateDrawer({
 
           <form
             id="terminateVoting"
-            onSubmit={e => {
+            onSubmit={(e) => {
               e.preventDefault()
               onTerminate()
             }}
@@ -1678,7 +1678,7 @@ export function NewOraclePresetDialog({onChoosePreset, onCancel, ...props}) {
           <Text color="muted" fontSize="sm">
             {t('Choose an option to vote')}
           </Text>
-          <RadioGroup spacing={0} onChange={value => setPreset(value)}>
+          <RadioGroup spacing={0} onChange={(value) => setPreset(value)}>
             <Stack>
               <Radio
                 value="fact"

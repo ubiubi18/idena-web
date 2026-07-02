@@ -19,11 +19,10 @@ export function publicKeyCreate(key, compressed = true) {
 }
 
 export function signHash(hash, key) {
-  const signature = secp256k1.sign(
-    new Uint8Array(hash),
-    privateKeyBytes(key),
-    {format: 'recovered', prehash: false}
-  )
+  const signature = secp256k1.sign(new Uint8Array(hash), privateKeyBytes(key), {
+    format: 'recovered',
+    prehash: false,
+  })
   const recid = signature[0]
   if (recid === undefined) {
     throw new Error('Failed to generate recoverable signature')
@@ -35,7 +34,8 @@ export function signHash(hash, key) {
 }
 
 export function recoverPublicKey(hash, signature, compressed = false) {
-  const sig = typeof signature === 'string' ? hexToUint8Array(signature) : signature
+  const sig =
+    typeof signature === 'string' ? hexToUint8Array(signature) : signature
   const sigBytes = new Uint8Array(sig)
   const compactSignature = sigBytes.slice(0, -1)
   const recovery = Number(sigBytes[sigBytes.length - 1])

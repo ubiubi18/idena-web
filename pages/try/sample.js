@@ -94,11 +94,8 @@ function ValidationSession({
   shortSessionDuration,
   longSessionDuration,
 }) {
-  const {
-    scheduleValidation,
-    checkValidation,
-    cancelCurrentValidation,
-  } = useTestValidationDispatch()
+  const {scheduleValidation, checkValidation, cancelCurrentValidation} =
+    useTestValidationDispatch()
   const {t} = useTranslation()
 
   const approveFlipDisclosure = useDisclosure()
@@ -163,25 +160,31 @@ function ValidationSession({
     services: {
       fetchIdentity: () => Promise.resolve({}),
       fetchShortHashes: () => Promise.resolve(GetSampleShortHashes()),
-      fetchShortFlips: ({shortFlips}) => cb =>
-        fetchFlips(
-          shortFlips
-            .filter(({missing, fetched}) => !fetched && !missing)
-            .map(({hash}) => hash),
-          cb
-        ),
+      fetchShortFlips:
+        ({shortFlips}) =>
+        (cb) =>
+          fetchFlips(
+            shortFlips
+              .filter(({missing, fetched}) => !fetched && !missing)
+              .map(({hash}) => hash),
+            cb
+          ),
       fetchLongHashes: () => Promise.resolve(GetSampleLongHashes()),
-      fetchLongFlips: ({longFlips}) => cb =>
-        fetchFlips(
-          longFlips
-            .filter(({missing, fetched}) => !fetched && !missing)
-            .map(({hash}) => hash),
-          cb
-        ),
+      fetchLongFlips:
+        ({longFlips}) =>
+        (cb) =>
+          fetchFlips(
+            longFlips
+              .filter(({missing, fetched}) => !fetched && !missing)
+              .map(({hash}) => hash),
+            cb
+          ),
       sendPublicFlipKey: () => Promise.resolve({}),
       submitHash: () => Promise.resolve({}),
-      fetchWords: ({longFlips}) => cb =>
-        loadWords(longFlips.filter(decodedWithoutKeywords), cb),
+      fetchWords:
+        ({longFlips}) =>
+        (cb) =>
+          loadWords(longFlips.filter(decodedWithoutKeywords), cb),
       fetchWordsSeed: () => Promise.resolve('0x'),
       submitShortAnswers: () => Promise.resolve({}),
       submitLongAnswers: () => Promise.resolve({}),

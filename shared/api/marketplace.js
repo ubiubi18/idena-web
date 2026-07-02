@@ -13,21 +13,21 @@ export function checkKey(key) {
     .get('/api/key/check', {
       params: {key},
     })
-    .then(x => x.data)
+    .then((x) => x.data)
 }
 
 // +
 export function checkSavedKey(coinbase, signature) {
   return api()
     .post('/api/key/restore', {coinbase, signature})
-    .then(x => x.data)
+    .then((x) => x.data)
 }
 
 // +
 export function getProviders() {
   return api()
     .get('/api/provider/list')
-    .then(x => x.data)
+    .then((x) => x.data)
 }
 
 // +
@@ -36,7 +36,7 @@ export function getProvider(id) {
     .get('/api/provider/get', {
       params: {id},
     })
-    .then(x => x.data)
+    .then((x) => x.data)
 }
 
 // +
@@ -45,26 +45,26 @@ export function getKeyById(id) {
     .get('/api/key/get', {
       params: {id},
     })
-    .then(x => x.data)
+    .then((x) => x.data)
 }
 
 // +
 export function buyKey(coinbase, tx, provider) {
   return api()
     .post('/api/key/buy', {coinbase, tx, provider})
-    .then(x => x.data)
+    .then((x) => x.data)
 }
 
 export function activateKey(coinbase, tx, providers) {
   return api()
     .post('/api/key/activate', {coinbase, tx, providers})
-    .then(x => x.data)
+    .then((x) => x.data)
 }
 
 export function getCandidateKey(coinbase, signature, providers) {
   return api()
     .post('/api/key/for-candidate', {coinbase, signature, providers})
-    .then(x => x.data)
+    .then((x) => x.data)
 }
 
 const SHARED_NODE_CHECK_KEY = 'check-status-key'
@@ -83,12 +83,12 @@ export async function checkProvider(url) {
 
 export async function checkProviderSyncing(url) {
   const instance = axios.create({baseURL: url})
-  instance.interceptors.request.use(config => {
+  instance.interceptors.request.use((config) => {
     config.headers['request-startTime'] = new Date().getTime()
     return config
   })
 
-  instance.interceptors.response.use(response => {
+  instance.interceptors.response.use((response) => {
     const start = response.config.headers['request-startTime']
     const end = new Date().getTime()
     const milliseconds = end - start
@@ -117,9 +117,9 @@ async function safeCheckProvider(provider) {
 
 export async function getAvailableProviders() {
   const providers = await getProviders()
-  const inviteProviders = providers.filter(x => x.inviteSlots)
+  const inviteProviders = providers.filter((x) => x.inviteSlots)
 
   const result = await Promise.all(inviteProviders.map(safeCheckProvider))
 
-  return result.filter(x => x.available).map(x => x.id)
+  return result.filter((x) => x.available).map((x) => x.id)
 }

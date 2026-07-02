@@ -230,7 +230,7 @@ export function Flip({
     onClose: onCloseFlipZoom,
   } = useDisclosure()
 
-  const scrollToZoomedFlip = flipId => {
+  const scrollToZoomedFlip = (flipId) => {
     scroller.scrollTo(`flipId-${flipId}`, {
       containerId: 'zoomedFlips',
       horizontal: false,
@@ -238,7 +238,7 @@ export function Flip({
     })
   }
 
-  const onFLipClick = e => {
+  const onFLipClick = (e) => {
     if (e.ctrlKey || e.metaKey) {
       onOpenFlipZoom()
     } else {
@@ -299,7 +299,7 @@ export function Flip({
             }}
             onClick={
               isDesktop
-                ? e => {
+                ? (e) => {
                     onFLipClick(e)
                     setTimeout(() => scrollToZoomedFlip(idx), 100)
                   }
@@ -322,7 +322,7 @@ export function Flip({
                   opacity={0.5}
                   _hover={{opacity: 1}}
                   zIndex={2}
-                  onClick={e => {
+                  onClick={(e) => {
                     e.stopPropagation()
                     onOpenFlipZoom()
                   }}
@@ -601,7 +601,7 @@ function FlipImage({
   style,
   ...props
 }) {
-  const normalize = value =>
+  const normalize = (value) =>
     value.toString().endsWith('%') ? value : rem(height)
   return (
     // eslint-disable-next-line jsx-a11y/alt-text
@@ -971,7 +971,7 @@ export function FlipWords({
           <FlipKeywordTranslationSwitchNew
             keywords={{
               words,
-              translations: wordTranslations.map(x => (x ? [x] : [])),
+              translations: wordTranslations.map((x) => (x ? [x] : [])),
             }}
             showTranslation={shouldShowTranslation}
             locale={i18n.language}
@@ -1351,11 +1351,11 @@ export function ReviewValidationDialog({
   const variantSecondary = useBreakpointValue(['secondaryFlat', 'secondary'])
 
   const approvedCount = flips.filter(
-    flip => flip.relevance === RelevanceType.Relevant
+    (flip) => flip.relevance === RelevanceType.Relevant
   ).length
 
   const abstainedCount = flips.filter(
-    flip =>
+    (flip) =>
       (flip.relevance ?? RelevanceType.Abstained) === RelevanceType.Abstained
   ).length
 
@@ -1497,7 +1497,7 @@ export function BadFlipDialog({title, subtitle, isOpen, onClose, ...props}) {
   const BadFlipNotice = isMobile ? Drawer : Modal
   const BadFlipNoticeBody = isMobile ? DrawerBody : ModalContent
 
-  const scrollToExample = exampleId => {
+  const scrollToExample = (exampleId) => {
     scroller.scrollTo(`badFlipExample${exampleId}`, {
       duration: 250,
       smooth: true,
@@ -2147,7 +2147,7 @@ export function ValidationScreen({
 }) {
   const router = useRouter()
 
-  const preventSwipeBack = event => {
+  const preventSwipeBack = (event) => {
     event.preventDefault()
   }
   useEffect(() => {
@@ -2201,7 +2201,7 @@ export function ValidationScreen({
   const flips = sessionFlips(state)
   const currentFlip = flips[currentIndex]
 
-  const scrollToCurrentFlip = flipId => {
+  const scrollToCurrentFlip = (flipId) => {
     scroller.scrollTo(`flipIcon${flipId}`, {
       duration: 250,
       smooth: true,
@@ -2323,7 +2323,7 @@ export function ValidationScreen({
               size="lg"
               color={isShortSession(state) ? 'white' : 'brandGray.500'}
               onClick={() => onOpenCloseDialog()}
-            ></CloseButton>
+            />
           </ChakraFlex>
         )}
       </Header>
@@ -2358,7 +2358,7 @@ export function ValidationScreen({
                 {...currentFlip}
                 variant={AnswerType.Left}
                 timerDetails={flipTimerDetails}
-                onChoose={hash =>
+                onChoose={(hash) =>
                   send({
                     type: 'ANSWER',
                     hash,
@@ -2371,7 +2371,7 @@ export function ValidationScreen({
                 {...currentFlip}
                 variant={AnswerType.Right}
                 timerDetails={flipTimerDetails}
-                onChoose={hash =>
+                onChoose={(hash) =>
                   send({
                     type: 'ANSWER',
                     hash,
@@ -2887,13 +2887,13 @@ function isShortSession(state) {
 
 function isLongSessionFlips(state) {
   return ['flips', 'finishFlips']
-    .map(substate => `longSession.solve.answer.${substate}`)
+    .map((substate) => `longSession.solve.answer.${substate}`)
     .some(state.matches)
 }
 
 function isLongSessionKeywords(state) {
   return ['keywordsQualification', 'submitAnswers']
-    .map(substate => `longSession.solve.answer.${substate}`)
+    .map((substate) => `longSession.solve.answer.${substate}`)
     .some(state.matches)
 }
 
@@ -2920,7 +2920,7 @@ function isSubmitFailed(state) {
 
 function isFirstFlip(state) {
   return ['shortSession', 'longSession']
-    .map(substate => `${substate}.solve.nav.firstFlip`)
+    .map((substate) => `${substate}.solve.nav.firstFlip`)
     .some(state.matches)
 }
 

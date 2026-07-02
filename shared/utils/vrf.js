@@ -1,7 +1,12 @@
 // Adapted from @idena/vrf-js; see THIRD_PARTY_NOTICES.md.
 import {sha256} from 'js-sha256'
 import {sha512} from 'js-sha512'
-import {basePoint, curveOrder, pointFromBytes, privateKeyBytes} from './secp256k1'
+import {
+  basePoint,
+  curveOrder,
+  pointFromBytes,
+  privateKeyBytes,
+} from './secp256k1'
 
 function toBytesInt32(num) {
   return new Uint8Array([
@@ -153,7 +158,9 @@ export function ProofHoHash(publicKey, data, proof) {
   const expectedChallenge = leftPad32(verificationChallenge)
 
   if (
-    !expectedChallenge.every((byte, index) => byte === proof.slice(0, 32)[index])
+    !expectedChallenge.every(
+      (byte, index) => byte === proof.slice(0, 32)[index]
+    )
   ) {
     throw new Error('invalid vrf')
   }

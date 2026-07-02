@@ -39,7 +39,7 @@ export function useInviteActivation() {
 
   const {isPurchasing, needToPurchase, savePurchase} = useApikeyPurchasing()
 
-  const sendActivateInviteTx = async code => {
+  const sendActivateInviteTx = async (code) => {
     setSubmitting(true)
 
     try {
@@ -165,10 +165,7 @@ export function useReplenishStake({onSuccess, onError}) {
       )
 
       return sendRawTx(
-        `0x${new Transaction()
-          .fromHex(rawTx)
-          .sign(privateKey)
-          .toHex()}`
+        `0x${new Transaction().fromHex(rawTx).sign(privateKey).toHex()}`
       )
     },
     {
@@ -215,8 +212,10 @@ export function useStakingApy() {
     notifyOnChangeProps: 'tracked',
   })
 
+  const previousEpochNumber = epoch ? (epoch.epoch ?? 0) - 1 : undefined
+
   const {data: prevEpochData} = useQuery({
-    queryKey: ['epoch', epoch?.epoch - 1],
+    queryKey: ['epoch', previousEpochNumber],
     queryFn: fetcher,
     enabled: Boolean(epoch),
     staleTime: Infinity,
@@ -224,7 +223,7 @@ export function useStakingApy() {
   })
 
   const {data: validationRewardsSummaryData} = useQuery({
-    queryKey: ['epoch', epoch?.epoch - 1, 'rewardsSummary'],
+    queryKey: ['epoch', previousEpochNumber, 'rewardsSummary'],
     queryFn: fetcher,
     enabled: Boolean(epoch),
     staleTime: Infinity,
@@ -265,18 +264,10 @@ export function useStakingApy() {
       prevEpochData &&
       validationRewardsSummaryData
     ) {
-      const {
-        weight,
-        averageMinerWeight,
-        extraFlipsWeight,
-        invitationsWeight,
-      } = stakingData
-      const {
-        validation,
-        staking,
-        extraFlips,
-        invitations,
-      } = validationRewardsSummaryData
+      const {weight, averageMinerWeight, extraFlipsWeight, invitationsWeight} =
+        stakingData
+      const {validation, staking, extraFlips, invitations} =
+        validationRewardsSummaryData
 
       // epoch staking
       const epochStakingRewardFund = Number(staking) || 0.9 * Number(validation)
@@ -384,14 +375,14 @@ export function useInviteScore() {
 
   const [{canInvite, invitees}] = useIdentity()
 
-  const inviteesAddresses = (invitees || []).map(x => x.Address)
+  const inviteesAddresses = (invitees || []).map((x) => x.Address)
 
   const {data: hasNotActivatedInvite} = useQuery({
     queryKey: ['invitesStatuses', ...inviteesAddresses],
     queryFn: () =>
-      Promise.all(inviteesAddresses.map(addr => fetchIdentity(addr))),
+      Promise.all(inviteesAddresses.map((addr) => fetchIdentity(addr))),
     select: React.useCallback(
-      data => data.some(x => x.state === IdentityStatus.Invite),
+      (data) => data.some((x) => x.state === IdentityStatus.Invite),
       []
     ),
   })
@@ -400,11 +391,11 @@ export function useInviteScore() {
     const hasPendingInvites = canInvite || hasNotActivatedInvite
 
     if (epoch && highestBlock && hasPendingInvites) {
+      const startBlock = epoch.startBlock ?? 0
       const endBlock =
-        highestBlock + dayjs(epoch?.nextValidation).diff(dayjs(), 'minute') * 3
+        highestBlock + dayjs(epoch.nextValidation).diff(dayjs(), 'minute') * 3
 
-      const t =
-        (highestBlock - epoch?.startBlock) / (endBlock - epoch?.startBlock)
+      const t = (highestBlock - startBlock) / (endBlock - startBlock)
 
       return Math.max(1 - t ** 4 * 0.5, 0)
     }

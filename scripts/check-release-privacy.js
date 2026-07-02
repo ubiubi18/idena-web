@@ -93,7 +93,7 @@ const CHECKS = [
 const ALLOWED_MATCHES = [/^\/home\/get-invitation$/]
 
 function isAllowedMatch(value) {
-  return ALLOWED_MATCHES.some(regex => regex.test(value))
+  return ALLOWED_MATCHES.some((regex) => regex.test(value))
 }
 
 function maskValue(value) {
@@ -111,13 +111,13 @@ function listTrackedFiles() {
     {encoding: 'utf8'}
   )
     .split('\n')
-    .map(entry => entry.trim())
+    .map((entry) => entry.trim())
     .filter(Boolean)
 }
 
 function shouldScan(filePath) {
   if (SCANNED_FILES.has(filePath)) return true
-  if (!SCANNED_PREFIXES.some(prefix => filePath.startsWith(prefix))) {
+  if (!SCANNED_PREFIXES.some((prefix) => filePath.startsWith(prefix))) {
     return false
   }
   return !SKIPPED_EXTENSIONS.has(path.extname(filePath).toLowerCase())
@@ -151,7 +151,7 @@ function inspectFile(filePath) {
 
 const findings = listTrackedFiles()
   .filter(shouldScan)
-  .flatMap(filePath => inspectFile(filePath))
+  .flatMap((filePath) => inspectFile(filePath))
 
 if (findings.length > 0) {
   console.error('Release privacy check failed:')

@@ -31,10 +31,12 @@ export async function searchInvite(invite) {
   return getResponse(apiClient().get('search', {params: {value: invite}}))
 }
 
-export async function getTxs(address, count = 10, continuationToken) {
+export async function getTxs(address, count, continuationToken) {
+  const limit = typeof count === 'undefined' ? 10 : count
+
   return getResponse(
     apiClient().get(`address/${address}/txs`, {
-      params: {limit: count, continuationToken},
+      params: {limit, continuationToken},
     })
   )
 }

@@ -27,16 +27,22 @@ Decimal.set({toExpPos: 10000})
 
 const DNA_BASE = '1000000000000000000'
 
-export const isVotingStatus = targetStatus => ({status}) =>
-  areSameCaseInsensitive(status, targetStatus)
+export const isVotingStatus =
+  (targetStatus) =>
+  ({status}) =>
+    areSameCaseInsensitive(status, targetStatus)
 
-export const isVotingMiningStatus = targetStatus => ({status, txHash}) =>
-  status === targetStatus && Boolean(txHash)
+export const isVotingMiningStatus =
+  (targetStatus) =>
+  ({status, txHash}) =>
+    status === targetStatus && Boolean(txHash)
 
-export const eitherStatus = (...statuses) => ({status}) =>
-  statuses.some(s => areSameCaseInsensitive(s, status))
+export const eitherStatus =
+  (...statuses) =>
+  ({status}) =>
+    statuses.some((s) => areSameCaseInsensitive(s, status))
 
-export const setVotingStatus = status =>
+export const setVotingStatus = (status) =>
   assign({
     prevStatus: ({status: currentStatus}) => currentStatus,
     status,
@@ -306,26 +312,25 @@ export const estimateTerminateContract = async (
   return result
 }
 
-export const createContractReadonlyCaller = ({contractHash}) => (
-  method,
-  format = 'hex',
-  args
-) =>
-  callRpc(
-    'contract_readonlyCall',
-    strip({
-      contract: contractHash,
-      method,
-      format,
-      args: buildDynamicArgs(args),
-    })
-  )
+export const createContractReadonlyCaller =
+  ({contractHash}) =>
+  (method, format, args) =>
+    callRpc(
+      'contract_readonlyCall',
+      strip({
+        contract: contractHash,
+        method,
+        format: typeof format === 'undefined' ? 'hex' : format,
+        args: buildDynamicArgs(args),
+      })
+    )
 
-export const createContractDataReader = contractHash => (key, format) =>
+export const createContractDataReader = (contractHash) => (key, format) =>
   callRpc('contract_readData', contractHash, key, format)
 
-export const createContractMapReader = contractHash => (mapName, key, format) =>
-  callRpc('contract_readMap', contractHash, mapName, key, format)
+export const createContractMapReader =
+  (contractHash) => (mapName, key, format) =>
+    callRpc('contract_readMap', contractHash, mapName, key, format)
 
 export function objectToHex(obj) {
   return Buffer.from(stringToHex(JSON.stringify(obj)))
@@ -413,7 +418,7 @@ export function viewVotingHref(id) {
   return `/oracles/view?id=${id}`
 }
 
-export const byContractHash = a => b =>
+export const byContractHash = (a) => (b) =>
   areSameCaseInsensitive(a.contractHash, b.contractHash)
 
 export function areSameCaseInsensitive(a, b) {
@@ -427,7 +432,7 @@ export function oracleReward({
   committeeSize,
   ownerFee,
 }) {
-  if ([balance, votesCount, quorum, committeeSize].some(v => Number.isNaN(v)))
+  if ([balance, votesCount, quorum, committeeSize].some((v) => Number.isNaN(v)))
     return undefined
 
   return (
@@ -470,7 +475,7 @@ export function hasWinner({
 }
 
 export function votingMinStake(feePerGas) {
-  return 3000000 * dnaFeePerGas(feePerGas) + 0.00001  // 0.00001 is added for the cases when floats lose precision
+  return 3000000 * dnaFeePerGas(feePerGas) + 0.00001 // 0.00001 is added for the cases when floats lose precision
 }
 
 export function votingMinBalance(minReward, committeeSize) {
@@ -536,7 +541,7 @@ export function votingStatuses(filter) {
   }
 }
 
-export const humanizeDuration = duration =>
+export const humanizeDuration = (duration) =>
   dayjs.duration(duration * BLOCK_TIME, 's').humanize()
 
 export const humanError = (
@@ -716,11 +721,11 @@ function argToBytes(data) {
 
 export function argsToSlice(args) {
   if (args?.length === 0) return []
-  const maxIndex = Math.max(...args.map(x => x.index))
+  const maxIndex = Math.max(...args.map((x) => x.index))
 
   const result = new Array(maxIndex).fill(null)
 
-  args.forEach(element => {
+  args.forEach((element) => {
     result[element.index] = argToBytes(element)
   })
 
@@ -738,7 +743,7 @@ export async function getDeferredVotes(coinbase) {
     .table('deferredVotes')
     .where('type')
     .equals(DeferredVoteType.None)
-    .filter(x => x.coinbase === coinbase)
+    .filter((x) => x.coinbase === coinbase)
     .toArray()
 }
 
@@ -762,8 +767,8 @@ export function getUrls(text) {
   return text.match(urlRegex()) || []
 }
 
-export const sumAccountableVotes = votes =>
-  votes?.reduce((agg, curr) => agg + curr?.count, 0) ?? 0
+export const sumAccountableVotes = (votes) =>
+  votes?.reduce((agg, curr) => agg + (curr?.count ?? 0), 0) ?? 0
 
 export const minOwnerDeposit = (networkSize, commiteeSize) =>
   Math.min(

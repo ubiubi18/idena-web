@@ -27,7 +27,7 @@ beforeAll(() => {
     ],
   })
 
-  mockedAxios.post.mockImplementation(async (url, config) => {
+  mockedAxios.post.mockImplementation(async (_url, _config) => {
     if (!mockedResponses.length) {
       return Promise.reject(new Error('fail'))
     }
@@ -94,7 +94,7 @@ describe('callRpcAny', () => {
     const result = await callRpcAny(
       {},
       {
-        assert: res => !!res,
+        assert: (res) => !!res,
       }
     )
 
@@ -122,7 +122,7 @@ describe('callRpcAny', () => {
       callRpcAny(
         {},
         {
-          assert: res => !!res,
+          assert: (res) => !!res,
         }
       )
     ).rejects.toThrow('All promises were rejected')

@@ -60,8 +60,8 @@ export default function api({useProxy = false, url, apiKey} = {}) {
 export async function callRpcAny(rpcBody, {assert, useProxy} = {}) {
   const url = useProxy ? '/api/node/proxy' : '/'
   return Promise.any(
-    apis(0, useProxy).map(v =>
-      v.post(url, {...rpcBody}).then(value => {
+    apis(0, useProxy).map((v) =>
+      v.post(url, {...rpcBody}).then((value) => {
         const {data} = value
         const {result, error} = data
         if (error) throw new RpcError(error.message)
@@ -80,7 +80,7 @@ export async function callRpcAny(rpcBody, {assert, useProxy} = {}) {
 export async function callRpcBest(rpcBody, useProxy = false) {
   const url = useProxy ? '/api/node/proxy' : '/'
   return Promise.allSettled(
-    apis(MODE_BEST_TIMEOUT, useProxy).map(v =>
+    apis(MODE_BEST_TIMEOUT, useProxy).map((v) =>
       v
         .post(url, [
           {...rpcBody},
@@ -90,7 +90,7 @@ export async function callRpcBest(rpcBody, useProxy = false) {
             id: 2,
           },
         ])
-        .catch(err => {
+        .catch((err) => {
           const {response} = err
           if (response && response.data === PROXY_ERROR_BATCH_NOT_SUPPORTED) {
             return v.post(url, {...rpcBody})
@@ -99,13 +99,13 @@ export async function callRpcBest(rpcBody, useProxy = false) {
         })
     )
   )
-    .then(results => {
+    .then((results) => {
       let bestHeight = 0
       let bestValue
       let firstError
       let firstRpcError
       let firstRpcSyncError
-      results.forEach(result => {
+      results.forEach((result) => {
         const {status, reason, value} = result
         if (status === 'rejected') {
           if (!firstError) {
@@ -113,13 +113,8 @@ export async function callRpcBest(rpcBody, useProxy = false) {
           }
           return
         }
-        const {
-          rpcData,
-          rpcError,
-          rpcSyncResult,
-          rpcSyncError,
-          ignoreSync,
-        } = extractBatchResponseData(value)
+        const {rpcData, rpcError, rpcSyncResult, rpcSyncError, ignoreSync} =
+          extractBatchResponseData(value)
         if (rpcError) {
           if (!firstRpcError) {
             firstRpcError = new RpcError(rpcError.message)
@@ -169,7 +164,7 @@ function createInstance(url, key, timeout, useProxy) {
     baseURL: useProxy ? `${process.env.NEXT_PUBLIC_MARKETPLACE_URL}` : `${url}`,
     timeout,
   })
-  instance.interceptors.request.use(function(config) {
+  instance.interceptors.request.use((config) => {
     if (Array.isArray(config.data)) {
       for (let i = 0; i < config.data.length; i += 1) {
         config.data[i].key = key

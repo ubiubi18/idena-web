@@ -127,34 +127,44 @@ function ValidationSession({
       fetchIdentity: () => Promise.resolve({}),
       fetchShortHashes: () =>
         id
-          ? getHashes(id, SessionType.Short).then(data =>
-              data.map(x => ({hash: x}))
+          ? getHashes(id, SessionType.Short).then((data) =>
+              data.map((x) => ({hash: x}))
             )
-          : new Promise((_, reject) => setTimeout(reject, 0)),
-      fetchShortFlips: ({shortFlips}) => cb =>
-        fetchFlips(
-          shortFlips
-            .filter(({missing, fetched}) => !fetched && !missing)
-            .map(({hash}) => hash),
-          cb
-        ),
+          : new Promise((_, reject) => {
+              setTimeout(reject, 0)
+            }),
+      fetchShortFlips:
+        ({shortFlips}) =>
+        (cb) =>
+          fetchFlips(
+            shortFlips
+              .filter(({missing, fetched}) => !fetched && !missing)
+              .map(({hash}) => hash),
+            cb
+          ),
       fetchLongHashes: () =>
         id
-          ? getHashes(id, SessionType.Long).then(data =>
-              data.map(x => ({hash: x}))
+          ? getHashes(id, SessionType.Long).then((data) =>
+              data.map((x) => ({hash: x}))
             )
-          : new Promise((_, reject) => setTimeout(reject, 0)),
-      fetchLongFlips: ({longFlips}) => cb =>
-        fetchFlips(
-          longFlips
-            .filter(({missing, fetched}) => !fetched && !missing)
-            .map(({hash}) => hash),
-          cb
-        ),
+          : new Promise((_, reject) => {
+              setTimeout(reject, 0)
+            }),
+      fetchLongFlips:
+        ({longFlips}) =>
+        (cb) =>
+          fetchFlips(
+            longFlips
+              .filter(({missing, fetched}) => !fetched && !missing)
+              .map(({hash}) => hash),
+            cb
+          ),
       sendPublicFlipKey: () => Promise.resolve({}),
       submitHash: () => Promise.resolve({}),
-      fetchWords: ({longFlips}) => cb =>
-        loadWords(longFlips.filter(decodedWithoutKeywords), cb),
+      fetchWords:
+        ({longFlips}) =>
+        (cb) =>
+          loadWords(longFlips.filter(decodedWithoutKeywords), cb),
       fetchWordsSeed: () => Promise.resolve('0x'),
       submitShortAnswers: ({shortFlips}) => {
         const answers = shortFlips.map(({option: answer = 0, hash}) => ({

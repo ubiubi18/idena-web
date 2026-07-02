@@ -31,7 +31,7 @@ export function InviteProvider({children}) {
             .filter(({activated}) => !activated)
             .map(({hash}) =>
               callRpc('bcn_transaction', hash)
-                .then(tx => ({
+                .then((tx) => ({
                   hash,
                   mining: tx?.blockHash === HASH_IN_MEMPOOL,
                 }))
@@ -44,7 +44,7 @@ export function InviteProvider({children}) {
         savedInvites
           .filter(({terminateHash}) => terminateHash)
           .map(({terminateHash}) =>
-            callRpc('bcn_transaction', terminateHash).then(tx => ({
+            callRpc('bcn_transaction', terminateHash).then((tx) => ({
               terminateHash,
               mining: tx?.blockHash === HASH_IN_MEMPOOL,
             }))
@@ -60,7 +60,7 @@ export function InviteProvider({children}) {
       )
 
       const nextInvites = await Promise.all(
-        savedInvites.map(async invite => {
+        savedInvites.map(async (invite) => {
           // find out mining invite status
           const tx = txs.find(({hash}) => hash === invite.hash)
           const terminateTx = terminateTxs.find(
@@ -73,11 +73,11 @@ export function InviteProvider({children}) {
           // find all identities/invites
           const invitedIdentity =
             inviteeIdentities?.find(
-              identity =>
+              (identity) =>
                 lowerCase(identity.address) === lowerCase(invitee?.Address)
             ) ||
             invitesIdentities.find(
-              identity =>
+              (identity) =>
                 lowerCase(identity.address) === lowerCase(invite.receiver)
             )
 
@@ -110,7 +110,7 @@ export function InviteProvider({children}) {
       }
     }
 
-    fetchData().catch(e => {
+    fetchData().catch((e) => {
       console.error('An error occured while fetching identity', e.message)
     })
 
@@ -126,7 +126,7 @@ export function InviteProvider({children}) {
       const txs = await Promise.all(
         miningInvites.map(({hash}) =>
           callRpc('bcn_transaction', hash)
-            .then(tx => ({
+            .then((tx) => ({
               hash,
               mining: tx?.blockHash === HASH_IN_MEMPOOL,
             }))
@@ -135,7 +135,7 @@ export function InviteProvider({children}) {
       )
 
       const identities = await Promise.all(
-        miningInvites.map(async invite => {
+        miningInvites.map(async (invite) => {
           const invitedIdentity = await callRpc('dna_identity', invite.receiver)
 
           return {
@@ -146,9 +146,9 @@ export function InviteProvider({children}) {
       )
 
       setInvites(
-        invites.map(invite => {
-          const tx = txs.find(x => x.hash === invite.hash)
-          const identity = identities.find(x => x.hash === invite.hash)
+        invites.map((invite) => {
+          const tx = txs.find((x) => x.hash === invite.hash)
+          const identity = identities.find((x) => x.hash === invite.hash)
           return {
             ...invite,
             ...tx,
@@ -165,19 +165,19 @@ export function InviteProvider({children}) {
       const terminatingInvites = invites.filter(({terminating}) => terminating)
 
       const identities = await Promise.all(
-        terminatingInvites.map(async invite =>
+        terminatingInvites.map(async (invite) =>
           callRpc('dna_identity', invite.receiver)
         )
       )
 
       setInvites(
-        invites.map(invite => {
+        invites.map((invite) => {
           if (!invite.terminating) {
             return invite
           }
 
           const termintingIdentity = identities.find(
-            x => lowerCase(x.address) === lowerCase(invite.receiver)
+            (x) => lowerCase(x.address) === lowerCase(invite.receiver)
           )
 
           const isTerminating =
@@ -198,54 +198,51 @@ export function InviteProvider({children}) {
     invites.filter(({terminating}) => terminating).length ? 1000 * 10 : null
   )
 
-  const addInvite = async ({
-    from,
-    to,
-    privateKey,
-    firstName = '',
-    lastName = '',
-  }) => {
-    let invitePk
-    let inviteAddress = to
+  const addInvite = React.useCallback(
+    async ({from, to, privateKey, firstName = '', lastName = ''}) => {
+      let invitePk
+      let inviteAddress = to
 
-    if (!inviteAddress) {
-      invitePk = generatePrivateKey()
-      inviteAddress = privateKeyToAddress(invitePk)
-    }
+      if (!inviteAddress) {
+        invitePk = generatePrivateKey()
+        inviteAddress = privateKeyToAddress(invitePk)
+      }
 
-    const rawTx = await getRawTx(2, from, inviteAddress)
+      const rawTx = await getRawTx(2, from, inviteAddress)
 
-    const tx = new Transaction().fromHex(rawTx)
-    tx.sign(privateKey)
+      const tx = new Transaction().fromHex(rawTx)
+      tx.sign(privateKey)
 
-    const hash = await sendRawTx(`0x${tx.toHex()}`)
+      const hash = await sendRawTx(`0x${tx.toHex()}`)
 
-    const id = nanoid()
+      const id = nanoid()
 
-    const issuedInvite = {
-      id,
-      firstName,
-      lastName,
-      hash,
-      receiver: inviteAddress,
-      key: toHexString(invitePk ?? ''),
-      activated: false,
-      canKill: true,
-    }
+      const issuedInvite = {
+        id,
+        firstName,
+        lastName,
+        hash,
+        receiver: inviteAddress,
+        key: toHexString(invitePk ?? ''),
+        activated: false,
+        canKill: true,
+      }
 
-    await db.addInvite(issuedInvite)
-    const invite = {...issuedInvite, mining: true}
-    setInvites([...invites, invite])
+      await db.addInvite(issuedInvite)
+      const invite = {...issuedInvite, mining: true}
+      setInvites((prevInvites) => [...prevInvites, invite])
 
-    return invite
-  }
+      return invite
+    },
+    []
+  )
 
-  const updateInvite = async (id, firstName, lastName) => {
+  const updateInvite = React.useCallback(async (id, firstName, lastName) => {
     const newFirstName = firstName || ''
     const newLastName = lastName || ''
 
-    setInvites(
-      invites.map(inv => {
+    setInvites((prevInvites) =>
+      prevInvites.map((inv) => {
         if (inv.id === id) {
           return {
             ...inv,
@@ -258,20 +255,20 @@ export function InviteProvider({children}) {
     )
 
     await db.updateInvite(id, {firstName: newFirstName, lastName: newLastName})
-  }
+  }, [])
 
-  const deleteInvite = async id => {
-    setInvites(
-      invites.map(currentInvite =>
+  const deleteInvite = React.useCallback(async (id) => {
+    setInvites((prevInvites) =>
+      prevInvites.map((currentInvite) =>
         currentInvite.id === id
           ? {...currentInvite, deletedAt: Date.now()}
           : currentInvite
       )
     )
     await db.deleteInvite(id)
-  }
+  }, [])
 
-  const killInvite = async (id, to, privateKey) => {
+  const killInvite = React.useCallback(async (id, to, privateKey) => {
     const rawTx = await getRawTx(
       TxType.KillInviteeTx,
       privateKeyToAddress(privateKey),
@@ -283,9 +280,9 @@ export function InviteProvider({children}) {
 
     const result = await sendRawTx(`0x${tx.toHex()}`)
 
-    setInvites(
+    setInvites((prevInvites) =>
       // eslint-disable-next-line no-shadow
-      invites.map(invite =>
+      prevInvites.map((invite) =>
         invite.id === id
           ? {
               ...invite,
@@ -299,39 +296,46 @@ export function InviteProvider({children}) {
     const invite = {id, terminateHash: result, terminatedAt: Date.now()}
     await db.updateInvite(id, invite)
     return result
-  }
+  }, [])
 
-  const recoverInvite = async id => {
-    const invite = invites.find(x => x.id === id)
+  const recoverInvite = React.useCallback(
+    async (id) => {
+      const invite = invites.find((x) => x.id === id)
 
-    if (invite) {
-      setInvites(
-        invites.map(inv => {
-          if (inv.id === id) {
-            return {
-              ...inv,
-              deletedAt: null,
+      if (invite) {
+        setInvites((prevInvites) =>
+          prevInvites.map((inv) => {
+            if (inv.id === id) {
+              return {
+                ...inv,
+                deletedAt: null,
+              }
             }
-          }
-          return inv
-        })
-      )
+            return inv
+          })
+        )
 
-      await db.addInvite({...invite, deletedAt: null, identity: null})
-    }
-  }
+        await db.addInvite({...invite, deletedAt: null, identity: null})
+      }
+    },
+    [invites]
+  )
+
+  const state = React.useMemo(() => ({invites}), [invites])
+  const dispatch = React.useMemo(
+    () => ({
+      addInvite,
+      updateInvite,
+      deleteInvite,
+      recoverInvite,
+      killInvite,
+    }),
+    [addInvite, deleteInvite, killInvite, recoverInvite, updateInvite]
+  )
 
   return (
-    <InviteStateContext.Provider value={{invites}}>
-      <InviteDispatchContext.Provider
-        value={{
-          addInvite,
-          updateInvite,
-          deleteInvite,
-          recoverInvite,
-          killInvite,
-        }}
-      >
+    <InviteStateContext.Provider value={state}>
+      <InviteDispatchContext.Provider value={dispatch}>
         {children}
       </InviteDispatchContext.Provider>
     </InviteStateContext.Provider>

@@ -68,11 +68,11 @@ export default function CreateKey() {
   const [error, setError] = useState()
   const {onCopy, hasCopied} = useClipboard(state.encryptedPrivateKey)
 
-  const setStep = s => setState(prevState => ({...prevState, step: s}))
+  const setStep = (s) => setState((prevState) => ({...prevState, step: s}))
 
   const generateNewAddress = () => {
     const key = generatePrivateKey()
-    setState(prevState => ({
+    setState((prevState) => ({
       ...prevState,
       privateKey: key,
       address: privateKeyToAddress(key),
@@ -84,7 +84,7 @@ export default function CreateKey() {
       setError(t("Passwords don't match. Try again."))
     } else {
       const encryptedKey = encryptPrivateKey(state.privateKey, state.password)
-      setState(prevState => ({
+      setState((prevState) => ({
         ...prevState,
         encryptedPrivateKey: encryptedKey,
         step: steps.BACKUP,
@@ -128,7 +128,7 @@ export default function CreateKey() {
                         opacity: 0.8,
                         transform: 'scaleX(-1) rotate(90deg)',
                       }}
-                    ></RefreshIcon>
+                    />
                   </Box>
                 </div>
               </Flex>
@@ -179,7 +179,7 @@ export default function CreateKey() {
               boxSize={6}
               ml={4}
               onClick={() => setStep(steps.AVATAR)}
-            ></ArrowBackIcon>
+            />
           </Box>
           <AuthLayout.Normal>
             <Flex
@@ -216,7 +216,7 @@ export default function CreateKey() {
             </Flex>
             <Flex width="100%" mt={6}>
               <form
-                onSubmit={e => {
+                onSubmit={(e) => {
                   e.preventDefault()
                   setPassword()
                 }}
@@ -237,7 +237,7 @@ export default function CreateKey() {
                     width="100%"
                     borderColor="xblack.008"
                     backgroundColor="xblack.016"
-                    onChange={e =>
+                    onChange={(e) =>
                       setState({
                         ...state,
                         password: e.target.value,
@@ -264,7 +264,7 @@ export default function CreateKey() {
                     width="100%"
                     borderColor="xblack.008"
                     backgroundColor="xblack.016"
-                    onChange={e =>
+                    onChange={(e) =>
                       setState({
                         ...state,
                         passwordConfirm: e.target.value,
@@ -283,7 +283,7 @@ export default function CreateKey() {
                     <ArrowUpIcon
                       boxSize={5}
                       style={{transform: 'rotate(-90deg)', marginTop: -3}}
-                    ></ArrowUpIcon>
+                    />
                     {t('Back')}
                   </FlatButton>
                   <PrimaryButton
@@ -325,7 +325,7 @@ export default function CreateKey() {
               boxSize={6}
               ml={4}
               onClick={() => setStep(steps.PASSWORD)}
-            ></ArrowBackIcon>
+            />
           </Box>
           <AuthLayout.Normal>
             <Flex
@@ -356,7 +356,7 @@ export default function CreateKey() {
             </Flex>
             <Flex width="100%" mt={6}>
               <form
-                onSubmit={e => {
+                onSubmit={(e) => {
                   e.preventDefault()
                   if (!state.understand1 || !state.understand2) {
                     setError(t('Please confirm you understand risks'))
@@ -420,7 +420,7 @@ export default function CreateKey() {
                     textAlign={['left', 'initial']}
                     value={state.understand1}
                     isChecked={state.understand1}
-                    onChange={e =>
+                    onChange={(e) =>
                       setState({...state, understand1: e.target.checked})
                     }
                     style={{fontWeight: 300}}
@@ -436,7 +436,7 @@ export default function CreateKey() {
                     textAlign={['left', 'initial']}
                     value={state.understand2}
                     isChecked={state.understand2}
-                    onChange={e =>
+                    onChange={(e) =>
                       setState({...state, understand2: e.target.checked})
                     }
                     style={{fontWeight: 300}}
@@ -458,7 +458,7 @@ export default function CreateKey() {
                       <ArrowUpIcon
                         boxSize={5}
                         style={{transform: 'rotate(-90deg)', marginTop: -3}}
-                      ></ArrowUpIcon>
+                      />
                       {t('Back')}
                     </FlatButton>
                     <Flex

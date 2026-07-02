@@ -79,9 +79,8 @@ export default function EditFlipPage() {
   const failToast = useFailToast()
   const successToast = useSuccessToast()
 
-  const [didShowShuffleAdversarial, setDidShowShuffleAdversarial] = useState(
-    false
-  )
+  const [didShowShuffleAdversarial, setDidShowShuffleAdversarial] =
+    useState(false)
 
   const [currentSearch, sendSearch] = useMachine(imageSearchMachine, {
     actions: {
@@ -112,10 +111,10 @@ export default function EditFlipPage() {
         // eslint-disable-next-line no-shadow
         const availableKeywords = Array.isArray(wordPairs)
           ? wordPairs.filter(
-              pair =>
+              (pair) =>
                 !pair.used && !isPendingKeywordPair(persistedFlips, pair.id)
             )
-          : [{id: 0, words: flip.keywords.words.map(w => w.id)}]
+          : [{id: 0, words: flip.keywords.words.map((w) => w.id)}]
 
         return {
           ...flip,
@@ -125,10 +124,10 @@ export default function EditFlipPage() {
           availableKeywords,
         }
       },
-      protectFlip: async flip => protectFlip(flip),
-      loadAdversarial: async flip => {
+      protectFlip: async (flip) => protectFlip(flip),
+      loadAdversarial: async (flip) => {
         if (
-          !flip.adversarialImages.some(x => x) &&
+          !flip.adversarialImages.some((x) => x) &&
           !eitherState(currentSearch, 'searching')
         ) {
           sendSearch('SEARCH', {
@@ -137,9 +136,9 @@ export default function EditFlipPage() {
         }
         return Promise.resolve()
       },
-      shuffleAdversarial: async flip =>
+      shuffleAdversarial: async (flip) =>
         shuffleAdversarial(flip, setDidShowShuffleAdversarial),
-      submitFlip: async context => {
+      submitFlip: async (context) => {
         const result = await publishFlip(context)
         waitFlipsUpdate()
         return result
@@ -150,15 +149,14 @@ export default function EditFlipPage() {
         failToast(data.response?.data?.error ?? data.message)
       },
     },
-    logger: msg => console.log(redact(msg)),
+    logger: (msg) => console.log(redact(msg)),
   })
 
   useEffect(() => {
     if (eitherState(currentSearch, 'done')) {
-      prepareAdversarialImages(
-        currentSearch.context.images,
-        send
-      ).catch(() => {})
+      prepareAdversarialImages(currentSearch.context.images, send).catch(
+        () => {}
+      )
     }
   }, [currentSearch, send])
 
@@ -182,10 +180,10 @@ export default function EditFlipPage() {
     txHash,
   } = current.context
 
-  const not = state => !current?.matches({editing: state})
-  const is = state => current?.matches({editing: state})
+  const not = (state) => !current?.matches({editing: state})
+  const is = (state) => current?.matches({editing: state})
   const either = (...states) =>
-    eitherState(current, ...states.map(s => ({editing: s})))
+    eitherState(current, ...states.map((s) => ({editing: s})))
 
   const isOffline = is('keywords.loaded.fetchTranslationsFailed')
 
@@ -217,7 +215,7 @@ export default function EditFlipPage() {
         >
           <FlipPageTitle
             onClose={() => {
-              if (images.some(x => x))
+              if (images.some((x) => x))
                 toast({
                   status: 'success',
                   // eslint-disable-next-line react/display-name
@@ -304,8 +302,8 @@ export default function EditFlipPage() {
                                   />
                                   <CommunityTranslations
                                     keywords={keywords}
-                                    onVote={e => send('VOTE', e)}
-                                    onSuggest={e => send('SUGGEST', e)}
+                                    onVote={(e) => send('VOTE', e)}
+                                    onSuggest={(e) => send('SUGGEST', e)}
                                     isOpen={isCommunityTranslationsExpanded}
                                     onToggle={() =>
                                       send('TOGGLE_COMMUNITY_TRANSLATIONS')
@@ -358,11 +356,11 @@ export default function EditFlipPage() {
                     send('CHANGE_IMAGES', {image, currentIndex})
                   }
                   // eslint-disable-next-line no-shadow
-                  onChangeOriginalOrder={order =>
+                  onChangeOriginalOrder={(order) =>
                     send('CHANGE_ORIGINAL_ORDER', {order})
                   }
                   onPainting={() => send('PAINTING')}
-                  onChangeAdversarialId={newIndex => {
+                  onChangeAdversarialId={(newIndex) => {
                     send('CHANGE_ADVERSARIAL_ID', {newIndex})
                   }}
                 />
@@ -381,7 +379,7 @@ export default function EditFlipPage() {
                   onProtectImage={(image, currentIndex) =>
                     send('CHANGE_PROTECTED_IMAGES', {image, currentIndex})
                   }
-                  onChangeAdversarial={image =>
+                  onChangeAdversarial={(image) =>
                     send('CHANGE_ADVERSARIAL_IMAGE', {image})
                   }
                   onShowAdversarialShuffle={() =>
@@ -395,7 +393,7 @@ export default function EditFlipPage() {
                   originalOrder={originalOrder}
                   order={order}
                   onShuffle={() => send('SHUFFLE')}
-                  onManualShuffle={nextOrder =>
+                  onManualShuffle={(nextOrder) =>
                     send('MANUAL_SHUFFLE', {order: nextOrder})
                   }
                   onReset={() => send('RESET_SHUFFLE')}

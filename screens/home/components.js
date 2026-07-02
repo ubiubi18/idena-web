@@ -334,22 +334,19 @@ export function UserStatistics({label, value, children, ...props}) {
   )
 }
 
-export const UserStatLabel = React.forwardRef(function UserStatLabel(
-  props,
-  ref
-) {
-  return (
-    <StatLabel
-      ref={ref}
-      style={{display: 'inline-block'}}
-      color="muted"
-      alignSelf="flex-start"
-      fontSize="md"
-      lineHeight="5"
-      {...props}
-    />
-  )
-})
+export const UserStatLabel = React.forwardRef((props, ref) => (
+  <StatLabel
+    ref={ref}
+    style={{display: 'inline-block'}}
+    color="muted"
+    alignSelf="flex-start"
+    fontSize="md"
+    lineHeight="5"
+    {...props}
+  />
+))
+
+UserStatLabel.displayName = 'UserStatLabel'
 
 export function UserStatValue(props) {
   return <StatNumber fontSize="md" fontWeight={500} lineHeight="5" {...props} />
@@ -379,155 +376,155 @@ function PasteButton(props) {
   )
 }
 
-const InvitationPanel = React.forwardRef(function InvitationPanel(props, ref) {
+const InvitationPanel = React.forwardRef((props, ref) => (
+  <Stack
+    bg="white"
+    spacing={6}
+    borderRadius="lg"
+    boxShadow="0 3px 12px 0 rgba(83, 86, 92, 0.1), 0 2px 3px 0 rgba(83, 86, 92, 0.2)"
+    px={[7, 10]}
+    py={[7, 8]}
+    pos="relative"
+    zIndex={5}
+    ref={ref}
+    {...props}
+  />
+))
+
+InvitationPanel.displayName = 'InvitationPanel'
+
+export const ActivateInvitationPanel = React.forwardRef((props, ref) => {
+  const {t} = useTranslation()
+
+  const size = useBreakpointValue(['lg', 'md'])
+
+  const [code, setCode] = useState('')
+
+  const [{isMining}, {activateInvite}] = useInviteActivation()
+
   return (
-    <Stack
-      bg="white"
-      spacing={6}
-      borderRadius="lg"
-      boxShadow="0 3px 12px 0 rgba(83, 86, 92, 0.1), 0 2px 3px 0 rgba(83, 86, 92, 0.2)"
-      px={[7, 10]}
-      py={[7, 8]}
-      pos="relative"
-      zIndex={5}
-      ref={ref}
-      {...props}
-    />
+    <InvitationPanel {...props} ref={ref}>
+      <Stack>
+        <Heading as="h3" fontWeight={500} fontSize="lg">
+          {t('Join the upcoming validation')}
+        </Heading>
+        <Text color="muted">
+          {t(
+            'To take part in the validation, you need an invitation code. Invitations can be provided by validated identities.'
+          )}
+        </Text>
+      </Stack>
+      <Box
+        as="form"
+        onSubmit={async (e) => {
+          e.preventDefault()
+          await activateInvite(code)
+        }}
+      >
+        <FormControl>
+          <Stack spacing={[2, 3]}>
+            <Flex justify="space-between" align="center">
+              <FormLabel htmlFor="code" p={0} m={0} fontSize={['base', 'md']}>
+                {t('Enter invitation code')}
+              </FormLabel>
+              <PasteButton
+                isDisabled={isMining}
+                onClick={() =>
+                  navigator.clipboard.readText().then((text) => setCode(text))
+                }
+              />
+            </Flex>
+            <Input
+              size={size}
+              value={code}
+              isDisabled={isMining}
+              onChange={(e) => setCode(e.target.value)}
+            />
+          </Stack>
+        </FormControl>
+        <Stack
+          mt={4}
+          align="center"
+          justify="flex-end"
+          direction={['column-reverse', 'row']}
+          spacing={[0, 4]}
+        >
+          <TextLink
+            href="/home/get-invitation"
+            mt={[5, 0]}
+            fontSize={['mobile', 'md']}
+            fontWeight={500}
+          >
+            {t('How to get an invitation?')}
+          </TextLink>
+          <Divider
+            display={['none', 'block']}
+            borderColor="gray.100"
+            orientation="vertical"
+            h={6}
+          />
+          <PrimaryButton
+            size={size}
+            w={['100%', 'auto']}
+            type="submit"
+            isLoading={isMining}
+            loadingText={t('Mining...')}
+          >
+            {t('Activate invitation')}
+          </PrimaryButton>
+        </Stack>
+      </Box>
+    </InvitationPanel>
   )
 })
 
-export const ActivateInvitationPanel = React.forwardRef(
-  function ActivateInvitationPanel(props, ref) {
-    const {t} = useTranslation()
+ActivateInvitationPanel.displayName = 'ActivateInvitationPanel'
 
-    const size = useBreakpointValue(['lg', 'md'])
+export const AcceptInvitationPanel = React.forwardRef((props, ref) => {
+  const {t} = useTranslation()
+  const size = useBreakpointValue(['lg', 'md'])
 
-    const [code, setCode] = useState('')
+  const [{isMining}, {activateInvite}] = useInviteActivation()
 
-    const [{isMining}, {activateInvite}] = useInviteActivation()
-
-    return (
-      <InvitationPanel {...props} ref={ref}>
-        <Stack>
-          <Heading as="h3" fontWeight={500} fontSize="lg">
-            {t('Join the upcoming validation')}
-          </Heading>
-          <Text color="muted">
-            {t(
-              'To take part in the validation, you need an invitation code. Invitations can be provided by validated identities.'
-            )}
-          </Text>
-        </Stack>
-        <Box
-          as="form"
-          onSubmit={async e => {
-            e.preventDefault()
-            await activateInvite(code)
-          }}
-        >
-          <FormControl>
-            <Stack spacing={[2, 3]}>
-              <Flex justify="space-between" align="center">
-                <FormLabel htmlFor="code" p={0} m={0} fontSize={['base', 'md']}>
-                  {t('Enter invitation code')}
-                </FormLabel>
-                <PasteButton
-                  isDisabled={isMining}
-                  onClick={() =>
-                    navigator.clipboard.readText().then(text => setCode(text))
-                  }
-                />
-              </Flex>
-              <Input
-                size={size}
-                value={code}
-                isDisabled={isMining}
-                onChange={e => setCode(e.target.value)}
-              />
-            </Stack>
-          </FormControl>
-          <Stack
-            mt={4}
-            align="center"
-            justify="flex-end"
-            direction={['column-reverse', 'row']}
-            spacing={[0, 4]}
+  return (
+    <InvitationPanel {...props} ref={ref}>
+      <Stack>
+        <Heading as="h3" fontWeight={500} fontSize="lg">
+          {t('Congratulations!')}
+        </Heading>
+        <Text color="muted">
+          {t(
+            'You have been invited to join the upcoming validation ceremony. Click the button below to accept the invitation.'
+          )}
+        </Text>
+      </Stack>
+      <Box
+        as="form"
+        onSubmit={async (e) => {
+          e.preventDefault()
+          await activateInvite()
+        }}
+      >
+        <Flex justify="flex-end">
+          <PrimaryButton
+            size={size}
+            w={['100%', 'auto']}
+            isLoading={isMining}
+            loadingText={t('Mining...')}
+            type="submit"
           >
-            <TextLink
-              href="/home/get-invitation"
-              mt={[5, 0]}
-              fontSize={['mobile', 'md']}
-              fontWeight={500}
-            >
-              {t('How to get an invitation?')}
-            </TextLink>
-            <Divider
-              display={['none', 'block']}
-              borderColor="gray.100"
-              orientation="vertical"
-              h={6}
-            />
-            <PrimaryButton
-              size={size}
-              w={['100%', 'auto']}
-              type="submit"
-              isLoading={isMining}
-              loadingText={t('Mining...')}
-            >
-              {t('Activate invitation')}
-            </PrimaryButton>
-          </Stack>
-        </Box>
-      </InvitationPanel>
-    )
-  }
-)
+            {t('Accept invitation')}
+          </PrimaryButton>
+        </Flex>
+      </Box>
+    </InvitationPanel>
+  )
+})
 
-export const AcceptInvitationPanel = React.forwardRef(
-  function AcceptInvitationPanel(props, ref) {
-    const {t} = useTranslation()
-    const size = useBreakpointValue(['lg', 'md'])
-
-    const [{isMining}, {activateInvite}] = useInviteActivation()
-
-    return (
-      <InvitationPanel {...props} ref={ref}>
-        <Stack>
-          <Heading as="h3" fontWeight={500} fontSize="lg">
-            {t('Congratulations!')}
-          </Heading>
-          <Text color="muted">
-            {t(
-              'You have been invited to join the upcoming validation ceremony. Click the button below to accept the invitation.'
-            )}
-          </Text>
-        </Stack>
-        <Box
-          as="form"
-          onSubmit={async e => {
-            e.preventDefault()
-            await activateInvite()
-          }}
-        >
-          <Flex justify="flex-end">
-            <PrimaryButton
-              size={size}
-              w={['100%', 'auto']}
-              isLoading={isMining}
-              loadingText={t('Mining...')}
-              type="submit"
-            >
-              {t('Accept invitation')}
-            </PrimaryButton>
-          </Flex>
-        </Box>
-      </InvitationPanel>
-    )
-  }
-)
+AcceptInvitationPanel.displayName = 'AcceptInvitationPanel'
 
 export const StartIdenaJourneyPanel = React.forwardRef(
-  function StartIdenaJourneyPanel({onHasActivationCode, ...props}, ref) {
+  ({onHasActivationCode, ...props}, ref) => {
     const {t} = useTranslation()
 
     const router = useRouter()
@@ -585,6 +582,8 @@ export const StartIdenaJourneyPanel = React.forwardRef(
     )
   }
 )
+
+StartIdenaJourneyPanel.displayName = 'StartIdenaJourneyPanel'
 
 export const AcceptInviteOnboardingContent = ({onDismiss}) => {
   const {t} = useTranslation()
@@ -749,7 +748,7 @@ export function ActivateMiningForm({
           isOpen={eitherState(current, 'showing')}
           isCloseable={!isDesktop}
           isLoading={eitherState(current, 'showing.mining')}
-          onChangeMode={value => {
+          onChangeMode={(value) => {
             send({type: 'CHANGE_MODE', mode: value})
           }}
           // eslint-disable-next-line no-shadow
@@ -935,7 +934,7 @@ export function ActivateMiningDrawer({
                   size={sizeInput}
                   value={delegatee}
                   isDisabled={Boolean(pendingUndelegation)}
-                  onChange={e => setDelegatee(e.target.value)}
+                  onChange={(e) => setDelegatee(e.target.value)}
                 />
               </FormControl>
               {pendingUndelegation ? (
@@ -1343,7 +1342,7 @@ export function KillForm({isOpen, onClose}) {
           )}
         </Text>
         <FormControlWithLabel label={t('Address')}>
-          <Input value={to} onChange={e => setTo(e.target.value)} />
+          <Input value={to} onChange={(e) => setTo(e.target.value)} />
         </FormControlWithLabel>
       </DrawerBody>
       <DrawerFooter>
@@ -1382,7 +1381,7 @@ export function MyIdenaBotAlert({onConnect, onSkip}) {
   const connectButtonRef = React.useRef()
 
   // eslint-disable-next-line no-shadow
-  const eitherState = (...states) => states.some(s => s === state)
+  const eitherState = (...states) => states.some((s) => s === state)
 
   const size = useBreakpointValue(['sm', 'md'])
 
@@ -1418,7 +1417,7 @@ export function MyIdenaBotAlert({onConnect, onSkip}) {
               top={0}
               height="100%"
               color="white"
-              onClick={e => {
+              onClick={(e) => {
                 e.stopPropagation()
                 onSkip()
               }}
@@ -1431,7 +1430,7 @@ export function MyIdenaBotAlert({onConnect, onSkip}) {
               position="absolute"
               right={-3}
               top={-2}
-              onClick={e => {
+              onClick={(e) => {
                 e.stopPropagation()
                 onSkip()
               }}
@@ -1515,7 +1514,7 @@ export function MyIdenaBotAlert({onConnect, onSkip}) {
           <Checkbox
             borderColor="gray.100"
             isChecked={doNotShowAgain}
-            onChange={e => {
+            onChange={(e) => {
               setDoNotShowAgain(e.target.checked)
             }}
           >
@@ -1563,7 +1562,7 @@ export function ActivateInvitationDialog({onClose, ...props}) {
         <Box
           mt={4}
           as="form"
-          onSubmit={async e => {
+          onSubmit={async (e) => {
             e.preventDefault()
             await activateInvite(code)
           }}
@@ -1577,7 +1576,7 @@ export function ActivateInvitationDialog({onClose, ...props}) {
                 <PasteButton
                   isDisabled={isMining}
                   onClick={() =>
-                    navigator.clipboard.readText().then(text => setCode(text))
+                    navigator.clipboard.readText().then((text) => setCode(text))
                   }
                 />
               </Flex>
@@ -1585,7 +1584,7 @@ export function ActivateInvitationDialog({onClose, ...props}) {
                 size={size}
                 value={code}
                 isDisabled={isMining}
-                onChange={e => setCode(e.target.value)}
+                onChange={(e) => setCode(e.target.value)}
               />
             </Stack>
           </FormControl>
@@ -1693,7 +1692,7 @@ export function GetInvitationTwitterInput({value, onChange}) {
       <Input
         onFocus={() => setInputAddonVisible(true)}
         onBlur={() => !value && setInputAddonVisible(false)}
-        onChange={e => onChange(e.target.value)}
+        onChange={(e) => onChange(e.target.value)}
         pl={[10, 6]}
       />
     </InputGroup>
@@ -1941,17 +1940,14 @@ function ProfileTagValue(props) {
   return <Text color={['muted', 'inherit']} {...props} />
 }
 
-const SimpleProfileTag = React.forwardRef(function SimpleProfileTag(
-  {label, value, ...props},
-  ref
-) {
-  return (
-    <ProfileTag ref={ref} {...props}>
-      <ProfileTagLabel>{label}</ProfileTagLabel>
-      <ProfileTagValue>{value}</ProfileTagValue>
-    </ProfileTag>
-  )
-})
+const SimpleProfileTag = React.forwardRef(({label, value, ...props}, ref) => (
+  <ProfileTag ref={ref} {...props}>
+    <ProfileTagLabel>{label}</ProfileTagLabel>
+    <ProfileTagValue>{value}</ProfileTagValue>
+  </ProfileTag>
+))
+
+SimpleProfileTag.displayName = 'SimpleProfileTag'
 
 export function ProfileTagPopover(props) {
   return <Popover placement="top" arrowShadowColor="transparent" {...props} />
@@ -2013,7 +2009,7 @@ export function ReplenishStakeDrawer({
   const {data: hash, submit} = useReplenishStake({
     onSuccess,
     onError: React.useCallback(
-      e => {
+      (e) => {
         setIsMiningOff()
         onError(e)
       },
@@ -2094,7 +2090,7 @@ export function ReplenishStakeDrawer({
           <Stack spacing={5 / 2} px={1}>
             <form
               id="replenishStake"
-              onSubmit={e => {
+              onSubmit={(e) => {
                 e.preventDefault()
 
                 setIsMining.on()
@@ -2108,7 +2104,7 @@ export function ReplenishStakeDrawer({
                 </FormLabel>
                 <DnaInput
                   value={sendValue}
-                  onChange={e => setSendValue(Number(e.target.value))}
+                  onChange={(e) => setSendValue(Number(e.target.value))}
                 />
                 <FormHelperText fontSize="md">
                   <Flex justify="space-between">
@@ -2129,8 +2125,8 @@ export function ReplenishStakeDrawer({
                       },
                     }}
                     isChecked={checkboxes.cb1.value}
-                    onChange={e =>
-                      setCheckboxes(prev => ({
+                    onChange={(e) =>
+                      setCheckboxes((prev) => ({
                         ...prev,
                         cb1: {
                           ...prev.cb1,
@@ -2154,8 +2150,8 @@ export function ReplenishStakeDrawer({
                         },
                       }}
                       isChecked={checkboxes.cb2.value}
-                      onChange={e =>
-                        setCheckboxes(prev => ({
+                      onChange={(e) =>
+                        setCheckboxes((prev) => ({
                           ...prev,
                           cb2: {
                             ...prev.cb2,
@@ -2180,8 +2176,8 @@ export function ReplenishStakeDrawer({
                         },
                       }}
                       isChecked={checkboxes.cb3.value}
-                      onChange={e =>
-                        setCheckboxes(prev => ({
+                      onChange={(e) =>
+                        setCheckboxes((prev) => ({
                           ...prev,
                           cb3: {
                             ...prev.cb3,
@@ -2206,8 +2202,8 @@ export function ReplenishStakeDrawer({
                         },
                       }}
                       isChecked={checkboxes.cb4.value}
-                      onChange={e =>
-                        setCheckboxes(prev => ({
+                      onChange={(e) =>
+                        setCheckboxes((prev) => ({
                           ...prev,
                           cb4: {
                             ...prev.cb4,
@@ -2259,9 +2255,11 @@ export function AdCarousel() {
   const orderedBurntCoins =
     burntCoins
       ?.sort((a, b) => b.amount - a.amount)
-      .map(burn => ({...burn, ...AdBurnKey.fromHex(burn?.key)})) ?? []
+      .map((burn) => ({...burn, ...AdBurnKey.fromHex(burn?.key)})) ?? []
 
-  const maybeBurn = orderedBurntCoins.find(burn => burn.cid === currentAd?.cid)
+  const maybeBurn = orderedBurntCoins.find(
+    (burn) => burn.cid === currentAd?.cid
+  )
 
   const formatDna = useFormatDna()
 
@@ -2384,7 +2382,7 @@ export function SpoilInviteDrawer({onSuccess, onFail, ...props}) {
         <Stack spacing="6">
           <form
             id="spoilInvite"
-            onSubmit={async e => {
+            onSubmit={async (e) => {
               e.preventDefault()
 
               const code = new FormData(e.target).get('code').trim()

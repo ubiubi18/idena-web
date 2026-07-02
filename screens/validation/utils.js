@@ -132,7 +132,7 @@ export function shouldStartValidation(epoch, identity) {
       .where('epoch')
       .below(epoch.epoch)
       .delete()
-      .catch(e => {
+      .catch((e) => {
         console.error('cannot delete old flips', e)
       })
 
@@ -204,7 +204,7 @@ export function availableReportsNumber(flips) {
   return Math.floor(flips.length / 3)
 }
 
-export const transformLog = data => {
+export const transformLog = (data) => {
   if (typeof data === 'object') {
     const {context, event} = data
 

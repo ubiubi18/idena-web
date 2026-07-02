@@ -197,7 +197,7 @@ export const votingListMachine = createMachine(
     actions: {
       applyVotings: assign({
         votings: ({epoch, address}, {data: {votings}}) =>
-          votings.map(voting => ({
+          votings.map((voting) => ({
             ...voting,
             ref: spawn(
               // eslint-disable-next-line no-use-before-define
@@ -210,7 +210,7 @@ export const votingListMachine = createMachine(
       applyMoreVotings: assign({
         votings: ({votings, epoch, address}, {data: {votings: nextVotings}}) =>
           votings.concat(
-            nextVotings.map(voting => ({
+            nextVotings.map((voting) => ({
               ...voting,
               ref: spawn(
                 // eslint-disable-next-line no-use-before-define
@@ -238,7 +238,7 @@ export const votingListMachine = createMachine(
       applyStatuses: assign({
         statuses: ({statuses}, {value}) =>
           statuses.includes(value)
-            ? statuses.filter(s => s !== value)
+            ? statuses.filter((s) => s !== value)
             : statuses.concat(value),
         continuationToken: null,
       }),
@@ -260,34 +260,32 @@ export const votingListMachine = createMachine(
         statuses,
         continuationToken,
       }) => {
-        const {
-          result,
-          continuationToken: nextContinuationToken,
-        } = await fetchVotings({
-          all: [VotingListFilter.All, VotingListFilter.Own].some(
-            s => s === filter
-          ),
-          own: filter === VotingListFilter.Own,
-          oracle: address,
-          'states[]': (statuses.length
-            ? statuses
-            : votingStatuses(filter)
-          ).join(','),
-          continuationToken,
-        })
+        const {result, continuationToken: nextContinuationToken} =
+          await fetchVotings({
+            all: [VotingListFilter.All, VotingListFilter.Own].some(
+              (s) => s === filter
+            ),
+            own: filter === VotingListFilter.Own,
+            oracle: address,
+            'states[]': (statuses.length
+              ? statuses
+              : votingStatuses(filter)
+            ).join(','),
+            continuationToken,
+          })
 
         const apiVotings = (result ?? []).map(mapVoting)
 
         const persistedVotings = (
           await db
             .table('votings')
-            .bulkGet(apiVotings.map(x => normalizeId(x.id)))
-        ).filter(x => x)
+            .bulkGet(apiVotings.map((x) => normalizeId(x.id)))
+        ).filter((x) => x)
 
-        const mergedVotings = apiVotings.map(apiVoting => ({
+        const mergedVotings = apiVotings.map((apiVoting) => ({
           epoch,
           ...persistedVotings.find(
-            x => normalizeId(x.id) === normalizeId(apiVoting.id)
+            (x) => normalizeId(x.id) === normalizeId(apiVoting.id)
           ),
           ...apiVoting,
           id: normalizeId(apiVoting.id),
@@ -308,7 +306,7 @@ export const votingListMachine = createMachine(
         }
 
         return {
-          votings: mergedVotings.map(voting => ({
+          votings: mergedVotings.map((voting) => ({
             ...voting,
             isNew:
               filter === VotingListFilter.Todo &&
@@ -317,7 +315,7 @@ export const votingListMachine = createMachine(
           continuationToken: nextContinuationToken,
         }
       },
-      preload: () => cb => {
+      preload: () => (cb) => {
         cb({
           type: 'DONE',
           data: loadPersistentStateValue('votings', 'filter'),
@@ -466,7 +464,7 @@ export const votingMachine = createMachine(
         miningStatus: null,
       }),
       // eslint-disable-next-line no-shadow
-      persist: context =>
+      persist: (context) =>
         db.table('votings').put({
           id: normalizeId(context.id || context.contractAddress),
           ...context,
@@ -478,28 +476,30 @@ export const votingMachine = createMachine(
     services: {
       ...votingServices(),
       loadOwnerDeposit,
-      pollStatus: ({txHash}) => cb => {
-        let timeoutId
+      pollStatus:
+        ({txHash}) =>
+        (cb) => {
+          let timeoutId
 
-        const fetchStatus = async () => {
-          try {
-            const result = await callRpc('bcn_transaction', txHash)
-            if (result.blockHash !== HASH_IN_MEMPOOL) {
-              cb('MINED')
-            } else {
-              timeoutId = setTimeout(fetchStatus, 10 * 1000)
+          const fetchStatus = async () => {
+            try {
+              const result = await callRpc('bcn_transaction', txHash)
+              if (result.blockHash !== HASH_IN_MEMPOOL) {
+                cb('MINED')
+              } else {
+                timeoutId = setTimeout(fetchStatus, 10 * 1000)
+              }
+            } catch (error) {
+              cb('TX_NULL', {error})
             }
-          } catch (error) {
-            cb('TX_NULL', {error})
           }
-        }
 
-        timeoutId = setTimeout(fetchStatus, 10 * 1000)
+          timeoutId = setTimeout(fetchStatus, 10 * 1000)
 
-        return () => {
-          clearTimeout(timeoutId)
-        }
-      },
+          return () => {
+            clearTimeout(timeoutId)
+          }
+        },
     },
     guards: {
       ...votingStatusGuards(),
@@ -575,9 +575,7 @@ export const newVotingMachine = createMachine(
                     assign({
                       shouldStartImmediately: false,
                       winnerThreshold: String(51),
-                      startDate: dayjs()
-                        .add(1, 'w')
-                        .toString(),
+                      startDate: dayjs().add(1, 'w').toString(),
                       quorum: 5,
                     }),
                   ],
@@ -676,8 +674,8 @@ export const newVotingMachine = createMachine(
                       isCustomOwnerAddress && !isAddress(ownerAddress)
                         ? 'ownerAddress'
                         : null,
-                      ...['title', 'desc'].filter(f => !context[f]),
-                    ].filter(v => v),
+                      ...['title', 'desc'].filter((f) => !context[f]),
+                    ].filter((v) => v),
                   })
                 ),
                 log(),
@@ -856,7 +854,7 @@ export const newVotingMachine = createMachine(
       })),
       setOptions: assign({
         options: ({options}, {id, value}) => {
-          const idx = options.findIndex(o => o.id === id)
+          const idx = options.findIndex((o) => o.id === id)
           return [
             ...options.slice(0, idx),
             {...options[idx], value},
@@ -871,7 +869,7 @@ export const newVotingMachine = createMachine(
           }),
       }),
       removeOption: assign({
-        options: ({options}, {id}) => options.filter(o => o.id !== id),
+        options: ({options}, {id}) => options.filter((o) => o.id !== id),
       }),
       setDirty: assign({
         dirtyBag: ({dirtyBag}, {id, ids = []}) => ({
@@ -889,7 +887,7 @@ export const newVotingMachine = createMachine(
       setPending: setVotingStatus(VotingStatus.Pending),
       setRunning: setVotingStatus(VotingStatus.Open),
       // eslint-disable-next-line no-shadow
-      persist: context =>
+      persist: (context) =>
         db.table('votings').put({
           id: normalizeId(context.id || context.contractAddress),
           ...context,
@@ -937,29 +935,31 @@ export const newVotingMachine = createMachine(
 
         return {txHash, privateKey, voting: nextVoting, balance}
       },
-      pollStatus: ({txHash}, {data: {privateKey, balance}}) => cb => {
-        let timeoutId
+      pollStatus:
+        ({txHash}, {data: {privateKey, balance}}) =>
+        (cb) => {
+          let timeoutId
 
-        const fetchStatus = async () => {
-          try {
-            const result = await callRpc('bcn_transaction', txHash)
-            if (result.blockHash !== HASH_IN_MEMPOOL) {
-              cb({type: 'MINED', privateKey, balance})
-            } else {
-              timeoutId = setTimeout(fetchStatus, 10 * 1000)
+          const fetchStatus = async () => {
+            try {
+              const result = await callRpc('bcn_transaction', txHash)
+              if (result.blockHash !== HASH_IN_MEMPOOL) {
+                cb({type: 'MINED', privateKey, balance})
+              } else {
+                timeoutId = setTimeout(fetchStatus, 10 * 1000)
+              }
+            } catch (error) {
+              cb('TX_NULL', {error: error?.message})
             }
-          } catch (error) {
-            cb('TX_NULL', {error: error?.message})
           }
-        }
 
-        timeoutId = setTimeout(fetchStatus, 10 * 1000)
+          timeoutId = setTimeout(fetchStatus, 10 * 1000)
 
-        return () => {
-          clearTimeout(timeoutId)
-        }
-      },
-      persist: context =>
+          return () => {
+            clearTimeout(timeoutId)
+          }
+        },
+      persist: (context) =>
         db.table('votings').put({
           id: normalizeId(context.id || context.contractAddress),
           ...context,
@@ -1283,7 +1283,7 @@ export const viewVotingMachine = createMachine(
         selectedOption: (_, {option}) => option,
       }),
       // eslint-disable-next-line no-shadow
-      persist: context =>
+      persist: (context) =>
         db.table('votings').put({
           id: normalizeId(context.id || context.contractAddress),
           ...context,
@@ -1433,28 +1433,30 @@ export const viewVotingMachine = createMachine(
           txFee,
         })
       },
-      pollStatus: ({txHash}) => cb => {
-        let timeoutId
+      pollStatus:
+        ({txHash}) =>
+        (cb) => {
+          let timeoutId
 
-        const fetchStatus = async () => {
-          try {
-            const result = await callRpc('bcn_transaction', txHash)
-            if (result.blockHash !== HASH_IN_MEMPOOL) {
-              cb('MINED')
-            } else {
-              timeoutId = setTimeout(fetchStatus, 10 * 1000)
+          const fetchStatus = async () => {
+            try {
+              const result = await callRpc('bcn_transaction', txHash)
+              if (result.blockHash !== HASH_IN_MEMPOOL) {
+                cb('MINED')
+              } else {
+                timeoutId = setTimeout(fetchStatus, 10 * 1000)
+              }
+            } catch (error) {
+              cb('TX_NULL', {error: error?.message})
             }
-          } catch (error) {
-            cb('TX_NULL', {error: error?.message})
           }
-        }
 
-        timeoutId = setTimeout(fetchStatus, 10 * 1000)
+          timeoutId = setTimeout(fetchStatus, 10 * 1000)
 
-        return () => {
-          clearTimeout(timeoutId)
-        }
-      },
+          return () => {
+            clearTimeout(timeoutId)
+          }
+        },
       checkMissingVote: async (
         {epoch, address, contractHash, options},
         {privateKey, currentBlock}
@@ -1465,7 +1467,8 @@ export const viewVotingMachine = createMachine(
           // if we have deferred tx, then skip checking missing vote
           if (
             currentDeferredVotes.find(
-              x => x.contractHash?.toLowerCase() === contractHash.toLowerCase()
+              (x) =>
+                x.contractHash?.toLowerCase() === contractHash.toLowerCase()
             )
           ) {
             return {

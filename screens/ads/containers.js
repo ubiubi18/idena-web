@@ -238,10 +238,10 @@ export function AdListItem({
   const orderedBurntCoins =
     burntCoins
       ?.sort((a, b) => b.amount - a.amount)
-      .map(burn => ({...burn, ...AdBurnKey.fromHex(burn?.key)})) ?? []
+      .map((burn) => ({...burn, ...AdBurnKey.fromHex(burn?.key)})) ?? []
 
   const burnIndex = orderedBurntCoins.findIndex(
-    burn => burn.cid === cid && burn.target === target.toHex()
+    (burn) => burn.cid === cid && burn.target === target.toHex()
   )
   const burnAmount = orderedBurntCoins[burnIndex]
 
@@ -492,9 +492,9 @@ function AdPromotion({cid, title, desc, url, media, author}) {
   const orderedBurntCoins =
     burntCoins
       ?.sort((a, b) => b.amount - a.amount)
-      .map(burn => ({...burn, ...AdBurnKey.fromHex(burn?.key)})) ?? []
+      .map((burn) => ({...burn, ...AdBurnKey.fromHex(burn?.key)})) ?? []
 
-  const maybeBurn = orderedBurntCoins.find(burn => burn.cid === cid)
+  const maybeBurn = orderedBurntCoins.find((burn) => burn.cid === cid)
 
   const formatDna = useFormatDna()
 
@@ -592,10 +592,7 @@ function AdPromotion({cid, title, desc, url, media, author}) {
   )
 }
 
-export const AdForm = React.forwardRef(function AdForm(
-  {ad, onSubmit, ...props},
-  ref
-) {
+export const AdForm = React.forwardRef(({ad, onSubmit, ...props}, ref) => {
   const {t} = useTranslation()
 
   const [thumb, setThumb] = React.useState(ad?.thumb)
@@ -609,7 +606,7 @@ export const AdForm = React.forwardRef(function AdForm(
   return (
     <form
       ref={ref}
-      onChange={e => {
+      onChange={(e) => {
         const {name, value} = e.target
 
         if (name === 'title') {
@@ -620,7 +617,7 @@ export const AdForm = React.forwardRef(function AdForm(
           setDescCharacterCount(70 - value.length)
         }
       }}
-      onSubmit={async e => {
+      onSubmit={async (e) => {
         e.preventDefault()
 
         const formAd = Object.fromEntries(new FormData(e.target).entries())
@@ -711,8 +708,8 @@ export const AdForm = React.forwardRef(function AdForm(
                   borderColor: 'gray.100',
                 }}
               >
-                <option></option>
-                {AVAILABLE_LANGS.map(lang => (
+                <option aria-label={t('Any language')} />
+                {AVAILABLE_LANGS.map((lang) => (
                   <option key={lang}>{lang}</option>
                 ))}
               </Select>
@@ -748,7 +745,7 @@ export const AdForm = React.forwardRef(function AdForm(
                   borderColor: 'gray.100',
                 }}
               >
-                <option></option>
+                <option aria-label={t('Any operating system')} />
                 {Object.entries(OS).map(([k, v]) => (
                   <option key={v} value={v}>
                     {k}
@@ -762,6 +759,8 @@ export const AdForm = React.forwardRef(function AdForm(
     </form>
   )
 })
+
+AdForm.displayName = 'AdForm'
 
 export function AdMediaInput({
   name,
@@ -787,7 +786,7 @@ export function AdMediaInput({
           name={name}
           type="file"
           accept="image/png,image/jpg,image/jpeg"
-          onChange={async e => {
+          onChange={async (e) => {
             if (onChange) {
               const {files} = e.target
               if (files.length) {
@@ -855,14 +854,14 @@ export function ReviewAdDrawer({
     onBeforeSubmit: setIsPendingOn,
     onDeployContract,
     onStartVoting: React.useCallback(
-      data => {
+      (data) => {
         onStartVoting(data)
         setIsPendingOff()
       },
       [onStartVoting, setIsPendingOff]
     ),
     onError: React.useCallback(
-      error => {
+      (error) => {
         failToast(error)
         setIsPendingOff()
       },
@@ -930,7 +929,7 @@ export function ReviewAdDrawer({
           </Stack>
           <form
             id="reviewForm"
-            onSubmit={async e => {
+            onSubmit={async (e) => {
               e.preventDefault()
 
               const {thumb, media} = await db.table('ads').get(ad.id)
@@ -1015,7 +1014,7 @@ export function ReviewAdDrawer({
                 </FormLabel>
                 <DnaInput
                   value={rewardsFund}
-                  onChange={e => setRewardsFund(Number(e.target.value))}
+                  onChange={(e) => setRewardsFund(Number(e.target.value))}
                 />
                 <DrawerFormHelper
                   mt={4}
@@ -1070,7 +1069,7 @@ export function PublishAdDrawer({ad, onPublish, ...props}) {
       setIsPendingOff()
     }, [onPublish, setIsPendingOff]),
     onError: React.useCallback(
-      error => {
+      (error) => {
         failToast(error)
         setIsPendingOff()
       },
@@ -1181,7 +1180,7 @@ export function BurnDrawer({ad, onBurn, ...props}) {
       setIsPendingOff()
     }, [onBurn, setIsPendingOff]),
     onError: React.useCallback(
-      error => {
+      (error) => {
         failToast(error)
         setIsPendingOff()
       },
@@ -1253,7 +1252,7 @@ export function BurnDrawer({ad, onBurn, ...props}) {
           </Stack>
           <form
             id="burnForm"
-            onSubmit={e => {
+            onSubmit={(e) => {
               e.preventDefault()
 
               const amount = Number(new FormData(e.target).get('amount'))
@@ -1325,7 +1324,7 @@ export function CreateCampaignDrawer({ad, onSuccess, ...props}) {
       setIsPendingOff()
     }, [forceUpdateIdentity, onSuccess, setIsPendingOff]),
     onError: React.useCallback(
-      error => {
+      (error) => {
         failToast(error)
         setIsPendingOff()
       },
@@ -1393,7 +1392,7 @@ export function CreateCampaignDrawer({ad, onSuccess, ...props}) {
           </Stack>
           <form
             id="runCampaign"
-            onSubmit={e => {
+            onSubmit={(e) => {
               e.preventDefault()
 
               const target = Object.fromEntries(
@@ -1417,8 +1416,8 @@ export function CreateCampaignDrawer({ad, onSuccess, ...props}) {
                       borderColor: 'gray.100',
                     }}
                   >
-                    <option></option>
-                    {AVAILABLE_LANGS.map(lang => (
+                    <option aria-label={t('Any language')} />
+                    {AVAILABLE_LANGS.map((lang) => (
                       <option key={lang}>{lang}</option>
                     ))}
                   </Select>
@@ -1454,7 +1453,7 @@ export function CreateCampaignDrawer({ad, onSuccess, ...props}) {
                       borderColor: 'gray.100',
                     }}
                   >
-                    <option></option>
+                    <option aria-label={t('Any operating system')} />
                     {Object.entries(OS).map(([k, v]) => (
                       <option key={v} value={v}>
                         {k}
@@ -1494,9 +1493,11 @@ export function BlockAdStat({label, value, children, ...props}) {
 const InlineAdGroupContext = React.createContext({})
 
 export function InlineAdStatGroup({labelWidth, children, ...props}) {
+  const value = React.useMemo(() => ({labelWidth}), [labelWidth])
+
   return (
     <Stack {...props}>
-      <InlineAdGroupContext.Provider value={{labelWidth}}>
+      <InlineAdGroupContext.Provider value={value}>
         {children}
       </InlineAdGroupContext.Provider>
     </Stack>
@@ -1594,7 +1595,7 @@ export function AdDebug() {
     <Stack spacing="6">
       <Stack as="section" spacing="4">
         <form
-          onSubmit={e => {
+          onSubmit={(e) => {
             e.preventDefault()
 
             const formData = new FormData(e.target)
@@ -1613,7 +1614,7 @@ export function AdDebug() {
           <PrimaryButton type="submit">Decode profile</PrimaryButton>
         </form>
         <form
-          onSubmit={e => {
+          onSubmit={(e) => {
             e.preventDefault()
 
             const formData = new FormData(e.target)
@@ -1632,7 +1633,7 @@ export function AdDebug() {
           <PrimaryButton type="submit">Decode ad</PrimaryButton>
         </form>
         <form
-          onSubmit={e => {
+          onSubmit={(e) => {
             e.preventDefault()
 
             setResult(
@@ -1654,7 +1655,7 @@ export function AdDebug() {
       </Stack>
       <Stack as="section" spacing="4">
         <form
-          onSubmit={e => {
+          onSubmit={(e) => {
             e.preventDefault()
 
             setResult(
@@ -1699,8 +1700,12 @@ export function AdOfferListItem({
 
   const {decodeAd, decodeAdTarget} = useProtoProfileDecoder()
 
-  const {data: ad, isLoading, isError} = useIpfsAd(cid, {
-    select: data => ({
+  const {
+    data: ad,
+    isLoading,
+    isError,
+  } = useIpfsAd(cid, {
+    select: (data) => ({
       ...decodeAd(data),
       ...decodeAdTarget(target),
       cid,

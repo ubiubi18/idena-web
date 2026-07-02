@@ -93,8 +93,8 @@ export async function handleCallbackUrl(
       )
     }
 
-    default:
     case 'html':
+    default:
       return onHtml({
         url: typeof callbackUrl === 'string' ? callbackUrl : callbackUrl.href,
       })

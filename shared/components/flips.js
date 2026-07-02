@@ -25,7 +25,7 @@ function FlipsMachine({coinbase, privateKey, epoch}) {
   )
 
   const [, send] = useMachine(validationFlipsMachine, {
-    logger: msg => console.log(redact(msg)),
+    logger: (msg) => console.log(redact(msg)),
   })
 
   useEffect(() => {

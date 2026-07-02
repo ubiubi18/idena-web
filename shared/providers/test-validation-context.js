@@ -1,5 +1,12 @@
 import dayjs from 'dayjs'
-import {useContext, createContext, useState, useEffect} from 'react'
+import {
+  useCallback,
+  useContext,
+  createContext,
+  useState,
+  useEffect,
+  useMemo,
+} from 'react'
 import {
   getResult,
   persistTestValidation,
@@ -32,7 +39,7 @@ const initStateValue = {
   },
 }
 
-const getEpochPeriod = time => {
+const getEpochPeriod = (time) => {
   if (!time) {
     return EpochPeriod.None
   }
@@ -70,7 +77,7 @@ const getEpochPeriod = time => {
   return EpochPeriod.None
 }
 
-const localStorageKey = coinbase => `test-validation-${coinbase}`
+const localStorageKey = (coinbase) => `test-validation-${coinbase}`
 
 // eslint-disable-next-line react/prop-types
 function TestValidationProvider({children}) {
@@ -110,7 +117,7 @@ function TestValidationProvider({children}) {
         )
 
         if (persistedState) {
-          setState(prevState => {
+          setState((prevState) => {
             if (prevState.timestamp <= persistedState.timestamp)
               return {...persistedState, shouldPersist: false}
             return {...prevState, shouldPersist: true}
@@ -140,83 +147,92 @@ function TestValidationProvider({children}) {
     }
   }, [coinbase, privateKey, state])
 
-  const checkValidation = async id => {
-    if (!state.current) return
-    const result =
-      state.current.type === CertificateType.Sample ? {} : await getResult(id)
+  const checkValidation = useCallback(
+    async (id) => {
+      if (!state.current) return
+      const result =
+        state.current.type === CertificateType.Sample ? {} : await getResult(id)
 
-    setState(prevState => ({
-      ...prevState,
-      timestamp: new Date().getTime(),
-      shouldPersist: true,
-      last: {
-        id,
-        startTime: prevState.current.startTime,
-      },
-      current: null,
-      validations: {
-        ...prevState.validations,
-        [prevState.current.type]: {
+      setState((prevState) => ({
+        ...prevState,
+        timestamp: new Date().getTime(),
+        shouldPersist: true,
+        last: {
           id,
-          ...result,
+          startTime: prevState.current.startTime,
         },
-      },
-    }))
-  }
+        current: null,
+        validations: {
+          ...prevState.validations,
+          [prevState.current.type]: {
+            id,
+            ...result,
+          },
+        },
+      }))
+    },
+    [setState, state]
+  )
 
-  const scheduleValidation = async type => {
-    const signature = signMessage(coinbase, privateKey)
-    let id
-    let startTime
-    if (type === CertificateType.Sample) {
-      id = 'sample-validation'
-      const dt = new Date()
-      startTime = dt.setSeconds(dt.getSeconds() + 30)
-    } else {
-      ;({id, startTime} = await requestTestValidation(
-        toHexString(signature),
-        coinbase,
-        type
-      ))
-    }
+  const scheduleValidation = useCallback(
+    async (type) => {
+      const signature = signMessage(coinbase, privateKey)
+      let id
+      let startTime
+      if (type === CertificateType.Sample) {
+        id = 'sample-validation'
+        const dt = new Date()
+        startTime = dt.setSeconds(dt.getSeconds() + 30)
+      } else {
+        ;({id, startTime} = await requestTestValidation(
+          toHexString(signature),
+          coinbase,
+          type
+        ))
+      }
 
-    setState(prevState => ({
-      ...prevState,
-      timestamp: new Date().getTime(),
-      shouldPersist: true,
-      current: {
-        period: EpochPeriod.None,
-        type,
-        startTime,
-        id,
-      },
-      validations: {
-        ...prevState.validations,
-        [type]: {
+      setState((prevState) => ({
+        ...prevState,
+        timestamp: new Date().getTime(),
+        shouldPersist: true,
+        current: {
+          period: EpochPeriod.None,
+          type,
+          startTime,
           id,
-          actionType: CertificateActionType.Requested,
         },
-      },
-    }))
-  }
-
-  const cancelValidation = async type => {
-    setState(prevState => ({
-      ...prevState,
-      timestamp: new Date().getTime(),
-      shouldPersist: true,
-      current: null,
-      validations: {
-        ...prevState.validations,
-        [type]: {
-          actionType: CertificateActionType.None,
+        validations: {
+          ...prevState.validations,
+          [type]: {
+            id,
+            actionType: CertificateActionType.Requested,
+          },
         },
-      },
-    }))
-  }
+      }))
+    },
+    [coinbase, privateKey, setState]
+  )
 
-  const cancelCurrentValidation = async () => {
-    setState(prevState => {
+  const cancelValidation = useCallback(
+    async (type) => {
+      setState((prevState) => ({
+        ...prevState,
+        timestamp: new Date().getTime(),
+        shouldPersist: true,
+        current: null,
+        validations: {
+          ...prevState.validations,
+          [type]: {
+            actionType: CertificateActionType.None,
+          },
+        },
+      }))
+    },
+    [setState]
+  )
+
+  const cancelCurrentValidation = useCallback(async () => {
+    setState((prevState) => {
       if (!prevState.current) {
         return prevState
       }
@@ -233,7 +249,7 @@ function TestValidationProvider({children}) {
         },
       }
     })
-  }
+  }, [setState])
 
   useInterval(
     () => {
@@ -265,7 +281,7 @@ function TestValidationProvider({children}) {
     async function check(id, type) {
       const result = type === CertificateType.Sample ? {} : await getResult(id)
 
-      setState(prevState => ({
+      setState((prevState) => ({
         ...prevState,
         timestamp: new Date().getTime(),
         shouldPersist: true,
@@ -290,13 +306,17 @@ function TestValidationProvider({children}) {
     }
   }, [setState, state])
 
-  const epoch = {
-    epoch: 1,
-    nextValidation: state.current?.startTime,
-    currentPeriod: getEpochPeriod(state.current?.startTime),
-  }
+  const currentStartTime = state.current?.startTime
+  const epoch = useMemo(
+    () => ({
+      epoch: 1,
+      nextValidation: currentStartTime,
+      currentPeriod: getEpochPeriod(currentStartTime),
+    }),
+    [currentStartTime]
+  )
 
-  const isSuccess = type =>
+  const isSuccess = (type) =>
     state.validations?.[type]?.actionType === CertificateActionType.Passed
 
   const hasSuccessTrainingValidation =
@@ -304,18 +324,28 @@ function TestValidationProvider({children}) {
     isSuccess(CertificateType.Medium) ||
     isSuccess(CertificateType.Hard)
 
+  const stateValue = useMemo(
+    () => ({...state, epoch, hasSuccessTrainingValidation}),
+    [epoch, hasSuccessTrainingValidation, state]
+  )
+  const dispatchValue = useMemo(
+    () => ({
+      scheduleValidation,
+      checkValidation,
+      cancelValidation,
+      cancelCurrentValidation,
+    }),
+    [
+      cancelCurrentValidation,
+      cancelValidation,
+      checkValidation,
+      scheduleValidation,
+    ]
+  )
+
   return (
-    <TestValidationStateContext.Provider
-      value={{...state, epoch, hasSuccessTrainingValidation}}
-    >
-      <TestVlidationDispatchContext.Provider
-        value={{
-          scheduleValidation,
-          checkValidation,
-          cancelValidation,
-          cancelCurrentValidation,
-        }}
-      >
+    <TestValidationStateContext.Provider value={stateValue}>
+      <TestVlidationDispatchContext.Provider value={dispatchValue}>
         {children}
       </TestVlidationDispatchContext.Provider>
     </TestValidationStateContext.Provider>

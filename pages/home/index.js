@@ -165,10 +165,8 @@ export default function HomePage() {
 
   const toDna = toLocaleDna(language, {maximumFractionDigits: 4})
 
-  const [
-    currentOnboarding,
-    {dismissCurrentTask, next: nextOnboardingTask},
-  ] = useOnboarding()
+  const [currentOnboarding, {dismissCurrentTask, next: nextOnboardingTask}] =
+    useOnboarding()
 
   const eitherOnboardingState = (...states) =>
     eitherState(currentOnboarding, ...states)
@@ -226,7 +224,7 @@ export default function HomePage() {
   } = replenishStakeDisclosure
 
   React.useEffect(() => {
-    if (Object.keys(router.query).find(q => q === 'replenishStake')) {
+    if (Object.keys(router.query).find((q) => q === 'replenishStake')) {
       onOpenReplenishStakeDisclosure()
       router.push('/home')
     }
@@ -715,7 +713,7 @@ export default function HomePage() {
           </Stack>
         </Stack>
 
-        <KillForm isOpen={isOpenKillForm} onClose={onCloseKillForm}></KillForm>
+        <KillForm isOpen={isOpenKillForm} onClose={onCloseKillForm} />
 
         <ActivateInvitationDialog {...activateInviteDisclosure} />
 

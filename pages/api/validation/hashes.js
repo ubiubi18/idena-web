@@ -17,7 +17,7 @@ export default async (req, res) => {
       [id]
     )
 
-    return res.status(200).json(data.rows[0].flips.map(x => x.hash))
+    return res.status(200).json(data.rows[0].flips.map((x) => x.hash))
   } catch (e) {
     return res.status(400).send(e.toString())
   }

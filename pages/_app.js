@@ -254,7 +254,7 @@ export default function MyApp({Component, pageProps, err}) {
         <script
           type="text/javascript"
           src="https://apis.google.com/js/api.js"
-        ></script>
+        />
       </Head>
       <ChakraProvider theme={extendTheme(uiTheme)}>
         <IdenaApp>

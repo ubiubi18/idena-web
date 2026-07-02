@@ -28,7 +28,7 @@ export function useExpired() {
     if (persisted) {
       setState({storage: persisted, init: true})
     } else {
-      setState(prevState => ({...prevState, init: true}))
+      setState((prevState) => ({...prevState, init: true}))
     }
   }, [])
 
@@ -76,7 +76,7 @@ export function useExpired() {
         return
       }
 
-      setState(prevState => ({
+      setState((prevState) => ({
         ...prevState,
         storage: {...prevState.storage, lastTime: dayjs().valueOf()},
       }))
@@ -103,13 +103,11 @@ export function useExpired() {
           FORCE_SHOW_BEFORE_VALIDATION_MINUTES &&
         state.storage.forceEpoch !== epoch
       ) {
-        setState(prevState => ({
+        setState((prevState) => ({
           ...prevState,
           storage: {
             ...prevState.storage,
-            lastTime: dayjs()
-              .subtract(1, 'day')
-              .valueOf(),
+            lastTime: dayjs().subtract(1, 'day').valueOf(),
             dontShow: false,
             forceEpoch: epoch,
           },
@@ -119,8 +117,8 @@ export function useExpired() {
     epoch >= 0 ? 1000 : null
   )
 
-  const updateRestrictedNotNow = dontShow => {
-    setState(prevState => ({
+  const updateRestrictedNotNow = (dontShow) => {
+    setState((prevState) => ({
       ...prevState,
       storage: {
         ...prevState.storage,
@@ -132,13 +130,11 @@ export function useExpired() {
   }
 
   const resetRestrictedModal = () => {
-    setState(prevState => ({
+    setState((prevState) => ({
       ...prevState,
       storage: {
         ...prevState.storage,
-        lastTime: dayjs()
-          .subtract(1, 'day')
-          .valueOf(),
+        lastTime: dayjs().subtract(1, 'day').valueOf(),
         forceEpoch: null,
       },
     }))

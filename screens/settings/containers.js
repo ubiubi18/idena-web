@@ -34,7 +34,7 @@ export function ChangeLanguageDrawer({changeLanguageDisclosure, ...props}) {
       </DrawerHeader>
       <DrawerBody>
         <Stack spacing={0}>
-          {AVAILABLE_LANGS.map(lang => (
+          {AVAILABLE_LANGS.map((lang) => (
             <Box
               key={lang}
               borderBottom="1px solid"

@@ -6,11 +6,8 @@ import {
   TabPanels,
   Tabs,
   Text,
-  useBreakpointValue,
 } from '@chakra-ui/react'
-import cookie from 'cookie-cutter'
 import {useRouter} from 'next/router'
-import {useRef, useState} from 'react'
 import {Trans, useTranslation} from 'react-i18next'
 import {Page, PageTitle} from '../../screens/app/components'
 import {
@@ -18,7 +15,6 @@ import {
   GetInvitationTabPanel,
   GetInvitationTabTitle,
 } from '../../screens/home/components'
-import {getInvitationCode} from '../../shared/api/self'
 import {
   DiscordIcon,
   DiscordInvertedIcon,
@@ -28,45 +24,10 @@ import {
   TelegramInvertedIcon,
 } from '../../shared/components/icons'
 import Layout from '../../shared/components/layout'
-import {useScroll} from '../../shared/hooks/use-scroll'
-import {useFailToast, useSuccessToast} from '../../shared/hooks/use-toast'
 
 export default function GetInvitation() {
   const router = useRouter()
   const {t} = useTranslation()
-
-  const [nickname, setNickname] = useState('')
-
-  const failToast = useFailToast()
-  const successToast = useSuccessToast()
-
-  const [code, setCode] = useState()
-  const [isWaiting, setIsWaiting] = useState(false)
-
-  const size = useBreakpointValue(['lg', 'md'])
-
-  const followersCount =
-    process.env.NEXT_PUBLIC_TWITTER_MINIMUM_SUBS_COUNT || 100
-
-  const invitationCodeRef = useRef()
-
-  const {scrollTo: scrollToCode} = useScroll(invitationCodeRef)
-
-  const getCode = async () => {
-    setIsWaiting(true)
-    const name = nickname.startsWith('@') ? nickname.substring(1) : nickname
-
-    try {
-      const {invitation} = await getInvitationCode(name, cookie.get('refId'))
-      setCode(invitation)
-      successToast(t('Your invitation code has been generated successfully!'))
-      scrollToCode()
-    } catch (e) {
-      failToast(e.message)
-    } finally {
-      setIsWaiting(false)
-    }
-  }
 
   return (
     <Layout showHamburger={false}>

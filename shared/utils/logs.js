@@ -31,8 +31,5 @@ export async function writeValidationLog(epoch, data) {
 }
 
 export async function readValidationLogs(epoch) {
-  return db
-    .table('logs')
-    .where({epoch})
-    .toArray()
+  return db.table('logs').where({epoch}).toArray()
 }

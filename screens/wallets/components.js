@@ -510,7 +510,7 @@ export function SendDrawer(props) {
       <DrawerBody>
         <form
           id="send"
-          onSubmit={async e => {
+          onSubmit={async (e) => {
             e.preventDefault()
 
             dispatch('submit')
@@ -755,11 +755,11 @@ export function WalletTransactions({address}) {
   const toNumber = toLocaleNumber(i18n.language, {maximumFractionDigits: 4})
 
   const fetchTxs = ({pageParam = null}) =>
-    getTxs(address, LIMIT, pageParam).then(result => {
+    getTxs(address, LIMIT, pageParam).then((result) => {
       if (!result) {
         return {result: []}
       }
-      const newResult = result.map(tx => {
+      const newResult = result.map((tx) => {
         const fromWallet =
           lowerCase(address) === lowerCase(tx.from) ? address : null
         const toWallet =
@@ -790,16 +790,11 @@ export function WalletTransactions({address}) {
       return {result: newResult, continuationToken: result.continuationToken}
     })
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    status,
-  } = useInfiniteQuery(['transactions', address], fetchTxs, {
-    getNextPageParam: lastPage => lastPage?.continuationToken,
-    refetchInterval: 10 * 1000,
-  })
+  const {data, fetchNextPage, hasNextPage, isFetchingNextPage, status} =
+    useInfiniteQuery(['transactions', address], fetchTxs, {
+      getNextPageParam: (lastPage) => lastPage?.continuationToken,
+      refetchInterval: 10 * 1000,
+    })
 
   const isLoading = status === 'loading'
 
@@ -919,7 +914,7 @@ export function WalletTransactions({address}) {
       {isLoading && (
         <Stack spacing={2} mt={2}>
           {new Array(10).fill(0).map((_, i) => (
-            <Skeleton key={i} height={10} w="full"></Skeleton>
+            <Skeleton key={i} height={10} w="full" />
           ))}
         </Stack>
       )}
@@ -953,10 +948,8 @@ export function WalletPendingTransactions() {
 
   const [{all: votes, isReady}] = useDeferredVotes()
 
-  const data = votes.map(item => ({
-    timestamp: getDateFromBlocks(item.block, currentBlock)
-      .toDate()
-      .getTime(),
+  const data = votes.map((item) => ({
+    timestamp: getDateFromBlocks(item.block, currentBlock).toDate().getTime(),
     ...item,
   }))
 
@@ -980,7 +973,7 @@ export function WalletPendingTransactions() {
             <RoundedTh>{t('Address')}</RoundedTh>
             <RoundedTh textAlign="right">{t('Amount, iDNA')}</RoundedTh>
             <RoundedTh textAlign="right">{t('Scheduled date')}</RoundedTh>
-            <RoundedTh isRight></RoundedTh>
+            <RoundedTh isRight />
           </Tr>
         </Thead>
         <Tbody>
@@ -1047,7 +1040,7 @@ export function WalletPendingTransactions() {
       {!isReady && (
         <Stack spacing={2} mt={2}>
           {new Array(10).fill(0).map(() => (
-            <Skeleton height={10} w="full"></Skeleton>
+            <Skeleton height={10} w="full" />
           ))}
         </Stack>
       )}

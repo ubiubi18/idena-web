@@ -12,7 +12,7 @@ export function addContact(contact) {
 
 export function updateContact(addr, nextContact) {
   const contacts = getContacts()
-  const idx = contacts.findIndex(c => c.addr === addr)
+  const idx = contacts.findIndex((c) => c.addr === addr)
   const nextContacts = [
     ...contacts.slice(0, idx),
     nextContact,

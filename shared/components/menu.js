@@ -9,7 +9,7 @@ import {IconButton} from './button'
 
 // eslint-disable-next-line react/display-name
 export const Menu = forwardRef((props, ref) => (
-  <MenuItems ref={ref} w={null} {...props}></MenuItems>
+  <MenuItems ref={ref} w={null} {...props} />
 ))
 
 export function MenuItems({ref, ...props}) {

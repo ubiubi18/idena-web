@@ -47,7 +47,11 @@ export default function Certificate({id, certificate}) {
     onMenuClose()
   })
 
-  const {data: identity, isLoading: identityIsLoading, isFetched} = useQuery(
+  const {
+    data: identity,
+    isLoading: identityIsLoading,
+    isFetched,
+  } = useQuery(
     ['fetch-identity', certificate.coinbase],
     () => fetchIdentity(certificate.coinbase, true),
     {
@@ -115,7 +119,7 @@ export default function Certificate({id, certificate}) {
 
             <Stack spacing={0} overflow="hidden" w="100%">
               {identityIsLoading ? (
-                <Skeleton h={4} w={20}></Skeleton>
+                <Skeleton h={4} w={20} />
               ) : (
                 <Heading fontSize="md" fontWeight={500} lineHeight={4}>
                   {mapIdentityToFriendlyStatus(identityState)}
@@ -173,7 +177,7 @@ export default function Certificate({id, certificate}) {
             )}
           </Stack>
 
-          <Divider mt={7}></Divider>
+          <Divider mt={7} />
         </Flex>
         <Flex
           mt={16}

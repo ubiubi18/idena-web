@@ -114,7 +114,7 @@ function RestoreKey() {
         <Flex w="100%" mt={['24px', '13px']} direction={['column', 'initial']}>
           <form
             style={{width: '100%'}}
-            onSubmit={e => {
+            onSubmit={(e) => {
               try {
                 e.preventDefault()
                 setError(null)
@@ -143,7 +143,7 @@ function RestoreKey() {
                 value={password}
                 borderColor="xblack.008"
                 backgroundColor="xblack.016"
-                onChange={e => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder={t('Enter your password')}
               />
               <PrimaryButton
@@ -328,7 +328,7 @@ export function AuthLayout({children, ...props}) {
 }
 
 // eslint-disable-next-line react/display-name
-AuthLayout.Normal = function({children}) {
+AuthLayout.Normal = function ({children}) {
   return (
     <Flex
       align="center"
@@ -344,7 +344,7 @@ AuthLayout.Normal = function({children}) {
   )
 }
 // eslint-disable-next-line react/display-name
-AuthLayout.Small = function({children}) {
+AuthLayout.Small = function ({children}) {
   return (
     <Flex direction="column" justify="center" height="100%">
       <Flex
@@ -363,7 +363,7 @@ AuthLayout.Small = function({children}) {
 }
 
 // eslint-disable-next-line react/display-name
-AuthLayout.New = function({children, showLanguage, ...props}) {
+AuthLayout.New = function ({children, showLanguage, ...props}) {
   return (
     <Flex
       direction="column"
@@ -425,7 +425,7 @@ function ChangeLanguage() {
               fontSize={['14px', '11px']}
               fontWeight="normal"
             >
-              {AVAILABLE_LANGS.map(lang => (
+              {AVAILABLE_LANGS.map((lang) => (
                 <MenuItem
                   key={lang}
                   py={3}
@@ -491,7 +491,7 @@ function DnaAppUrlNew({onClick}) {
           <Text>{t('Open in Idena app')}</Text>
         </Flex>
         <Flex>
-          <ChevronRightIcon boxSize={5} color="white"></ChevronRightIcon>
+          <ChevronRightIcon boxSize={5} color="white" />
         </Flex>
       </Flex>
     </HStack>

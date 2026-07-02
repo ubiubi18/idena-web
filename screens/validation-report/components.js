@@ -86,7 +86,7 @@ export function ValidationReportSummary({onClose, ...props}) {
 
   const dna = toLocaleDna(i18n.language, {maximumFractionDigits: 3})
 
-  const maybeDna = amount =>
+  const maybeDna = (amount) =>
     !amount || Number.isNaN(amount) ? '–' : dna(amount)
 
   const tweet = () =>
@@ -359,8 +359,9 @@ export function ValidationReportGaugeBar({value, bg, color}) {
 
   const arc = circumference * (angle / 360)
   const dashArray = `${arc} ${circumference}`
-  const transform = `rotate(${180 -
-    Math.max(angle - 180, 0) / 2}, ${radius}, ${radius})`
+  const transform = `rotate(${
+    180 - Math.max(angle - 180, 0) / 2
+  }, ${radius}, ${radius})`
 
   const percentNormalized = Math.min(Math.max(value, 0), 100)
   const offset = arc - (percentNormalized / 100) * arc
@@ -379,7 +380,7 @@ export function ValidationReportGaugeBar({value, bg, color}) {
         bg={color}
         w={`${percentNormalized}%`}
         borderRadius="md"
-      ></Box>
+      />
     </Box>
   ) : (
     <svg

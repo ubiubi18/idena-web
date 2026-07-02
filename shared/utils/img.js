@@ -6,7 +6,7 @@ export const imageResize = async (imgUrl, width, height) =>
     try {
       const img = document.createElement('img')
 
-      img.onload = function() {
+      img.onload = function () {
         const canvas = document.createElement('canvas')
         const ctx = canvas.getContext('2d')
 
@@ -39,7 +39,7 @@ export const imageResizeSoft = async (
     try {
       const img = document.createElement('img')
 
-      img.onload = function() {
+      img.onload = function () {
         const {width, height} = img
 
         const {newWidth, newHeight} = resizing(
@@ -63,7 +63,7 @@ export const imageResizeSoft = async (
 
       img.src = imgUrl
     } catch (e) {
-      return reject(e.message)
+      reject(e.message)
     }
   })
 

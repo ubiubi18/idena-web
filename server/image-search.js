@@ -54,7 +54,11 @@ function normalizeImageSearchResult(item) {
 
 function requestHttpsText(
   url,
-  {timeoutMs = HTTP_TIMEOUT_MS, maxBytes = MAX_RESPONSE_BYTES, headers = {}} = {}
+  {
+    timeoutMs = HTTP_TIMEOUT_MS,
+    maxBytes = MAX_RESPONSE_BYTES,
+    headers = {},
+  } = {}
 ) {
   const parsedUrl = url instanceof URL ? url : new URL(url)
   if (parsedUrl.protocol !== 'https:') {
@@ -74,7 +78,7 @@ function requestHttpsText(
           ...headers,
         },
       },
-      res => {
+      (res) => {
         if (!res.statusCode || res.statusCode < 200 || res.statusCode >= 300) {
           res.resume()
           reject(new Error(`Image search HTTP ${res.statusCode || 0}`))
@@ -84,7 +88,7 @@ function requestHttpsText(
         let bytes = 0
         const chunks = []
         res.setEncoding('utf8')
-        res.on('data', chunk => {
+        res.on('data', (chunk) => {
           bytes += Buffer.byteLength(chunk)
           if (bytes > maxBytes) {
             req.destroy(new Error('Image search response too large'))
@@ -126,12 +130,16 @@ function extractDuckDuckGoVqd(html) {
   return null
 }
 
-function withSearchSourceTimeout(promise, label, timeoutMs = SOURCE_TIMEOUT_MS) {
+function withSearchSourceTimeout(
+  promise,
+  label,
+  timeoutMs = SOURCE_TIMEOUT_MS
+) {
   let timeout = null
 
   return Promise.race([
     promise,
-    new Promise(resolve => {
+    new Promise((resolve) => {
       timeout = setTimeout(() => {
         // eslint-disable-next-line no-console
         console.warn(`${label} timed out after ${timeoutMs}ms`)
@@ -139,7 +147,7 @@ function withSearchSourceTimeout(promise, label, timeoutMs = SOURCE_TIMEOUT_MS) 
       }, timeoutMs)
     }),
   ])
-    .catch(error => {
+    .catch((error) => {
       // eslint-disable-next-line no-console
       console.warn(`${label} failed`, error.toString())
       return []
@@ -184,7 +192,7 @@ async function searchDuckDuckGoImages(query) {
 
     return results
       .slice(0, 30)
-      .map(item =>
+      .map((item) =>
         normalizeImageSearchResult({
           image: item && item.image,
           thumbnail: (item && (item.thumbnail || item.image)) || null,
@@ -211,7 +219,7 @@ async function searchOpenverseImages(query) {
     const results = Array.isArray(data && data.results) ? data.results : []
 
     return results
-      .map(item =>
+      .map((item) =>
         normalizeImageSearchResult({
           image: item && item.url,
           thumbnail:
@@ -249,7 +257,7 @@ async function searchWikimediaImages(query) {
     const list = pages && typeof pages === 'object' ? Object.values(pages) : []
 
     return list
-      .map(item => {
+      .map((item) => {
         const imageInfo = Array.isArray(item && item.imageinfo)
           ? item.imageinfo[0]
           : null
@@ -271,7 +279,7 @@ function dedupeSearchResults(items) {
   const seen = new Set()
   const result = []
 
-  items.forEach(item => {
+  items.forEach((item) => {
     if (!item || typeof item !== 'object') return
     const image = String(item.image || '').trim()
     const thumbnail = String(item.thumbnail || '').trim()
@@ -286,7 +294,7 @@ function dedupeSearchResults(items) {
 
 function normalizeImageSearchQuery(query) {
   return Array.from(String(query || ''))
-    .map(char => {
+    .map((char) => {
       const code = char.charCodeAt(0)
       return code < 32 || code === 127 ? ' ' : char
     })

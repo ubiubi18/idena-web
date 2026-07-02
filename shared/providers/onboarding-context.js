@@ -191,23 +191,26 @@ export function OnboardingProvider({children}) {
     }
   }, [epoch, hasSuccessTrainingValidation, identity, send])
 
-  return (
-    <OnboardingContext.Provider
-      value={[
-        current,
-        {
-          showCurrentTask() {
-            send('SHOW')
-          },
-          dismissCurrentTask() {
-            send('DISMISS')
-          },
-          next() {
-            send('NEXT')
-          },
+  const value = useMemo(
+    () => [
+      current,
+      {
+        showCurrentTask() {
+          send('SHOW')
         },
-      ]}
-    >
+        dismissCurrentTask() {
+          send('DISMISS')
+        },
+        next() {
+          send('NEXT')
+        },
+      },
+    ],
+    [current, send]
+  )
+
+  return (
+    <OnboardingContext.Provider value={value}>
       {children}
     </OnboardingContext.Provider>
   )

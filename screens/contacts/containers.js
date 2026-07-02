@@ -94,7 +94,7 @@ export function ContactListSidebar({
             _placeholder={{
               color: 'muted',
             }}
-            onChange={e => setTerm(e.target.value)}
+            onChange={(e) => setTerm(e.target.value)}
           />
         </Box>
         <InviteActionBar onNewContact={onNewContact} />
@@ -189,7 +189,7 @@ function ContactList({filter, selectedContactId, onSelectContact}) {
     if (filter && filter.length > 0) {
       // eslint-disable-next-line no-shadow
       const nextInvite = invites.filter(({firstName, lastName, receiver}) =>
-        [firstName, lastName, receiver].some(x =>
+        [firstName, lastName, receiver].some((x) =>
           x?.toLowerCase().includes(filter.toLowerCase())
         )
       )
@@ -209,8 +209,8 @@ function ContactList({filter, selectedContactId, onSelectContact}) {
         {t('Contacts')}
       </Box>
       {filteredInvites
-        .filter(invite => !invite.deletedAt)
-        .map(invite => {
+        .filter((invite) => !invite.deletedAt)
+        .map((invite) => {
           const {
             id,
             receiver,
@@ -349,113 +349,111 @@ export function ContactCard({
   const toDna = toLocaleDna(language)
 
   return (
-    <>
-      <Stack spacing={6} w="full">
-        <Stack spacing={4}>
-          <Stack isInline spacing={6} align="center" py={2}>
-            <ContactAvatar address={address} borderRadius={20} />
-            <Stack spacing={1.5} fontWeight={500}>
-              <Stack isInline align="center">
-                <Text fontSize="lg">
-                  {`${firstName} ${lastName}`.trim() || t('...')}
-                </Text>
-                {mining && (
-                  <ContactCardBadge bg="orange.010" color="orange.500">
-                    {t('Mining...')}
-                  </ContactCardBadge>
-                )}
-                {terminating && (
-                  <ContactCardBadge bg="red.010" color="red.500">
-                    {t('Terminating...')}
-                  </ContactCardBadge>
-                )}
-              </Stack>
-              <Text color="muted" fontSize="mdx" wordBreak="break-all">
-                {address}
+    <Stack spacing={6} w="full">
+      <Stack spacing={4}>
+        <Stack isInline spacing={6} align="center" py={2}>
+          <ContactAvatar address={address} borderRadius={20} />
+          <Stack spacing={1.5} fontWeight={500}>
+            <Stack isInline align="center">
+              <Text fontSize="lg">
+                {`${firstName} ${lastName}`.trim() || t('...')}
               </Text>
+              {mining && (
+                <ContactCardBadge bg="orange.010" color="orange.500">
+                  {t('Mining...')}
+                </ContactCardBadge>
+              )}
+              {terminating && (
+                <ContactCardBadge bg="red.010" color="red.500">
+                  {t('Terminating...')}
+                </ContactCardBadge>
+              )}
             </Stack>
-          </Stack>
-
-          <Stack isInline align="center" spacing={1} w="full">
-            <IconButton icon={<EditIcon boxSize={5} />} onClick={onEditContact}>
-              {t('Edit')}
-            </IconButton>
-            <VDivider />
-            <Tooltip label={t('Remove from device')}>
-              <IconButton
-                icon={<BasketIcon boxSize={5} />}
-                onClick={() => {
-                  deleteInvite(id)
-                  successToast({
-                    title: t('Contact deleted'),
-                    onAction: () => {
-                      recoverInvite(id)
-                      onRecoverContact(contact)
-                    },
-                    actionContent: t('Undo'),
-                  })
-                  onRemoveContact()
-                }}
-              >
-                {t('Delete contact')}
-              </IconButton>
-            </Tooltip>
-            {canKill && !terminating && !mining && (
-              <>
-                <VDivider />
-                <IconButton
-                  icon={<DeleteIcon boxSize={5} />}
-                  color="red.500"
-                  _hover={{
-                    bg: 'red.012',
-                  }}
-                  _active={{
-                    bg: 'red.012',
-                  }}
-                  _focus={{
-                    boxShadow: '0 0 0 3px rgb(255 102 102 /0.50)',
-                  }}
-                  onClick={onKillContact}
-                >
-                  {t('Terminate invitation')}
-                </IconButton>
-              </>
-            )}
+            <Text color="muted" fontSize="mdx" wordBreak="break-all">
+              {address}
+            </Text>
           </Stack>
         </Stack>
 
-        <Stack spacing={5} bg="gray.50" px={10} py={8} borderRadius="md">
-          <Stack spacing={0}>
-            {state !== IdentityStatus.Invite && !isInviteExpired && !mining && (
-              <ContactStat label={t('Address')} value={receiver} />
-            )}
-
-            <ContactStat label={t('Status')} value={status} pt={2} pb={3} />
-
-            {stake > 0 && <ContactStat label="Stake" value={toDna(stake)} />}
-          </Stack>
-
-          {!isInviteExpired && !activated && (
-            <FormControl>
-              <Stack spacing={3}>
-                <Flex align="center" justify="space-between">
-                  <FormLabel pb={0}>{t('Invitation code')}</FormLabel>
-                  {!activated &&
-                    (hasCopied ? (
-                      <FormLabel color="green.500" fontSize="md" m={0}>
-                        {t('Copied!')}
-                      </FormLabel>
-                    ) : (
-                      <FlatButton onClick={onCopyKey}>{t('Copy')}</FlatButton>
-                    ))}
-                </Flex>
-                <Input label={t('Invitation code')} value={key} isDisabled />
-              </Stack>
-            </FormControl>
+        <Stack isInline align="center" spacing={1} w="full">
+          <IconButton icon={<EditIcon boxSize={5} />} onClick={onEditContact}>
+            {t('Edit')}
+          </IconButton>
+          <VDivider />
+          <Tooltip label={t('Remove from device')}>
+            <IconButton
+              icon={<BasketIcon boxSize={5} />}
+              onClick={() => {
+                deleteInvite(id)
+                successToast({
+                  title: t('Contact deleted'),
+                  onAction: () => {
+                    recoverInvite(id)
+                    onRecoverContact(contact)
+                  },
+                  actionContent: t('Undo'),
+                })
+                onRemoveContact()
+              }}
+            >
+              {t('Delete contact')}
+            </IconButton>
+          </Tooltip>
+          {canKill && !terminating && !mining && (
+            <>
+              <VDivider />
+              <IconButton
+                icon={<DeleteIcon boxSize={5} />}
+                color="red.500"
+                _hover={{
+                  bg: 'red.012',
+                }}
+                _active={{
+                  bg: 'red.012',
+                }}
+                _focus={{
+                  boxShadow: '0 0 0 3px rgb(255 102 102 /0.50)',
+                }}
+                onClick={onKillContact}
+              >
+                {t('Terminate invitation')}
+              </IconButton>
+            </>
           )}
         </Stack>
       </Stack>
-    </>
+
+      <Stack spacing={5} bg="gray.50" px={10} py={8} borderRadius="md">
+        <Stack spacing={0}>
+          {state !== IdentityStatus.Invite && !isInviteExpired && !mining && (
+            <ContactStat label={t('Address')} value={receiver} />
+          )}
+
+          <ContactStat label={t('Status')} value={status} pt={2} pb={3} />
+
+          {stake > 0 && <ContactStat label="Stake" value={toDna(stake)} />}
+        </Stack>
+
+        {!isInviteExpired && !activated && (
+          <FormControl>
+            <Stack spacing={3}>
+              <Flex align="center" justify="space-between">
+                <FormLabel pb={0}>{t('Invitation code')}</FormLabel>
+                {!activated &&
+                  (hasCopied ? (
+                    <FormLabel color="green.500" fontSize="md" m={0}>
+                      {t('Copied!')}
+                    </FormLabel>
+                  ) : (
+                    <FlatButton onClick={onCopyKey}>{t('Copy')}</FlatButton>
+                  ))}
+              </Flex>
+              <Input label={t('Invitation code')} value={key} isDisabled />
+            </Stack>
+          </FormControl>
+        )}
+      </Stack>
+    </Stack>
   )
 }
 
@@ -468,10 +466,8 @@ export function IssueInviteDrawer({
 }) {
   const {t} = useTranslation()
 
-  const {
-    isOpen: isOpenAdvancedOptions,
-    onToggle: onToggleAdvancedOptions,
-  } = useDisclosure({defaultIsOpen: Boolean(inviteeAddress)})
+  const {isOpen: isOpenAdvancedOptions, onToggle: onToggleAdvancedOptions} =
+    useDisclosure({defaultIsOpen: Boolean(inviteeAddress)})
 
   const {addInvite} = useInviteDispatch()
 
@@ -496,7 +492,7 @@ export function IssueInviteDrawer({
           as="form"
           id="issueInvite"
           spacing={5}
-          onSubmit={async e => {
+          onSubmit={async (e) => {
             e.preventDefault()
 
             const {
@@ -602,7 +598,7 @@ export function EditContactDrawer({contact, onRename, ...props}) {
         as="form"
         direction="column"
         flex={1}
-        onSubmit={async e => {
+        onSubmit={async (e) => {
           e.preventDefault()
 
           const {
@@ -650,7 +646,14 @@ export function KillInviteDrawer({invite, onKill, onKillFail, ...props}) {
 
   const invitee = invites.find(byId(invite))
 
-  const {id, firstName, lastName, receiver, state: status, stake} = {
+  const {
+    id,
+    firstName,
+    lastName,
+    receiver,
+    state: status,
+    stake,
+  } = {
     ...invite,
     state: invitee?.identity?.state,
   }
@@ -668,7 +671,7 @@ export function KillInviteDrawer({invite, onKill, onKillFail, ...props}) {
         as="form"
         direction="column"
         flex={1}
-        onSubmit={async e => {
+        onSubmit={async (e) => {
           e.preventDefault()
 
           setIsSubmitting(true)

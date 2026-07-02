@@ -23,10 +23,8 @@ export default function ContactsPage() {
   const [selectedContact, setSelectedContact] = React.useState(null)
 
   const sendInviteDisclosure = useDisclosure()
-  const {
-    onOpen: onOpenInviteDrawer,
-    onClose: onCloseInviteDrawer,
-  } = sendInviteDisclosure
+  const {onOpen: onOpenInviteDrawer, onClose: onCloseInviteDrawer} =
+    sendInviteDisclosure
 
   const {
     isOpen: isOpenEditContactDrawer,
@@ -93,11 +91,11 @@ export default function ContactsPage() {
             {...sendInviteDisclosure}
             inviteeAddress={router.query.address}
             isMining={isMining}
-            onIssue={invite => {
+            onIssue={(invite) => {
               setSelectedContact(invite)
               setIsMining.on()
             }}
-            onIssueFail={error => {
+            onIssueFail={(error) => {
               failToast({
                 title: error ?? t('Something went wrong'),
                 status: 'error',
@@ -109,7 +107,7 @@ export default function ContactsPage() {
             contact={selectedContact ?? {}}
             isOpen={isOpenEditContactDrawer}
             onRename={({firstName, lastName}) => {
-              setSelectedContact(contact => ({
+              setSelectedContact((contact) => ({
                 ...contact,
                 firstName,
                 lastName,
@@ -128,7 +126,7 @@ export default function ContactsPage() {
               successToast('Invite terminated')
               onCloseKillContactDrawer()
             }}
-            onFail={error => {
+            onFail={(error) => {
               failToast({
                 title: 'Failed to terminate invite',
                 description: error,

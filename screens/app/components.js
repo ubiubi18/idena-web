@@ -16,23 +16,23 @@ export function LayoutContainer(props) {
   )
 }
 
-export const Page = forwardRef(function Page(props, ref) {
-  return (
-    <Flex
-      ref={ref}
-      flexDirection="column"
-      align="flex-start"
-      flexGrow={999}
-      maxH={['auto', '100vh']}
-      minW="50%"
-      px={[8, 20]}
-      py={6}
-      overflowY="auto"
-      position="relative"
-      {...props}
-    />
-  )
-})
+export const Page = forwardRef((props, ref) => (
+  <Flex
+    ref={ref}
+    flexDirection="column"
+    align="flex-start"
+    flexGrow={999}
+    maxH={['auto', '100vh']}
+    minW="50%"
+    px={[8, 20]}
+    py={6}
+    overflowY="auto"
+    position="relative"
+    {...props}
+  />
+))
+
+Page.displayName = 'Page'
 
 export function Hamburger({onClick, ...props}) {
   return (

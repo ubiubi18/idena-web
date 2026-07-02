@@ -289,7 +289,7 @@ export function CertificateCard({
           </Flex>
           <TextLink
             href="#"
-            onClick={e => {
+            onClick={(e) => {
               e.preventDefault()
               onOpen()
             }}
@@ -535,36 +535,34 @@ export function ShortFlipWithIcon({hash, onClick}) {
   }, [data])
 
   return (
-    <>
-      <Flex alignItems="center" onClick={onClick} cursor="pointer">
-        {url ? (
-          <Avatar
-            boxSize={[10, 8]}
-            src={url}
-            bg="gray.50"
-            borderRadius={['lgx', 'lg']}
-            mr={3}
-          />
-        ) : (
-          <Box w={[10, 8]} h={[10, 8]} rounded={['lgx', 'lg']} mr={3}>
-            <EmptyFlipIcon boxSize={[10, 8]} />
-          </Box>
-        )}
-        <Flex direction={['column', 'row']}>
-          <Text fontSize={['base', 'md']} fontWeight={500} color="blue.500">
-            {isDesktop ? hash : `${hash.substr(0, 4)}...${hash.substr(-4, 4)}`}
-          </Text>
-          <Text
-            display={['block', 'none']}
-            fontSize="md"
-            fontWeight={500}
-            color="muted"
-          >
-            {t('Flip')}
-          </Text>
-        </Flex>
+    <Flex alignItems="center" onClick={onClick} cursor="pointer">
+      {url ? (
+        <Avatar
+          boxSize={[10, 8]}
+          src={url}
+          bg="gray.50"
+          borderRadius={['lgx', 'lg']}
+          mr={3}
+        />
+      ) : (
+        <Box w={[10, 8]} h={[10, 8]} rounded={['lgx', 'lg']} mr={3}>
+          <EmptyFlipIcon boxSize={[10, 8]} />
+        </Box>
+      )}
+      <Flex direction={['column', 'row']}>
+        <Text fontSize={['base', 'md']} fontWeight={500} color="blue.500">
+          {isDesktop ? hash : `${hash.substr(0, 4)}...${hash.substr(-4, 4)}`}
+        </Text>
+        <Text
+          display={['block', 'none']}
+          fontSize="md"
+          fontWeight={500}
+          color="muted"
+        >
+          {t('Flip')}
+        </Text>
       </Flex>
-    </>
+    </Flex>
   )
 }
 
@@ -584,7 +582,7 @@ export function LongFlipWithIcon({hash, onClick}) {
 
   const {data: words, isLoading: isWordsLoading} = useQuery(
     ['get-words', hash],
-    () => Promise.all(data.keywords?.map(idx => loadKeyword(idx))),
+    () => Promise.all(data.keywords?.map((idx) => loadKeyword(idx))),
     {
       enabled: !!data,
       retry: false,
@@ -615,53 +613,45 @@ export function LongFlipWithIcon({hash, onClick}) {
   }
 
   return (
-    <>
-      <Flex mr={[1, 0]} alignItems="center" cursor="pointer" onClick={onClick}>
-        <Flex>
-          {url ? (
-            <Avatar
-              boxSize={[10, 8]}
-              src={url}
-              bg="gray.50"
-              borderRadius={['lgx', 'lg']}
-              mr={3}
-            />
+    <Flex mr={[1, 0]} alignItems="center" cursor="pointer" onClick={onClick}>
+      <Flex>
+        {url ? (
+          <Avatar
+            boxSize={[10, 8]}
+            src={url}
+            bg="gray.50"
+            borderRadius={['lgx', 'lg']}
+            mr={3}
+          />
+        ) : (
+          <Box w={[10, 8]} h={[10, 8]} rounded={['lgx', 'lg']} mr={3}>
+            <EmptyFlipIcon boxSize={[10, 8]} />
+          </Box>
+        )}
+      </Flex>
+      <Flex direction="column" lineHeight={1} overflow="hidden">
+        <Flex order={[2, 1]} color={['muted', 'gray.500']} fontWeight={500}>
+          {isLoading || isWordsLoading ? (
+            <Skeleton w={10} h={3} />
           ) : (
-            <Box w={[10, 8]} h={[10, 8]} rounded={['lgx', 'lg']} mr={3}>
-              <EmptyFlipIcon boxSize={[10, 8]} />
-            </Box>
+            <Text textOverflow="ellipsis" overflow="hidden" whiteSpace="nowrap">
+              {getWords()}
+            </Text>
           )}
         </Flex>
-        <Flex direction="column" lineHeight={1} overflow="hidden">
-          <Flex order={[2, 1]} color={['muted', 'gray.500']} fontWeight={500}>
-            {isLoading || isWordsLoading ? (
-              <Skeleton w={10} h={3} />
-            ) : (
-              <Text
-                textOverflow="ellipsis"
-                overflow="hidden"
-                whiteSpace="nowrap"
-              >
-                {getWords()}
-              </Text>
-            )}
-          </Flex>
-          <Flex
-            order={[1, 2]}
-            color="blue.500"
-            fontSize={['base', 'md']}
-            fontWeight={500}
-            h={[6, 'auto']}
-          >
-            <Text isTruncated>
-              {isDesktop
-                ? hash
-                : `${hash.substr(0, 4)}...${hash.substr(-4, 4)}`}
-            </Text>
-          </Flex>
+        <Flex
+          order={[1, 2]}
+          color="blue.500"
+          fontSize={['base', 'md']}
+          fontWeight={500}
+          h={[6, 'auto']}
+        >
+          <Text isTruncated>
+            {isDesktop ? hash : `${hash.substr(0, 4)}...${hash.substr(-4, 4)}`}
+          </Text>
         </Flex>
       </Flex>
-    </>
+    </Flex>
   )
 }
 
@@ -802,7 +792,7 @@ function FlipWords({
 }) {
   const {t} = useTranslation()
 
-  const getWordName = idx => {
+  const getWordName = (idx) => {
     try {
       return capitalize(words[idx].name)
     } catch {
@@ -810,7 +800,7 @@ function FlipWords({
     }
   }
 
-  const getWordDesc = idx => {
+  const getWordDesc = (idx) => {
     try {
       return capitalize(words[idx].desc)
     } catch {
@@ -845,13 +835,13 @@ function FlipWords({
       </Flex>
       {isCorrectReport && shouldBeReported && (
         <ReportAlert
-          icon={<RightIcon color="blue.500" boxSize={5}></RightIcon>}
+          icon={<RightIcon color="blue.500" boxSize={5} />}
           text={t('Reported successfully')}
         />
       )}
       {isCorrectReport && !shouldBeReported && (
         <ReportAlert
-          icon={<RightIcon color="blue.500" boxSize={5}></RightIcon>}
+          icon={<RightIcon color="blue.500" boxSize={5} />}
           text={t('You marked this flip as correct')}
         />
       )}
@@ -859,7 +849,7 @@ function FlipWords({
         <ReportAlert
           bg="red.010"
           borderColor="red.050"
-          icon={<WarningIcon color="red.500" boxSize={5}></WarningIcon>}
+          icon={<WarningIcon color="red.500" boxSize={5} />}
           text={t('You had to report this flip')}
         />
       )}
@@ -867,7 +857,7 @@ function FlipWords({
         <ReportAlert
           bg="orange.010"
           borderColor="orange.050"
-          icon={<WarningIcon color="orange.500" boxSize={5}></WarningIcon>}
+          icon={<WarningIcon color="orange.500" boxSize={5} />}
           text={t('You reported this flip wrongly')}
         />
       )}
@@ -893,7 +883,7 @@ export function FlipView({
   const {data, isFetching} = useQuery(
     ['get-flip', hash],
     () =>
-      getFlip(hash).then(async flip => {
+      getFlip(hash).then(async (flip) => {
         const images = await Promise.all(flip.images.map(toBlob))
         return {
           images: images.map(URL.createObjectURL),
@@ -914,7 +904,7 @@ export function FlipView({
 
   const {data: words, isLoading: isWordsLoading} = useQuery(
     ['get-words', hash],
-    () => Promise.all(data.keywords?.map(idx => loadKeyword(idx))),
+    () => Promise.all(data.keywords?.map((idx) => loadKeyword(idx))),
     {
       enabled: !!data,
       retry: false,

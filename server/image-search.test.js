@@ -11,9 +11,9 @@ const {
 describe('image search helpers', () => {
   test('extracts current DuckDuckGo vqd token shapes', () => {
     expect(extractDuckDuckGoVqd('vqd="abc-123_ABC.0"')).toBe('abc-123_ABC.0')
-    expect(extractDuckDuckGoVqd('https://duckduckgo.com/i.js?vqd=xyz&x=1')).toBe(
-      'xyz'
-    )
+    expect(
+      extractDuckDuckGoVqd('https://duckduckgo.com/i.js?vqd=xyz&x=1')
+    ).toBe('xyz')
     expect(extractDuckDuckGoVqd('{"vqd":"token_42"}')).toBe('token_42')
   })
 

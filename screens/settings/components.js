@@ -48,9 +48,9 @@ export function LocaleSwitcher() {
         value={selectValue}
         h={8}
         w="auto"
-        onChange={e => setSelectValue(e.target.value)}
+        onChange={(e) => setSelectValue(e.target.value)}
       >
-        {AVAILABLE_LANGS.map(lang => (
+        {AVAILABLE_LANGS.map((lang) => (
           <option key={lang} value={lang}>
             {isoLangs[lang].nativeName} ({lang.toUpperCase()})
           </option>

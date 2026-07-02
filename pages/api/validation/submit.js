@@ -23,9 +23,9 @@ export default async (req, res) => {
       [id]
     )
 
-    const result = data.rows[0].flips.map(x => ({
+    const result = data.rows[0].flips.map((x) => ({
       ...x,
-      ...answers.find(y => y.hash === x.hash),
+      ...answers.find((y) => y.hash === x.hash),
     }))
 
     await pool.query(

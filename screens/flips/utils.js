@@ -88,7 +88,7 @@ export function markFlipsArchived(epoch) {
   })
 }
 
-const perm = arr => {
+const perm = (arr) => {
   const ret = []
   for (let i = 0; i < arr.length; i += 1) {
     const rest = perm(arr.slice(0, i).concat(arr.slice(i + 1)))
@@ -109,7 +109,7 @@ const randomNumber = () => {
   return buf[0]
 }
 
-const randomPerm = arr => {
+const randomPerm = (arr) => {
   const output = perm(arr)
   return output[randomNumber() % output.length]
 }
@@ -124,7 +124,7 @@ function shufflePics(pics, shuffledOrder) {
     firstOrder[value] = idx
   })
 
-  const secondOrder = shuffledOrder.map(value => firstOrder[value])
+  const secondOrder = shuffledOrder.map((value) => firstOrder[value])
 
   return {
     pics: newPics,
@@ -141,24 +141,24 @@ export function flipToHex(pics, order) {
   const publicRlp = encode([
     shuffled.pics
       .slice(0, 2)
-      .map(src =>
-        Uint8Array.from(atob(src.split(',')[1]), c => c.charCodeAt(0))
+      .map((src) =>
+        Uint8Array.from(atob(src.split(',')[1]), (c) => c.charCodeAt(0))
       ),
   ])
 
   const privateRlp = encode([
     shuffled.pics
       .slice(2)
-      .map(src =>
-        Uint8Array.from(atob(src.split(',')[1]), c => c.charCodeAt(0))
+      .map((src) =>
+        Uint8Array.from(atob(src.split(',')[1]), (c) => c.charCodeAt(0))
       ),
     shuffled.orders,
   ])
-  return [publicRlp, privateRlp].map(x => `0x${x.toString('hex')}`)
+  return [publicRlp, privateRlp].map((x) => `0x${x.toString('hex')}`)
 }
 
 export function updateFlipType(flips, {id, type}) {
-  return flips.map(flip =>
+  return flips.map((flip) =>
     flip.id === id
       ? {
           ...flip,
@@ -179,14 +179,14 @@ export async function publishFlip({
   privateKey,
   epoch,
 }) {
-  if (protectedImages.some(x => !x))
+  if (protectedImages.some((x) => !x))
     throw new Error('You must use 4 images for a flip')
 
   const flips = await db.table('ownFlips').toArray()
 
   if (
     flips.some(
-      flip =>
+      (flip) =>
         flip.type === FlipType.Published &&
         flip.protectedImages &&
         areSame(flip.protectedImages, protectedImages)
@@ -201,7 +201,7 @@ export async function publishFlip({
     throw new Error('You must shuffle flip before submit')
 
   const [publicHex, privateHex] = flipToHex(
-    originalOrder.map(num => protectedImages[num]),
+    originalOrder.map((num) => protectedImages[num]),
     orderPermutations
   )
 
@@ -272,14 +272,14 @@ export async function publishFlip({
 
 export function formatKeywords(keywords) {
   return keywords
-    .map(({name: [f, ...rest]}) => f?.toUpperCase() + rest.join(''))
+    .map(({name: [f = '', ...rest]}) => `${f.toUpperCase()}${rest.join('')}`)
     .join(' / ')
 }
 
 export async function fetchKeywordTranslations(ids, locale) {
   return (
     await Promise.all(
-      ids.map(async id =>
+      ids.map(async (id) =>
         (
           await fetch(
             `https://translation.idena.io/word/${id}/language/${locale}/translations`
@@ -312,7 +312,7 @@ export async function fetchKeywordTranslations(ids, locale) {
 export async function fetchConfirmedKeywordTranslations(ids, locale) {
   return (
     await Promise.all(
-      ids.map(async id =>
+      ids.map(async (id) =>
         (
           await fetch(
             `https://translation.idena.io/word/${id}/language/${locale}/confirmed-translation`
@@ -414,10 +414,10 @@ export async function createOrUpdateFlip({
   return db
     .table('ownFlips')
     .put(nextFlip)
-    .then(dbKey => console.log('updated draft', 'key', dbKey))
+    .then((dbKey) => console.log('updated draft', 'key', dbKey))
 }
 
-export const colorPickerColor = color =>
+export const colorPickerColor = (color) =>
   color.includes('ffffff') ? 'rgb(210 212 217)' : `#${color}`
 
 /** ** Global variables *** */
@@ -434,7 +434,7 @@ let outPixels = []
  *	creates histogram of image
  *	result in array h
  */
-const hist = function(image, h) {
+const hist = function (image, h) {
   let v
 
   for (let i = 0; i <= 255; i++) {
@@ -459,7 +459,7 @@ const hist = function(image, h) {
  *	result in arrays frq, pos, hmin, hmax,
  *
  */
-const frqfunc = function(h, frq, pos) {
+const frqfunc = function (h, frq, pos) {
   levels = 0
   frq[0] = h[0]
   if (h[0] !== 0) {
@@ -484,7 +484,7 @@ const frqfunc = function(h, frq, pos) {
  *		needed (calculated by frqfunc)
  *	results stored in arrays: PixelValue, pixelX, pixelY, pixelPos
  */
-const sort = function(image, pos, pixelValue, pixelX, pixelY, pixelPos) {
+const sort = function (image, pos, pixelValue, pixelX, pixelY, pixelPos) {
   let v
   let len
 
@@ -510,7 +510,7 @@ const sort = function(image, pos, pixelValue, pixelX, pixelY, pixelPos) {
 /*
  *	THE ACTUAL WATERSHED 4-connected
  */
-const flooding4 = function(
+const flooding4 = function (
   input,
   h,
   pos,
@@ -655,7 +655,7 @@ const flooding4 = function(
  *	In neigh[3] there is the pixel(x, y+1)
  *	In neigh[4] there is the pixel(x, y)	// central point
  */
-const getNeighborhood3_4connect = function(x, y, neigh) {
+const getNeighborhood3_4connect = function (x, y, neigh) {
   let index = x + (y - 1) * nx
   neigh[0] = outPixels[index]
   index += nx - 1
@@ -668,7 +668,7 @@ const getNeighborhood3_4connect = function(x, y, neigh) {
   neigh[4] = outPixels[index]
 }
 
-const blurToWatershed = image => {
+const blurToWatershed = (image) => {
   nx = image.width
   ny = image.height
   const h = [] // histogram
@@ -689,7 +689,7 @@ const blurToWatershed = image => {
   return output
 }
 
-const convertImageDataToGray = imageData => {
+const convertImageDataToGray = (imageData) => {
   const pixels = imageData.data
   for (let i = 0; i < pixels.length; i += 4) {
     const lightness = parseInt((pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3)
@@ -699,7 +699,7 @@ const convertImageDataToGray = imageData => {
   }
 }
 
-const getImageData = image => {
+const getImageData = (image) => {
   const vMin = 0
   const vMax = 1
 
@@ -747,7 +747,7 @@ const getImageData = image => {
   return out
 }
 
-const getImageFromImageData = imageData => {
+const getImageFromImageData = (imageData) => {
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
   canvas.width = imageData.width
@@ -771,7 +771,7 @@ const resizeImageToImageData = (image, newWidth, newHeight) => {
   return ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height)
 }
 
-const getImageDataFromImage = image => {
+const getImageDataFromImage = (image) => {
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
   canvas.width = image.naturalWidth
@@ -810,7 +810,7 @@ export async function protectFlipImage(imgSrc) {
     }
   }
 
-  const modifyImageHue = imageData => {
+  const modifyImageHue = (imageData) => {
     const pixels = imageData.data
     const rnd = Math.floor(Math.random() * 30) + 20
     for (let i = 0; i < pixels.length; i += 4) {
@@ -827,7 +827,7 @@ export async function protectFlipImage(imgSrc) {
   }
 
   const watershed = (image, imgW, imgH) => {
-    const getOverlayImg = image => {
+    const getOverlayImg = (image) => {
       const img = image
       const {data} = img
       const len = data.length
@@ -854,7 +854,9 @@ export async function protectFlipImage(imgSrc) {
 
   const img = new Image()
   img.src = imgSrc
-  await new Promise(resolve => (img.onload = resolve))
+  await new Promise((resolve) => {
+    img.onload = resolve
+  })
 
   const editedImageData = getImageDataFromImage(img)
   const resultImageData = getImageDataFromImage(img)
@@ -870,7 +872,9 @@ export async function protectFlipImage(imgSrc) {
     blurValue
   )
   const blurredImage = getImageFromImageData(editedImageData)
-  await new Promise(resolve => (blurredImage.onload = resolve))
+  await new Promise((resolve) => {
+    blurredImage.onload = resolve
+  })
 
   // Create mesh
   const watershedImageData = watershed(blurredImage, img.width, img.height)
@@ -886,7 +890,9 @@ export async function protectFlipImage(imgSrc) {
   resultCanvas.height = resultImageData.height
 
   const protectedImage = getImageFromImageData(resultImageData)
-  await new Promise(resolve => (protectedImage.onload = resolve))
+  await new Promise((resolve) => {
+    protectedImage.onload = resolve
+  })
   // eslint-disable-next-line eqeqeq
   const flip = Math.floor(Math.random() * 2) == 0
   resultCanvasContext.scale(flip ? -1 : 1, 1)
@@ -905,7 +911,9 @@ export async function watermarkedDataURL(imageSrc, text, date) {
 
   const watershedImage = new Image()
   watershedImage.src = imageSrc
-  await new Promise(resolve => (watershedImage.onload = resolve))
+  await new Promise((resolve) => {
+    watershedImage.onload = resolve
+  })
 
   const tempCanvas = document.createElement('canvas')
   const tempCtx = tempCanvas.getContext('2d')
@@ -946,7 +954,7 @@ export async function protectFlip({
   const protectedFlips = []
   let adversarialImg = ''
   const adversarialIndex = originalOrder.findIndex(
-    idx => idx === adversarialImageId
+    (idx) => idx === adversarialImageId
   )
 
   // eslint-disable-next-line no-plusplus
@@ -958,7 +966,7 @@ export async function protectFlip({
       let adversarialImageSrc
       if (adversarialImage) {
         adversarialImageSrc = adversarialImage
-      } else if (adversarialImages.some(x => x)) {
+      } else if (adversarialImages.some((x) => x)) {
         adversarialImageSrc = await getAdversarialImage(adversarialImages)
         adversarialImg = adversarialImageSrc?.slice()
       }
@@ -973,7 +981,7 @@ export async function protectFlip({
   }
 
   const compressedImages = await Promise.all(
-    protectedFlips.map(image =>
+    protectedFlips.map((image) =>
       image
         ? resizeImageToDataUrl(image, {
             width: 240,
@@ -1002,7 +1010,7 @@ export async function prepareAdversarialImages(images, send) {
         height: 330,
         type: 'image/png',
         exact: false,
-      }).then(async nextUrl => {
+      }).then(async (nextUrl) => {
         send('CHANGE_ADVERSARIAL', {
           image: nextUrl,
           currentIndex: idx,
@@ -1036,10 +1044,12 @@ export async function getAdversarialImage(images) {
   }
 
   const imagesImageData = await Promise.all(
-    selectedImages.map(async imgSrc => {
+    selectedImages.map(async (imgSrc) => {
       const image = document.createElement('img')
       image.src = imgSrc
-      await new Promise(resolve => (image.onload = resolve))
+      await new Promise((resolve) => {
+        image.onload = resolve
+      })
       const imageData = resizeImageToImageData(image, ING_WIDTH, IMG_HEIGHT)
       return Promise.resolve(imageData)
     })
@@ -1067,7 +1077,9 @@ export async function getAdversarialImage(images) {
     8
   )
   const blurredImage = getImageFromImageData(initialImgData)
-  await new Promise(resolve => (blurredImage.onload = resolve))
+  await new Promise((resolve) => {
+    blurredImage.onload = resolve
+  })
 
   const imageAccess = ImageAccess.fromHTMLImage(
     blurredImage,
@@ -1121,7 +1133,9 @@ export async function getAdversarialImage(images) {
   }
 
   const nosenseImage = getImageFromImageData(nosenseImageData)
-  await new Promise(resolve => (nosenseImage.onload = resolve))
+  await new Promise((resolve) => {
+    nosenseImage.onload = resolve
+  })
   const resizedImageData = resizeImageToImageData(
     nosenseImage,
     ING_WIDTH,
@@ -1133,11 +1147,12 @@ export async function getAdversarialImage(images) {
   // Paint sectors to images
   for (let i = 0; i < nosensePixels.length; i += 4) {
     if (nosensePixels[i] > 0) {
-      let color = palette0.find(el => nosensePixels[i] < el.red) || commonColor
+      let color =
+        palette0.find((el) => nosensePixels[i] < el.red) || commonColor
       if (!color) {
         color = commonColor
       }
-      const id = palette0.findIndex(el => el === color) % 4
+      const id = palette0.findIndex((el) => el === color) % 4
       switch (id) {
         case 0: // main image
           nosensePixels[i] = initialImageDataCopy[i]
@@ -1174,9 +1189,9 @@ export async function getAdversarialImage(images) {
   // Try to blur
   for (let i = 0; i < resizedImageDataCopy.length; i += 4) {
     const color =
-      palette0.find(el => resizedImageDataCopy[i] < el.red) || commonColor
+      palette0.find((el) => resizedImageDataCopy[i] < el.red) || commonColor
     const colorNext =
-      palette0.find(el => resizedImageDataCopy[i + 4] < el.red) || commonColor
+      palette0.find((el) => resizedImageDataCopy[i + 4] < el.red) || commonColor
     if (color !== colorNext) {
       if (i > ING_WIDTH * 4 && i < nosensePixels.length - ING_WIDTH * 4) {
         nosensePixels[i - 4] =
@@ -1364,7 +1379,9 @@ export async function shuffleAdversarial(
     return Promise.resolve({order: originalOrder})
   }
 
-  const position = originalOrder.findIndex(elem => elem === adversarialImageId)
+  const position = originalOrder.findIndex(
+    (elem) => elem === adversarialImageId
+  )
   if (position !== 3) {
     setDidShowShuffleAdversarial(true)
     return Promise.resolve({order: originalOrder})

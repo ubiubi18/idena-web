@@ -8,9 +8,8 @@ export class CallContractAttachment {
   }
 
   fromBytes(bytes) {
-    const protoAttachment = messages.ProtoCallContractAttachment.deserializeBinary(
-      bytes
-    )
+    const protoAttachment =
+      messages.ProtoCallContractAttachment.deserializeBinary(bytes)
 
     this.method = protoAttachment.getMethod()
     this.args = protoAttachment.getArgsList()

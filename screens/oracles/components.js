@@ -263,7 +263,7 @@ export function NumberInput({
           if (onClamp) onClamp(clampedValue)
         }
       }}
-      onChange={e => {
+      onChange={(e) => {
         if (preventInvalidInput) {
           if (e.target.checkValidity()) onChange(e)
           // eslint-disable-next-line no-unused-expressions
@@ -301,7 +301,7 @@ export function VotingOptionInput({
   ...props
 }) {
   return (
-    <React.Fragment>
+    <>
       <Flex align="center" justify="space-between">
         <Stack isInline spacing={1} flex={1} py={1}>
           <Flex h={6} w={6} align="center" justify="center">
@@ -341,7 +341,7 @@ export function VotingOptionInput({
         />
       </Flex>
       {!isLast && <Divider borderBottomColor="gray.100" mx={-1} />}
-    </React.Fragment>
+    </>
   )
 }
 
@@ -496,7 +496,7 @@ export function ScrollToTop({scrollableRef, children, ...props}) {
   const scrollableElement = scrollableRef.current
 
   React.useEffect(() => {
-    const handleScroll = e => {
+    const handleScroll = (e) => {
       const prevOpacity = lastOpacity.current
       const nextOpacity = Math.min(
         Math.round((e.target.scrollTop / 2000) * 100),
@@ -743,7 +743,7 @@ export function DeferredVotes() {
   const next = () => {
     if (state.index >= state.votes.length - 1) onClose()
     else {
-      setState(prevState => ({...prevState, index: prevState.index + 1}))
+      setState((prevState) => ({...prevState, index: prevState.index + 1}))
     }
   }
 
@@ -825,13 +825,12 @@ export function DeferredVotes() {
             label={t('Date')}
             value={
               blockAtData?.timestamp
-                ? `${new Date(blockAtData?.timestamp * 1000).toLocaleString(
-                    undefined,
-                    {
-                      dateStyle: 'short',
-                      timeStyle: 'short',
-                    }
-                  )}`
+                ? `${new Date(
+                    (blockAtData?.timestamp ?? 0) * 1000
+                  ).toLocaleString(undefined, {
+                    dateStyle: 'short',
+                    timeStyle: 'short',
+                  })}`
                 : ''
             }
           />

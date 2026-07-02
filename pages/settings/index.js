@@ -82,7 +82,11 @@ function Settings() {
       const logs = await readValidationLogs(epoch)
 
       const blob = new Blob(
-        [logs.map(x => `${x.timestamp} - ${JSON.stringify(x.log)}`).join('\n')],
+        [
+          logs
+            .map((x) => `${x.timestamp} - ${JSON.stringify(x.log)}`)
+            .join('\n'),
+        ],
         {
           type: 'text/plain;charset=utf-8',
         }
@@ -140,7 +144,7 @@ function Settings() {
         <DialogBody mb={0}>
           {!showQR ? (
             <form
-              onSubmit={e => {
+              onSubmit={(e) => {
                 e.preventDefault()
                 const key = exportKey(password)
                 setPk(key)
@@ -166,7 +170,7 @@ function Settings() {
                   mr={[0, '15px']}
                   width="100%"
                   disabled={showQR}
-                  onChange={e => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
               </Flex>
               <Flex mt={6} justify="flex-end">

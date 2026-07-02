@@ -104,7 +104,7 @@ export default function Activate() {
           </Flex>
           <Flex width="100%" mt={6}>
             <form
-              onSubmit={async e => {
+              onSubmit={async (e) => {
                 e.preventDefault()
                 await activateInvite()
               }}
@@ -119,7 +119,7 @@ export default function Activate() {
                   value={state.code}
                   borderColor="xblack.008"
                   backgroundColor="xblack.016"
-                  onChange={e => setState({...state, code: e.target.value})}
+                  onChange={(e) => setState({...state, code: e.target.value})}
                   placeholder={t('Your invitation code')}
                   color="white"
                 />

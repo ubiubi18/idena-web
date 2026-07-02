@@ -124,12 +124,12 @@ export function FlipCard({flipService, onDelete}) {
       <Box w={150} position="relative">
         <FlipCardImageBox>
           {[FlipType.Publishing, FlipType.Deleting, FlipType.Invalid].some(
-            x => x === type
+            (x) => x === type
           ) && (
             <FlipOverlay
               backgroundImage={
                 // eslint-disable-next-line no-nested-ternary
-                [FlipType.Publishing, FlipType.Deleting].some(x => x === type)
+                [FlipType.Publishing, FlipType.Deleting].some((x) => x === type)
                   ? `linear-gradient(to top, ${
                       colors.warning[500]
                     }, ${transparentize(100, colors.warning[500])})`
@@ -500,13 +500,13 @@ export function FlipMasterNavbarItemText({step, ...props}) {
   let color = 'brand.gray'
 
   switch (step) {
-    default:
-    case Step.Next:
-      color = 'muted'
-      break
     case Step.Completed:
     case Step.Active:
       color = 'brand.gray'
+      break
+    case Step.Next:
+    default:
+      color = 'muted'
       break
   }
 
@@ -613,7 +613,7 @@ export function FlipKeywordTranslationSwitchNew({
       window.navigator.systemLanguage,
     ]
       .filter(Boolean)
-      .map(language => language.substr(0, 2))
+      .map((language) => language.substr(0, 2))
 
     const win = openExternalUrl(
       `https://translate.google.com/#view=home&op=translate&sl=auto&tl=${
@@ -687,9 +687,7 @@ export function FlipKeywordTranslationSwitchNew({
 }
 
 export function FlipKeywordPanel(props) {
-  return (
-    <Box bg="gray.50" px={10} py={8} rounded="lg" w="480px" {...props}></Box>
-  )
+  return <Box bg="gray.50" px={10} py={8} rounded="lg" w="480px" {...props} />
 }
 
 export function FlipKeywordPair(props) {
@@ -697,7 +695,7 @@ export function FlipKeywordPair(props) {
 }
 
 export function FlipKeyword(props) {
-  return <Stack spacing={0.5} flex={1} {...props}></Stack>
+  return <Stack spacing={0.5} flex={1} {...props} />
 }
 
 export function FlipKeywordName({children, ...props}) {
@@ -720,7 +718,7 @@ export function FlipKeywordDescription({children, ...props}) {
 }
 
 export function FlipStoryAside(props) {
-  return <Stack spacing={1} {...props}></Stack>
+  return <Stack spacing={1} {...props} />
 }
 
 export function FlipEditorStep({
@@ -769,7 +767,7 @@ export function FlipEditorStep({
       <Stack isInline spacing={10}>
         <FlipImageList>
           <DragDropContext
-            onDragEnd={result => {
+            onDragEnd={(result) => {
               if (
                 result.destination &&
                 result.destination.index !== result.source.index
@@ -787,7 +785,7 @@ export function FlipEditorStep({
             }}
           >
             <Droppable droppableId="flip-editor">
-              {provided => (
+              {(provided) => (
                 <div ref={provided.innerRef} {...provided.droppableProps}>
                   {originalOrder.map((num, idx) => (
                     <DraggableItem
@@ -824,7 +822,7 @@ export function FlipEditorStep({
               visible={currentIndex === idx}
               src={images[num]}
               adversarialId={adversarialImageId}
-              onChange={url => {
+              onChange={(url) => {
                 onChangeImage(url, num)
               }}
               onChanging={onPainting}
@@ -856,7 +854,7 @@ export function FlipProtectStep({
   const [currentIndex, setCurrentIdx] = React.useState(0)
 
   const regenerateImage = React.useCallback(async () => {
-    if (!images.some(x => x)) {
+    if (!images.some((x) => x)) {
       return
     }
     onProtecting()
@@ -936,8 +934,8 @@ export function FlipProtectStep({
                     isOpen={
                       !didShowShuffleAdversarial &&
                       originalOrder[idx] === adversarialImageId &&
-                      protectedImages.some(x => x) &&
-                      images.some(x => x)
+                      protectedImages.some((x) => x) &&
+                      images.some((x) => x)
                     }
                     label="Nonsense image is successfully generated and shuffled"
                     fontSize="mdx"
@@ -1041,7 +1039,7 @@ export function FlipShuffleStep({
           </FlipImageList>
           <FlipImageList>
             <DragDropContext
-              onDragEnd={result => {
+              onDragEnd={(result) => {
                 if (
                   result.destination &&
                   result.destination.index !== result.source.index
@@ -1057,7 +1055,7 @@ export function FlipShuffleStep({
               }}
             >
               <Droppable droppableId="flip-shuffle">
-                {provided => (
+                {(provided) => (
                   <div ref={provided.innerRef} {...provided.droppableProps}>
                     {order.map((num, idx) => (
                       <DraggableItem
@@ -1238,7 +1236,7 @@ function SelectableItem({isActive, isFirst, isLast, ...props}) {
 function DraggableItem({draggableId, index, ...props}) {
   return (
     <Draggable draggableId={draggableId} index={index}>
-      {provided => (
+      {(provided) => (
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
@@ -1328,10 +1326,8 @@ export function CommunityTranslations({
 
   const [wordIdx, setWordIdx] = React.useState(0)
 
-  const [
-    descriptionCharactersCount,
-    setDescriptionCharactersCount,
-  ] = React.useState(150)
+  const [descriptionCharactersCount, setDescriptionCharactersCount] =
+    React.useState(150)
 
   const translations = keywords.translations[wordIdx]
 
@@ -1403,7 +1399,7 @@ export function CommunityTranslations({
             </Text>
             <form
               key={lastTranslationId}
-              onSubmit={e => {
+              onSubmit={(e) => {
                 e.preventDefault()
                 const {
                   nameInput: {value: name},
@@ -1439,7 +1435,7 @@ export function CommunityTranslations({
                       : 'Description'
                   }
                   mb={6}
-                  onChange={e =>
+                  onChange={(e) =>
                     setDescriptionCharactersCount(150 - e.target.value.length)
                   }
                 />
@@ -1631,7 +1627,7 @@ export function PublishFlipDrawer({isPending, flip, onSubmit, ...props}) {
                   key={num}
                   src={flip?.images[num]}
                   isFirst={idx === 0}
-                  isLast={idx === flip?.images.length - 1}
+                  isLast={idx === (flip?.images?.length ?? 0) - 1}
                   w="24"
                 />
               ))}
@@ -1642,7 +1638,7 @@ export function PublishFlipDrawer({isPending, flip, onSubmit, ...props}) {
                   key={num}
                   src={flip?.images[num]}
                   isFirst={idx === 0}
-                  isLast={idx === flip?.images.length - 1}
+                  isLast={idx === (flip?.images?.length ?? 0) - 1}
                   w="24"
                 />
               ))}
@@ -1650,7 +1646,7 @@ export function PublishFlipDrawer({isPending, flip, onSubmit, ...props}) {
           </HStack>
           <FlipKeywordPanel w="full">
             <Stack spacing="4">
-              {flip.keywords.map(word => (
+              {flip.keywords.map((word) => (
                 <FlipKeyword key={word.id}>
                   <FlipKeywordName>{word.name}</FlipKeywordName>
                   <FlipKeywordDescription>{word.desc}</FlipKeywordDescription>
