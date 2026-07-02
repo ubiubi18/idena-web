@@ -59,7 +59,8 @@ import {
 import {AnswerType, CertificateActionType} from '../../shared/types'
 import {reorderList} from '../../shared/utils/arr'
 import {capitalize} from '../../shared/utils/string'
-import {toBlob, useIsDesktop} from '../../shared/utils/utils'
+import {useIsDesktop} from '../../shared/hooks/use-is-desktop'
+import {toBlob} from '../../shared/utils/utils'
 import {canScheduleValidation, GetAnswerTitle} from './utils'
 
 dayjs.extend(durationPlugin)

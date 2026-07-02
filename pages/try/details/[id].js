@@ -41,7 +41,7 @@ import {
 import Layout from '../../../shared/components/layout'
 import {CertificateActionType} from '../../../shared/types'
 import {WideLink} from '../../../screens/home/components'
-import {useIsDesktop} from '../../../shared/utils/utils'
+import {useIsDesktop} from '../../../shared/hooks/use-is-desktop'
 import {useAutoCloseTestValidationToast} from '../../../screens/try/hooks/use-test-validation-toast'
 
 export default function Details() {

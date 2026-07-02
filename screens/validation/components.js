@@ -84,7 +84,7 @@ import {
   HollowStarIcon,
 } from '../../shared/components/icons'
 import {use100vh} from '../../shared/hooks/use-100vh'
-import {useIsDesktop} from '../../shared/utils/utils'
+import {useIsDesktop} from '../../shared/hooks/use-is-desktop'
 import {useTimer} from '../../shared/hooks/use-timer'
 
 dayjs.extend(durationPlugin)

@@ -10,7 +10,7 @@ import Layout from '../../shared/components/layout'
 import {useAuthState} from '../../shared/providers/auth-context'
 import {useTestValidationDispatch} from '../../shared/providers/test-validation-context'
 import {CertificateType} from '../../shared/types'
-import {useIsDesktop} from '../../shared/utils/utils'
+import {useIsDesktop} from '../../shared/hooks/use-is-desktop'
 
 export default function Try() {
   const {t} = useTranslation()

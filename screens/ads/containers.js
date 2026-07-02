@@ -123,7 +123,8 @@ import db from '../../shared/utils/db'
 import {AdTarget} from '../../shared/models/adKey'
 import {AdBurnKey} from '../../shared/models/adBurnKey'
 import {useIdentity} from '../../shared/providers/identity-context'
-import {pick, useIsDesktop} from '../../shared/utils/utils'
+import {useIsDesktop} from '../../shared/hooks/use-is-desktop'
+import {pick} from '../../shared/utils/utils'
 
 export function AdBanner() {
   const {t} = useTranslation()

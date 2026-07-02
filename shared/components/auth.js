@@ -43,7 +43,7 @@ import {
 import {useAppContext} from '../providers/app-context'
 import {useLanguage} from '../hooks/use-language'
 import {AVAILABLE_LANGS, isoLangs} from '../../i18n'
-import {useIsDesktop} from '../utils/utils'
+import {useIsDesktop} from '../hooks/use-is-desktop'
 import {use100vh} from '../hooks/use-100vh'
 
 function RestoreKey() {

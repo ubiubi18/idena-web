@@ -45,8 +45,8 @@ import {
   toLocaleDna,
   eitherState,
   openExternalUrl,
-  useIsDesktop,
 } from '../../shared/utils/utils'
+import {useIsDesktop} from '../../shared/hooks/use-is-desktop'
 import {useIdentity} from '../../shared/providers/identity-context'
 import {useEpoch} from '../../shared/providers/epoch-context'
 import {fetchBalance} from '../../shared/api/wallet'

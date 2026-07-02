@@ -23,7 +23,7 @@ import {
 import {InfoIcon} from '../../../shared/components/icons'
 import {useLanguage} from '../../../shared/hooks/use-language'
 import {AdBurnKey} from '../../../shared/models/adBurnKey'
-import {useIsDesktop} from '../../../shared/utils/utils'
+import {useIsDesktop} from '../../../shared/hooks/use-is-desktop'
 import {AdImage} from '../../ads/components'
 import {useBurntCoins, useFormatDna, useRotateAds} from '../../ads/hooks'
 

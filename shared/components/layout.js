@@ -17,7 +17,7 @@ import {DeferredVotes} from '../../screens/oracles/components'
 import {useRotatingAds} from '../../screens/ads/hooks'
 import {AdBanner} from '../../screens/ads/containers'
 import {useHamburgerTop} from '../hooks/use-hamburger-top'
-import {useIsDesktop} from '../utils/utils'
+import {useIsDesktop} from '../hooks/use-is-desktop'
 import {useValidationToast} from '../../screens/validation/hooks/use-validation-toast'
 import {useTestValidationToast} from '../../screens/try/hooks/use-test-validation-toast'
 import {

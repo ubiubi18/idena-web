@@ -1,5 +1,4 @@
 import dayjs from 'dayjs'
-import {useBreakpointValue} from '@chakra-ui/react'
 import {isMobile} from 'react-device-detect'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -162,11 +161,6 @@ export function validateInvitationCode(code) {
   } catch {
     return false
   }
-}
-
-export function useIsDesktop() {
-  const isDesktop = useBreakpointValue([false, true])
-  return isDesktop
 }
 
 export function clampValue(min, max, value) {

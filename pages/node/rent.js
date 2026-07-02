@@ -37,7 +37,7 @@ import {SYNCING_DIFF} from '../../shared/providers/settings-context'
 import {fetchIdentity} from '../../shared/api'
 import {Drawer, RoundedTh, Skeleton} from '../../shared/components/components'
 import {AngleArrowBackIcon, SoftStarIcon} from '../../shared/components/icons'
-import {useIsDesktop} from '../../shared/utils/utils'
+import {useIsDesktop} from '../../shared/hooks/use-is-desktop'
 import {shuffle} from '../../shared/utils/arr'
 
 const MAX_DURATION = 99999

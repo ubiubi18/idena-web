@@ -38,7 +38,7 @@ import {Transaction} from '../../shared/models/transaction'
 import {useAuthState} from '../../shared/providers/auth-context'
 import {useEpoch} from '../../shared/providers/epoch-context'
 import {privateKeyToPublicKey} from '../../shared/utils/crypto'
-import {useIsDesktop} from '../../shared/utils/utils'
+import {useIsDesktop} from '../../shared/hooks/use-is-desktop'
 import {AdDrawer} from '../ads/containers'
 
 export function BuySharedNodeForm({

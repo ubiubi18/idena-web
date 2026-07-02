@@ -21,7 +21,7 @@ import {
 } from '../../shared/components/components'
 import {OpenExplorerIcon} from '../../shared/components/icons'
 import {FlatButton} from '../../shared/components/button'
-import {useIsDesktop} from '../../shared/utils/utils'
+import {useIsDesktop} from '../../shared/hooks/use-is-desktop'
 import {WideLink} from '../../screens/home/components'
 import {useAuthState} from '../../shared/providers/auth-context'
 
