@@ -140,12 +140,12 @@ export function calculateInvitationRewardRatio(
 const EXTERNAL_URL_PROTOCOLS = new Set(['http:', 'https:', 'dna:'])
 
 export function normalizeExternalUrl(value) {
-  const rawValue =
-    typeof value === 'string'
-      ? value.trim()
-      : typeof value?.href === 'string'
-      ? value.href.trim()
-      : ''
+  let rawValue = ''
+  if (typeof value === 'string') {
+    rawValue = value.trim()
+  } else if (typeof value?.href === 'string') {
+    rawValue = value.href.trim()
+  }
 
   if (!rawValue) return null
 

@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Check out
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -24,11 +24,20 @@ jobs:
       - name: Install deps
         run: npm ci
 
+      - name: Dependency audit
+        run: npm audit --audit-level=moderate
+
+      - name: Dependency signature audit
+        run: npm audit signatures
+
       - name: Run privacy audit
         run: npm run audit:privacy
 
-      - name: Run image search tests
-        run: npm test -- --runInBand server/image-search.test.js
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test -- --runInBand
 
       - name: Build
         run: npm run build
