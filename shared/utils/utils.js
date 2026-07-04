@@ -137,8 +137,38 @@ export function calculateInvitationRewardRatio(
   return Math.max(1 - t ** 4 * 0.5, 0)
 }
 
+const EXTERNAL_URL_PROTOCOLS = new Set(['http:', 'https:', 'dna:'])
+
+export function normalizeExternalUrl(value) {
+  const rawValue =
+    typeof value === 'string'
+      ? value.trim()
+      : typeof value?.href === 'string'
+      ? value.href.trim()
+      : ''
+
+  if (!rawValue) return null
+
+  try {
+    const url = new URL(rawValue)
+    if (!EXTERNAL_URL_PROTOCOLS.has(url.protocol)) return null
+    if (url.username || url.password) return null
+    if (['http:', 'https:'].includes(url.protocol) && !url.host) return null
+    return url.href
+  } catch {
+    return null
+  }
+}
+
 export const openExternalUrl = (href) => {
-  if (typeof window !== 'undefined') return window.open(href, '_blank')
+  if (typeof window === 'undefined') return undefined
+
+  const externalUrl = normalizeExternalUrl(href)
+  if (!externalUrl) return null
+
+  const openedWindow = window.open(externalUrl, '_blank', 'noopener,noreferrer')
+  if (openedWindow) openedWindow.opener = null
+  return openedWindow
 }
 
 export const toBlob = (base64) => fetch(base64).then((res) => res.blob())

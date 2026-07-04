@@ -115,7 +115,39 @@ export function isValidUrl(string) {
   try {
     return ['https:', 'http:', 'dna:'].includes(new URL(string).protocol)
   } catch (_) {
-    console.error('Invalid URL', string)
+    console.error('Invalid URL', urlLogContext(string))
     return false
+  }
+}
+
+export function urlLogContext(value) {
+  let rawValue = ''
+  if (typeof value === 'string') {
+    rawValue = value.trim()
+  } else if (value && typeof value.href === 'string') {
+    rawValue = value.href
+  }
+
+  if (!rawValue) {
+    return {type: typeof value}
+  }
+
+  try {
+    const parsedUrl = new URL(rawValue)
+    const searchParamKeys = Array.from(
+      new Set(Array.from(parsedUrl.searchParams.keys()))
+    ).sort()
+
+    return {
+      protocol: parsedUrl.protocol || 'unknown:',
+      ...(parsedUrl.host ? {host: parsedUrl.host} : {}),
+      ...(parsedUrl.pathname ? {pathname: parsedUrl.pathname} : {}),
+      ...(searchParamKeys.length ? {searchParamKeys} : {}),
+    }
+  } catch {
+    return {
+      type: 'invalid',
+      length: rawValue.length,
+    }
   }
 }

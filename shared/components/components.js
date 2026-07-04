@@ -504,7 +504,7 @@ export function ExternalLink({
       }}
       onClick={() => {
         const win = openExternalUrl(href)
-        win.focus()
+        win?.focus?.()
       }}
       {...props}
     >

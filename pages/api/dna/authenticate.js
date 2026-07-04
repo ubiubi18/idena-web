@@ -1,13 +1,24 @@
 import axios from 'axios'
+import {
+  assertSafeDnaEndpoint,
+  DNA_ENDPOINT_REQUEST_OPTIONS,
+} from '../../../server/dna-safe-endpoint'
 
 export default async (req, res) => {
   try {
     const {authenticationEndpoint, token, signature} = req.body
+    const safeAuthenticationEndpoint = await assertSafeDnaEndpoint(
+      authenticationEndpoint
+    )
 
-    const {data} = await axios.post(authenticationEndpoint, {
-      token,
-      signature,
-    })
+    const {data} = await axios.post(
+      safeAuthenticationEndpoint,
+      {
+        token,
+        signature,
+      },
+      DNA_ENDPOINT_REQUEST_OPTIONS
+    )
 
     const {data: jsonResponse, error, success} = data
 

@@ -28,17 +28,30 @@ export function persistItem(dbName, key, value) {
       s = {}
     }
     s[key] = value
-    persistState(dbName, s)
+    persistState(dbName, s, key)
   } catch {
-    console.error('error writing to file: ', dbName, key, value)
+    console.error(
+      'error writing persistent item:',
+      storageLogContext(dbName, key)
+    )
   }
 }
 
-export function persistState(name, state) {
+export function persistState(name, state, key) {
   try {
     localStorage.setItem(name, JSON.stringify(state))
   } catch {
-    console.error('error writing to local storage: ', name, state)
+    console.error(
+      'error writing persistent state:',
+      storageLogContext(name, key)
+    )
+  }
+}
+
+function storageLogContext(name, key) {
+  return {
+    name,
+    ...(typeof key === 'undefined' ? {} : {key}),
   }
 }
 

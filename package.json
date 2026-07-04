@@ -12,13 +12,13 @@
     "audit:privacy": "node scripts/check-release-privacy.js",
     "i18n:init": "npm run i18n:clean && npm run i18n:scan",
     "i18n:scan": "i18next-scanner",
-    "i18n:clean": "rm -rf public/locales/**"
+    "i18n:clean": "node scripts/clean-paths.js public/locales/bg public/locales/de public/locales/el public/locales/en public/locales/es public/locales/fr public/locales/hi public/locales/hr public/locales/id public/locales/it public/locales/ja public/locales/ko public/locales/pl public/locales/pt public/locales/ro public/locales/ru public/locales/sl public/locales/sr public/locales/sv public/locales/tr public/locales/uk public/locales/zh"
   },
   "author": "",
   "license": "ISC",
   "engines": {
-    "node": ">=24.15.0 <25",
-    "npm": ">=11.12.0"
+    "node": ">=24.18.0 <25",
+    "npm": ">=11.16.0"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",

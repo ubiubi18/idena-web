@@ -2077,7 +2077,7 @@ async function sendPublicFlipKey(epoch, privateKey) {
     toHexString(publicFlipKeyData.getSignature(), true),
     publicFlipKeyData.getEpoch()
   )
-  console.log('public key sent', result)
+  console.log('public flip key submitted', {result})
 }
 
 async function sendKeysPackage(candidates, epoch, privateKey) {
@@ -2087,7 +2087,7 @@ async function sendKeysPackage(candidates, epoch, privateKey) {
     toHexString(packageData.getSignature(), true),
     packageData.getEpoch()
   )
-  console.log('private keys sent', result)
+  console.log('private flip key package submitted', {result})
 }
 
 async function submitShortAnswersHashTx(key, epoch, hashes, answers) {
@@ -2108,7 +2108,7 @@ async function submitShortAnswersHashTx(key, epoch, hashes, answers) {
 
   const result = await sendRawTx(`0x${hex}`)
 
-  console.log('sending short answers hash tx', hex, result)
+  console.log('short answers hash tx submitted', {result})
 }
 
 async function submitShortAnswersTx(key, hashes, answers, wordsSeed) {
@@ -2136,7 +2136,7 @@ async function submitShortAnswersTx(key, hashes, answers, wordsSeed) {
 
   const result = await sendRawTx(`0x${hex}`)
 
-  console.log('sending short answers tx', hex, result)
+  console.log('short answers tx submitted', {result})
 }
 
 async function submitLongAnswersTx(key, hashes, answers, wordsSeed, epoch) {
@@ -2164,7 +2164,7 @@ async function submitLongAnswersTx(key, hashes, answers, wordsSeed, epoch) {
 
   const result = await sendRawTx(`0x${hex}`)
 
-  console.log('sending long answers tx', hex, result)
+  console.log('long answers tx submitted', {result})
 
   return result
 }
