@@ -663,7 +663,7 @@ export function ReviewNewPendingVoteDialog({
         </Stack>
         <Text color="muted" mt={4}>
           {t(
-            'Your vote is secret. To reveal your vote please appear online and send the scheduled transaction during the counting period: {{startCounting}} — {{finishCounting}}',
+            'Your vote is secret. You are going to lose your voting desposit to the reward poo if you dont publish it in time. To reveal your vote please appear online and send the scheduled transaction during the counting period: {{startCounting}} — {{finishCounting}}',
             {
               startCounting: formatDateTimeShort(startCounting),
               finishCounting: formatDateTimeShort(finishCounting),
