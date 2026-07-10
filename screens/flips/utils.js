@@ -10,7 +10,7 @@
 /* eslint-disable no-use-before-define */
 import {encode} from 'rlp'
 import axios from 'axios'
-import CID from 'cids'
+import {CID} from 'multiformats'
 import {loadPersistentStateValue, persistItem} from '../../shared/utils/persist'
 import {FlipType} from '../../shared/types'
 import {resizeImageToDataUrl} from '../../shared/utils/image-canvas'
@@ -222,7 +222,7 @@ export async function publishFlip({
   )
 
   const cidString = await getCid(ipfsFlip.toHex())
-  const cid = new CID(cidString)
+  const cid = CID.parse(cidString)
 
   const attachment = new FlipSubmitAttachment(
     cid.bytes,

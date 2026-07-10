@@ -2,8 +2,7 @@ module.exports = {
   env: {
     es2020: true,
   },
-  plugins: ['testcafe'],
-  extends: ['wesbos', 'plugin:testcafe/recommended'],
+  extends: ['wesbos'],
   rules: {
     'no-use-before-define': ['error', 'nofunc'],
     'react/no-unknown-property': ['error', {ignore: ['jsx', 'global']}],

@@ -1,7 +1,7 @@
 import {assign, spawn, sendParent, createMachine} from 'xstate'
 import {log, send} from 'xstate/lib/actions'
 import {nanoid} from 'nanoid'
-import CID from 'cids'
+import {CID} from 'multiformats'
 import axios from 'axios'
 import {
   fetchKeywordTranslations,
@@ -501,7 +501,7 @@ export const flipMachine = createMachine(
       deleteFlip: async ({privateKey, hash}) => {
         const from = privateKeyToAddress(privateKey)
 
-        const cid = new CID(hash)
+        const cid = CID.parse(hash)
         const attachment = new FlipDeleteAttachment(cid.bytes)
 
         const rawTx = await getRawTx(
