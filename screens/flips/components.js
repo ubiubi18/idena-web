@@ -34,7 +34,7 @@ import {
   Center,
   HStack,
 } from '@chakra-ui/react'
-import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd'
+import {DragDropContext, Droppable, Draggable} from '@hello-pangea/dnd'
 import {useTranslation} from 'react-i18next'
 import {transparentize} from 'polished'
 import {useService} from '@xstate/react'
