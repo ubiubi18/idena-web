@@ -5,12 +5,9 @@ import {
   stateForPersistence,
 } from './persist'
 
-const SECRET_API_KEY = ['secret-api-key', 'that-should-not-be-logged'].join('-')
-const SECRET_ENCRYPTED_KEY = [
-  'encrypted-key',
-  'that-should-not-be-logged',
-].join('-')
-const SECRET_VALUE = ['secret-value', 'that-should-not-be-logged'].join('-')
+const VALUE_ALPHA = ['fixture-alpha', 'must-not-be-logged'].join('-')
+const VALUE_BETA = ['fixture-beta', 'must-not-be-logged'].join('-')
+const VALUE_GAMMA = ['fixture-gamma', 'must-not-be-logged'].join('-')
 
 describe('persistent storage logging', () => {
   let consoleError
@@ -32,25 +29,25 @@ describe('persistent storage logging', () => {
 
   it('does not log state values when persisting state fails', () => {
     persistState('settings', {
-      apiKey: SECRET_API_KEY,
-      encryptedKey: SECRET_ENCRYPTED_KEY,
+      apiKey: VALUE_ALPHA,
+      encryptedKey: VALUE_BETA,
     })
 
     const logged = JSON.stringify(consoleError.mock.calls)
 
     expect(logged).toContain('settings')
-    expect(logged).not.toContain(SECRET_API_KEY)
-    expect(logged).not.toContain(SECRET_ENCRYPTED_KEY)
+    expect(logged).not.toContain(VALUE_ALPHA)
+    expect(logged).not.toContain(VALUE_BETA)
   })
 
   it('does not log item values when persisting an item fails', () => {
-    persistItem('settings', 'apiKey', SECRET_VALUE)
+    persistItem('settings', 'apiKey', VALUE_GAMMA)
 
     const logged = JSON.stringify(consoleError.mock.calls)
 
     expect(logged).toContain('settings')
     expect(logged).toContain('apiKey')
-    expect(logged).not.toContain(SECRET_VALUE)
+    expect(logged).not.toContain(VALUE_GAMMA)
   })
 })
 
@@ -62,10 +59,10 @@ describe('sensitive settings storage', () => {
 
   it('removes node API keys before settings are persisted', () => {
     const state = {
-      apiKey: SECRET_API_KEY,
-      apiKeyData: {key: SECRET_VALUE, provider: 'provider'},
+      apiKey: VALUE_ALPHA,
+      apiKeyData: {key: VALUE_GAMMA, provider: 'provider'},
       nodeProviderId: 'provider',
-      secondaryNodes: [{url: 'https://node.example', apiKey: SECRET_VALUE}],
+      secondaryNodes: [{url: 'https://node.example', apiKey: VALUE_GAMMA}],
       useSecondary: true,
       url: 'https://node.example',
     }
@@ -79,8 +76,8 @@ describe('sensitive settings storage', () => {
     persistState('settings', state)
 
     const stored = localStorage.getItem('settings')
-    expect(stored).not.toContain(SECRET_API_KEY)
-    expect(stored).not.toContain(SECRET_VALUE)
+    expect(stored).not.toContain(VALUE_ALPHA)
+    expect(stored).not.toContain(VALUE_GAMMA)
     expect(loadPersistentState('settings')).toBe(state)
   })
 
@@ -88,15 +85,15 @@ describe('sensitive settings storage', () => {
     localStorage.setItem(
       'settings',
       JSON.stringify({
-        apiKey: SECRET_API_KEY,
-        apiKeyData: {key: SECRET_VALUE, provider: 'provider'},
+        apiKey: VALUE_ALPHA,
+        apiKeyData: {key: VALUE_GAMMA, provider: 'provider'},
         language: 'en',
       })
     )
 
     expect(loadPersistentState('settings')).toEqual({
-      apiKey: SECRET_API_KEY,
-      apiKeyData: {key: SECRET_VALUE, provider: 'provider'},
+      apiKey: VALUE_ALPHA,
+      apiKeyData: {key: VALUE_GAMMA, provider: 'provider'},
       nodeProviderId: 'provider',
       language: 'en',
     })
@@ -106,7 +103,7 @@ describe('sensitive settings storage', () => {
   })
 
   it('does not alter non-settings state', () => {
-    const state = {apiKey: SECRET_API_KEY}
+    const state = {apiKey: VALUE_ALPHA}
     expect(stateForPersistence('other', state)).toBe(state)
   })
 })
