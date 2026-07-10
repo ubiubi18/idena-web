@@ -78,6 +78,7 @@ function settingsReducer(state, action) {
       const s = {...state}
       delete s.apiKeyData
       delete s.apiKeyId
+      delete s.nodeProviderId
       return {
         ...s,
         apiKeyState: ApiKeyStates.RESTRICTED,
@@ -111,6 +112,7 @@ function settingsReducer(state, action) {
         apiKeyData: {
           provider: action.data.provider,
         },
+        nodeProviderId: action.data.provider,
         isManualRemoteNode: false,
       }
     }
@@ -122,6 +124,7 @@ function settingsReducer(state, action) {
           ...state.apiKeyData,
           ...action.data,
         },
+        nodeProviderId: action.data.provider || state.nodeProviderId,
         apiKeyState: ApiKeyStates.ONLINE,
         url: action.data.url || state.url,
         apiKeyId: null,
@@ -232,12 +235,17 @@ function SettingsProvider({children}) {
               data: {
                 apiKeyState: ApiKeyStates.RESTRICTED,
                 apiKeyData: result,
+                nodeProviderId: result.provider,
               },
             })
           } else {
             dispatch({
               type: SET_API_KEY_STATE,
-              data: {apiKeyState: ApiKeyStates.ONLINE, apiKeyData: result},
+              data: {
+                apiKeyState: ApiKeyStates.ONLINE,
+                apiKeyData: result,
+                nodeProviderId: result.provider,
+              },
             })
           }
         } else {

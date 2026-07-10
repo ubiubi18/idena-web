@@ -64,13 +64,14 @@ describe('sensitive settings storage', () => {
     const state = {
       apiKey: SECRET_API_KEY,
       apiKeyData: {key: SECRET_VALUE, provider: 'provider'},
+      nodeProviderId: 'provider',
       secondaryNodes: [{url: 'https://node.example', apiKey: SECRET_VALUE}],
       useSecondary: true,
       url: 'https://node.example',
     }
 
     expect(stateForPersistence('settings', state)).toEqual({
-      apiKeyData: {provider: 'provider'},
+      nodeProviderId: 'provider',
       useSecondary: false,
       url: 'https://node.example',
     })
@@ -96,10 +97,11 @@ describe('sensitive settings storage', () => {
     expect(loadPersistentState('settings')).toEqual({
       apiKey: SECRET_API_KEY,
       apiKeyData: {key: SECRET_VALUE, provider: 'provider'},
+      nodeProviderId: 'provider',
       language: 'en',
     })
     expect(localStorage.getItem('settings')).toBe(
-      JSON.stringify({apiKeyData: {provider: 'provider'}, language: 'en'})
+      JSON.stringify({language: 'en'})
     )
   })
 

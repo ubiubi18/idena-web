@@ -67,7 +67,7 @@ const steps = {
 }
 
 export default function Restricted() {
-  const [{apiKeyState, apiKeyData, apiKey}] = useSettings()
+  const [{apiKeyState, nodeProviderId, apiKey}] = useSettings()
   const {saveConnection} = useSettingsDispatch()
   const {coinbase, privateKey} = useAuthState()
   const [{state: identityState, age}] = useIdentity()
@@ -142,10 +142,10 @@ export default function Restricted() {
   }
 
   const {data: provider, isError} = useQuery(
-    ['get-provider-by-id', apiKeyData && apiKeyData.provider],
-    () => getProvider(apiKeyData && apiKeyData.provider),
+    ['get-provider-by-id', nodeProviderId],
+    () => getProvider(nodeProviderId),
     {
-      enabled: !!apiKeyData && !!apiKeyData.provider,
+      enabled: !!nodeProviderId,
       retry: false,
       refetchOnWindowFocus: false,
     }

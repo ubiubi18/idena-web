@@ -152,25 +152,25 @@ export function AppProvider({tabId, ...props}) {
   }, [t, toast, wrongClientTime])
 
   // api key purchasing
-  const {apiKeyId, apiKeyData} = useSettingsState()
+  const {apiKeyId, nodeProviderId} = useSettingsState()
   const {addPurchasedKey} = useSettingsDispatch()
 
   useInterval(
     async () => {
       try {
         const data = await getKeyById(apiKeyId)
-        const provider = await getProvider(apiKeyData.provider)
+        const provider = await getProvider(nodeProviderId)
 
-        addPurchasedKey(provider.data.url, data.key, data.epoch)
+        addPurchasedKey(provider.data.url, data.key, data.epoch, nodeProviderId)
 
         router.push('/home')
       } catch {
         console.error(
-          `key is not ready, id: [${apiKeyId}], provider: [${apiKeyData.provider}]`
+          `key is not ready, id: [${apiKeyId}], provider: [${nodeProviderId}]`
         )
       }
     },
-    apiKeyId && apiKeyData?.provider ? 3000 : null
+    apiKeyId && nodeProviderId ? 3000 : null
   )
 
   const checkRestoredKey = useCallback(async () => {

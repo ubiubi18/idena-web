@@ -5,29 +5,18 @@ function sanitizeSettingsState(state) {
     return {changed: false, state}
   }
 
-  const sanitized = {...state}
-  let changed = false
+  const {apiKey, apiKeyData, secondaryNodes, ...sanitized} = state
+  const hasOwn = (key) => Object.prototype.hasOwnProperty.call(state, key)
+  const changed =
+    apiKey !== undefined ||
+    apiKeyData !== undefined ||
+    secondaryNodes !== undefined ||
+    hasOwn('apiKey') ||
+    hasOwn('apiKeyData') ||
+    hasOwn('secondaryNodes')
 
-  if (Object.prototype.hasOwnProperty.call(sanitized, 'apiKey')) {
-    delete sanitized.apiKey
-    changed = true
-  }
-
-  if (Object.prototype.hasOwnProperty.call(sanitized, 'secondaryNodes')) {
-    delete sanitized.secondaryNodes
+  if (secondaryNodes !== undefined || hasOwn('secondaryNodes')) {
     sanitized.useSecondary = false
-    changed = true
-  }
-
-  if (
-    sanitized.apiKeyData &&
-    typeof sanitized.apiKeyData === 'object' &&
-    Object.prototype.hasOwnProperty.call(sanitized.apiKeyData, 'key')
-  ) {
-    const apiKeyData = {...sanitized.apiKeyData}
-    delete apiKeyData.key
-    sanitized.apiKeyData = apiKeyData
-    changed = true
   }
 
   return {changed, state: sanitized}
@@ -54,7 +43,13 @@ export function loadPersistentState(dbName) {
       if (dbName === 'settings') {
         const sanitized = sanitizeSettingsState(parsed)
         if (sanitized.changed) {
-          volatileSettingsState = parsed
+          const legacyProvider = parsed.apiKeyData?.provider
+          volatileSettingsState = {
+            ...parsed,
+            ...(typeof legacyProvider === 'string' && !parsed.nodeProviderId
+              ? {nodeProviderId: legacyProvider}
+              : {}),
+          }
           // Remove the legacy value first so a failed rewrite cannot retain keys.
           localStorage.removeItem(dbName)
           localStorage.setItem(dbName, JSON.stringify(sanitized.state))
