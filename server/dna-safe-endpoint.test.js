@@ -1,5 +1,6 @@
 import axios from 'axios'
 import dns from 'dns'
+import authenticateHandler from '../pages/api/dna/authenticate'
 import sessionHandler from '../pages/api/dna/session'
 import {
   assertSafeDnaEndpoint,
@@ -49,6 +50,18 @@ describe('safe DNA endpoints', () => {
     expect(isPrivateAddress('fd00::1')).toBe(true)
     expect(isPrivateAddress('fe80::1')).toBe(true)
     expect(isPrivateAddress('93.184.216.34')).toBe(false)
+  })
+
+  it('rejects alternative loopback and metadata address forms', async () => {
+    await expect(
+      assertSafeDnaEndpoint('https://2130706433/session')
+    ).rejects.toThrow('not public')
+    await expect(
+      assertSafeDnaEndpoint('https://0x7f000001/session')
+    ).rejects.toThrow('not public')
+    await expect(
+      assertSafeDnaEndpoint('https://169.254.169.254/session')
+    ).rejects.toThrow('not public')
   })
 
   it('rejects non-HTTPS and credentialed URLs', async () => {
@@ -125,6 +138,22 @@ describe('safe DNA endpoints', () => {
     const res = createResponse()
 
     await sessionHandler(req, res)
+
+    expect(res.statusCode).toBe(400)
+    expect(axios.post).not.toHaveBeenCalled()
+  })
+
+  it('does not proxy blocked authentication endpoints', async () => {
+    const req = {
+      body: {
+        authenticationEndpoint: 'https://127.0.0.1/authenticate',
+        token: 'token',
+        signature: 'signature',
+      },
+    }
+    const res = createResponse()
+
+    await authenticateHandler(req, res)
 
     expect(res.statusCode).toBe(400)
     expect(axios.post).not.toHaveBeenCalled()

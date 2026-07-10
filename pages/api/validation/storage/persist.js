@@ -1,5 +1,6 @@
 import {checkSignature} from '../../../../shared/utils/crypto'
 import {createPool} from '../../../../shared/utils/pg'
+import {publicValidationError} from '../../../../server/public-api-error'
 
 export default async (req, res) => {
   try {
@@ -27,6 +28,6 @@ WHERE "validation-storage".updated_at < EXCLUDED.updated_at;
 
     return res.status(200).end()
   } catch (e) {
-    return res.status(400).send(e.toString())
+    return res.status(400).json({error: publicValidationError(e)})
   }
 }

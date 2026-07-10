@@ -26,6 +26,10 @@ function createResponse() {
       this.body = body
       return this
     },
+    json(body) {
+      this.body = body
+      return this
+    },
     end() {
       this.ended = true
       return this

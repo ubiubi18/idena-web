@@ -1,6 +1,7 @@
 import {SessionType} from '../../../shared/types'
 import {checkSignature} from '../../../shared/utils/crypto'
 import {createPool} from '../../../shared/utils/pg'
+import {publicValidationError} from '../../../server/public-api-error'
 
 function validationSessionField(type) {
   if (type === SessionType.Short) return 'shortFlips'
@@ -85,6 +86,6 @@ export default async (req, res) => {
 
     return res.status(200).end()
   } catch (e) {
-    return res.status(400).send(e.toString())
+    return res.status(400).json({error: publicValidationError(e)})
   }
 }

@@ -1,8 +1,69 @@
+let volatileSettingsState
+
+function sanitizeSettingsState(state) {
+  if (!state || typeof state !== 'object' || Array.isArray(state)) {
+    return {changed: false, state}
+  }
+
+  const sanitized = {...state}
+  let changed = false
+
+  if (Object.prototype.hasOwnProperty.call(sanitized, 'apiKey')) {
+    delete sanitized.apiKey
+    changed = true
+  }
+
+  if (Object.prototype.hasOwnProperty.call(sanitized, 'secondaryNodes')) {
+    delete sanitized.secondaryNodes
+    sanitized.useSecondary = false
+    changed = true
+  }
+
+  if (
+    sanitized.apiKeyData &&
+    typeof sanitized.apiKeyData === 'object' &&
+    Object.prototype.hasOwnProperty.call(sanitized.apiKeyData, 'key')
+  ) {
+    const apiKeyData = {...sanitized.apiKeyData}
+    delete apiKeyData.key
+    sanitized.apiKeyData = apiKeyData
+    changed = true
+  }
+
+  return {changed, state: sanitized}
+}
+
+export function stateForPersistence(name, state) {
+  if (name !== 'settings') return state
+  return sanitizeSettingsState(state).state
+}
+
 export function loadPersistentState(dbName) {
   try {
+    if (
+      dbName === 'settings' &&
+      volatileSettingsState !== undefined &&
+      volatileSettingsState !== null
+    ) {
+      return volatileSettingsState
+    }
+
     const item = localStorage.getItem(dbName)
     if (item) {
-      return JSON.parse(item)
+      const parsed = JSON.parse(item)
+      if (dbName === 'settings') {
+        const sanitized = sanitizeSettingsState(parsed)
+        if (sanitized.changed) {
+          volatileSettingsState = parsed
+          // Remove the legacy value first so a failed rewrite cannot retain keys.
+          localStorage.removeItem(dbName)
+          localStorage.setItem(dbName, JSON.stringify(sanitized.state))
+          return volatileSettingsState
+        }
+        volatileSettingsState = sanitized.state
+        return volatileSettingsState
+      }
+      return parsed
     }
     return null
   } catch (error) {
@@ -39,7 +100,10 @@ export function persistItem(dbName, key, value) {
 
 export function persistState(name, state, key) {
   try {
-    localStorage.setItem(name, JSON.stringify(state))
+    if (name === 'settings') {
+      volatileSettingsState = state
+    }
+    localStorage.setItem(name, JSON.stringify(stateForPersistence(name, state)))
   } catch {
     console.error(
       'error writing persistent state:',
