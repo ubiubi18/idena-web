@@ -4,9 +4,9 @@ const fs = require('fs')
 const path = require('path')
 
 const EXPECTED = Object.freeze({
-  releaseId: 'idena-mainnet-legacy-compat-2026.07.12-rc2',
+  releaseId: 'idena-mainnet-legacy-compat-2026.07.12-rc3',
   legacyCommit: '938be81dbdeff85f888f4337060a8ebabb12e5b5',
-  nodeCommit: '4947ddfd41391cca0e51dc2635aaa8a06827a890',
+  nodeCommit: 'aafb254786ac3c82308550a7a82642019f077d6b',
   gossipProtocol: '/idena/gossip/1.1.0',
   intermediateGenesisHeaderSha256:
     '27e696414b955714ba7ed4defe063794c8dcadef28a7e61dd9249b8623571b3c',
