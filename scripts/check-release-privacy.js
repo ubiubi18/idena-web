@@ -6,6 +6,7 @@ const {execFileSync} = require('child_process')
 
 const SCANNED_PREFIXES = [
   '.github/',
+  'compatibility/',
   'pages/',
   'screens/',
   'scripts/',

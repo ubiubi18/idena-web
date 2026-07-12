@@ -30,6 +30,9 @@ jobs:
       - name: Dependency signature audit
         run: npm audit signatures
 
+      - name: Verify legacy compatibility lock
+        run: npm run audit:compatibility
+
       - name: Run privacy audit
         run: npm run audit:privacy
 

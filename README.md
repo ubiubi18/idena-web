@@ -68,11 +68,18 @@ Install and validate:
 
 ```bash
 npm ci
+npm run audit:compatibility
 npm run audit:privacy
 npm run lint
 npm test -- --runInBand
 npm run build
 ```
+
+`compatibility/stack-lock.json` pins the reviewed legacy-compatible node set.
+The compatibility audit fails if the mainnet network ID, gossip protocol,
+embedded resource digests, consensus policy, or expected node commit changes.
+This client does not implement consensus and the lock remains a release
+candidate until every differential gate named in it has passed.
 
 Start the development server:
 

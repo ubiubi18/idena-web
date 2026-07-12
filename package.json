@@ -9,6 +9,7 @@
     "build": "next build",
     "test": "jest",
     "lint": "eslint .",
+    "audit:compatibility": "node scripts/check-compatibility-lock.js",
     "audit:privacy": "node scripts/check-release-privacy.js",
     "i18n:init": "npm run i18n:clean && npm run i18n:scan",
     "i18n:scan": "i18next-scanner",
