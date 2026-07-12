@@ -91,6 +91,9 @@ Only define the remote services required for the workflow being tested. Keep
 local secrets in an untracked environment file, and remember that variables
 prefixed with `NEXT_PUBLIC_` are intentionally public.
 
+Image-search deployment, smoke testing, abuse controls, and rollback are
+documented in [docs/image-search-operations.md](docs/image-search-operations.md).
+
 ## Deployment
 
 Run `npm run build` in the same environment used for deployment and supply
