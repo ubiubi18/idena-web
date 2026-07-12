@@ -1,17 +1,17 @@
 import sha3 from 'js-sha3'
-import eciesjs from 'idena-eciesjs'
 import messages from './proto/models_pb'
 import {publicKeyCreate, signHash} from '../utils/secp256k1'
+import {encryptEcies} from '../utils/ecies'
 
 export default class PrivateKeysPackage {
   constructor(epoch, keysArray, publicFlipKey, privateFlipKey) {
     const protoKeys = new messages.ProtoFlipPrivateKeys()
     protoKeys.setKeysList(
-      keysArray.map((candidate) => eciesjs.encrypt(candidate, privateFlipKey))
+      keysArray.map((candidate) => encryptEcies(candidate, privateFlipKey))
     )
     const binary = protoKeys.serializeBinary()
 
-    this.data = eciesjs.encrypt(publicKeyCreate(publicFlipKey), binary)
+    this.data = encryptEcies(publicKeyCreate(publicFlipKey), binary)
     this.epoch = epoch
   }
 

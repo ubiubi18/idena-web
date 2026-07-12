@@ -1,16 +1,29 @@
+const https = require('https')
+const {EventEmitter} = require('events')
 const {
   createImageSearchHandler,
   searchImages,
   _internals: {
     createRateLimiter,
     createSearchCache,
+    createSourceRunner,
     dedupeSearchResults,
     extractDuckDuckGoVqd,
+    getDefaultSources,
     normalizeImageSearchQuery,
     normalizeImageSearchResult,
     normalizeImageSearchUrl,
+    normalizeProviderThumbnail,
+    parseDisabledSources,
+    requestHttpsText,
+    shouldTrustProxy,
   },
 } = require('./image-search')
+
+afterEach(() => {
+  jest.restoreAllMocks()
+  jest.useRealTimers()
+})
 
 function createResponse() {
   const headers = {}
@@ -70,6 +83,27 @@ describe('image search helpers', () => {
     })
   })
 
+  test('keeps only provider-controlled thumbnail hosts', () => {
+    expect(
+      normalizeProviderThumbnail('https://tse1.mm.bing.net/image.jpg', [
+        'mm.bing.net',
+      ])
+    ).toEqual({
+      image: 'https://tse1.mm.bing.net/image.jpg',
+      thumbnail: 'https://tse1.mm.bing.net/image.jpg',
+    })
+    expect(
+      normalizeProviderThumbnail('https://attacker.example/image.jpg', [
+        'mm.bing.net',
+      ])
+    ).toBeNull()
+    expect(
+      normalizeProviderThumbnail('https://mm.bing.net.attacker.example/x', [
+        'mm.bing.net',
+      ])
+    ).toBeNull()
+  })
+
   test('normalizes queries and dedupes by image URL', () => {
     expect(normalizeImageSearchQuery('  cat\n\u0000 sitting\toutside  ')).toBe(
       'cat sitting outside'
@@ -119,6 +153,45 @@ describe('image search helpers', () => {
     warning.mockRestore()
   })
 
+  test('opens a provider cooldown after repeated failures', async () => {
+    let time = 1000
+    const failed = jest.fn().mockRejectedValue(new Error('blocked'))
+    const healthy = jest.fn().mockResolvedValue([])
+    const runSources = createSourceRunner({
+      sources: [
+        ['failed', failed],
+        ['healthy', healthy],
+      ],
+      now: () => time,
+      failureThreshold: 2,
+      cooldownMs: 100,
+    })
+    jest.spyOn(console, 'warn').mockImplementation(() => {})
+
+    await runSources('first')
+    await runSources('second')
+    const duringCooldown = await runSources('third')
+    expect(failed).toHaveBeenCalledTimes(2)
+    expect(duringCooldown[0]).toMatchObject({ok: false, skipped: true})
+    expect(healthy).toHaveBeenCalledTimes(3)
+
+    time += 101
+    await runSources('fourth')
+    expect(failed).toHaveBeenCalledTimes(3)
+  })
+
+  test('supports explicitly disabling a blocked provider', () => {
+    expect(Array.from(parseDisabledSources(' openverse, WIKIMEDIA '))).toEqual([
+      'openverse',
+      'wikimedia',
+    ])
+    expect(
+      getDefaultSources({IMAGE_SEARCH_DISABLED_SOURCES: 'openverse'}).map(
+        ([name]) => name
+      )
+    ).toEqual(['duckduckgo', 'wikimedia'])
+  })
+
   test('fails only when every provider fails', async () => {
     const warning = jest.spyOn(console, 'warn').mockImplementation(() => {})
     await expect(
@@ -156,6 +229,29 @@ describe('image search helpers', () => {
     expect(search).toHaveBeenCalledTimes(1)
   })
 
+  test('evicts rejected and expired cache entries', async () => {
+    let time = 1000
+    const rows = [
+      {
+        image: 'https://example.com/image.jpg',
+        thumbnail: 'https://example.com/thumb.jpg',
+      },
+    ]
+    const search = jest
+      .fn()
+      .mockRejectedValueOnce(new Error('temporary'))
+      .mockResolvedValue(rows)
+    const cachedSearch = createSearchCache({search, now: () => time})
+
+    await expect(cachedSearch('fox')).rejects.toThrow('temporary')
+    await expect(cachedSearch('fox')).resolves.toEqual(rows)
+    expect(search).toHaveBeenCalledTimes(2)
+
+    time += 5 * 60 * 1000 + 1
+    await expect(cachedSearch('fox')).resolves.toEqual(rows)
+    expect(search).toHaveBeenCalledTimes(3)
+  })
+
   test('bounds requests per client and resets the window', () => {
     let time = 1000
     const checkRateLimit = createRateLimiter({
@@ -167,6 +263,47 @@ describe('image search helpers', () => {
     expect(checkRateLimit('client').allowed).toBe(false)
     time += 60 * 1000
     expect(checkRateLimit('client').allowed).toBe(true)
+  })
+
+  test('enforces response size and wall-clock timeout bounds', async () => {
+    const oversizedRequest = new EventEmitter()
+    oversizedRequest.destroy = (error) => oversizedRequest.emit('error', error)
+    oversizedRequest.end = () => {
+      const response = new EventEmitter()
+      response.statusCode = 200
+      response.setEncoding = jest.fn()
+      response.resume = jest.fn()
+      oversizedRequest.callback(response)
+      response.emit('data', '1234')
+      response.emit('data', '5')
+      response.emit('end')
+    }
+    jest
+      .spyOn(https, 'request')
+      .mockImplementation((url, options, callback) => {
+        oversizedRequest.callback = callback
+        return oversizedRequest
+      })
+    await expect(
+      requestHttpsText('https://example.com', {maxBytes: 4})
+    ).rejects.toThrow('response too large')
+
+    jest.restoreAllMocks()
+    jest.useFakeTimers()
+    const stalledRequest = new EventEmitter()
+    stalledRequest.destroy = (error) => stalledRequest.emit('error', error)
+    stalledRequest.end = jest.fn()
+    jest.spyOn(https, 'request').mockReturnValue(stalledRequest)
+    const stalled = requestHttpsText('https://example.com', {timeoutMs: 25})
+    jest.advanceTimersByTime(26)
+    await expect(stalled).rejects.toThrow('timed out')
+  })
+
+  test('trusts forwarding headers only in an explicit proxy environment', () => {
+    expect(shouldTrustProxy({})).toBe(false)
+    expect(shouldTrustProxy({VERCEL: '1'})).toBe(true)
+    expect(shouldTrustProxy({IMAGE_SEARCH_TRUST_PROXY: '1'})).toBe(true)
+    expect(shouldTrustProxy({IMAGE_SEARCH_TRUST_PROXY: 'true'})).toBe(false)
   })
 })
 
@@ -244,5 +381,45 @@ describe('image search API handler', () => {
     expect(response.headers['Retry-After']).toBe('42')
     expect(response.headers['Cache-Control']).toBe('private, no-store')
     expect(search).not.toHaveBeenCalled()
+  })
+
+  test('ignores spoofed forwarding headers unless proxy trust is enabled', async () => {
+    const handler = createImageSearchHandler({search: async () => []})
+    let response
+    for (let index = 0; index < 31; index += 1) {
+      response = createResponse()
+      await handler(
+        {
+          method: 'GET',
+          headers: {'x-forwarded-for': `spoofed-${index}`},
+          query: {q: `query-${index}`},
+          socket: {remoteAddress: 'same-client'},
+        },
+        response
+      )
+    }
+    expect(response.statusCode).toBe(429)
+  })
+
+  test('uses sanitized forwarding headers behind a trusted proxy', async () => {
+    const handler = createImageSearchHandler({
+      search: async () => [],
+      trustProxy: true,
+    })
+    let allowed = 0
+    for (let index = 0; index < 31; index += 1) {
+      const response = createResponse()
+      await handler(
+        {
+          method: 'GET',
+          headers: {'x-forwarded-for': `proxy-client-${index}`},
+          query: {q: `query-${index}`},
+          socket: {remoteAddress: 'proxy'},
+        },
+        response
+      )
+      if (response.statusCode === 200) allowed += 1
+    }
+    expect(allowed).toBe(31)
   })
 })

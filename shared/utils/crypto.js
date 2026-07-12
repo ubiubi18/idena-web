@@ -1,8 +1,7 @@
 /* eslint-disable no-bitwise */
 import sha3 from 'js-sha3'
 import BN from 'bn.js'
-import eciesjs from 'idena-eciesjs'
-import crypto from 'crypto'
+import {gcm} from '@noble/ciphers/aes.js'
 import {hexToUint8Array, toHexString} from './buffers'
 import {
   curveOrder,
@@ -13,6 +12,7 @@ import {
 import PrivateKeysPackage from '../models/privateKeysPackage'
 import PublicFlipKey from '../models/publicFlipKey'
 import {FlipGrade} from '../types'
+import {decryptEcies, encryptEcies} from './ecies'
 
 export function privateKeyToPublicKey(key) {
   return toHexString(publicKeyCreate(key, false), true)
@@ -36,38 +36,23 @@ export function generatePrivateKey() {
 }
 
 export function encryptPrivateKey(data, passphrase) {
-  const key = sha3.sha3_256.array(passphrase)
-  const dataArray = Buffer.from(
+  const key = new Uint8Array(sha3.sha3_256.array(passphrase))
+  const dataArray = new Uint8Array(
     typeof data === 'string' ? hexToUint8Array(data) : new Uint8Array(data)
   )
   const nonce = new Uint8Array(12)
   window.crypto.getRandomValues(nonce)
-  const cipher = crypto.createCipheriv('aes-256-gcm', key, Buffer.from(nonce))
-
-  const encrypted = [
-    ...nonce,
-    ...cipher.update(dataArray),
-    ...cipher.final(),
-    ...cipher.getAuthTag(),
-  ]
+  const encrypted = [...nonce, ...gcm(key, nonce).encrypt(dataArray)]
   return toHexString(encrypted, false)
 }
 
 export function decryptPrivateKey(data, passphrase) {
-  const key = sha3.sha3_256.array(passphrase)
-  const dataArray = Buffer.from(
+  const key = new Uint8Array(sha3.sha3_256.array(passphrase))
+  const dataArray = new Uint8Array(
     typeof data === 'string' ? hexToUint8Array(data) : new Uint8Array(data)
   )
-  const decipher = crypto.createDecipheriv(
-    'aes-256-gcm',
-    key,
-    dataArray.slice(0, 12)
-  )
-  decipher.setAuthTag(dataArray.slice(dataArray.length - 16))
-  const decrypted = [
-    ...decipher.update(dataArray.slice(12, dataArray.length - 16)),
-    ...decipher.final(),
-  ]
+  const nonce = dataArray.slice(0, 12)
+  const decrypted = gcm(key, nonce).decrypt(dataArray.slice(12))
   return toHexString(decrypted)
 }
 
@@ -138,7 +123,7 @@ export function serializeAnswers(hashesInOrder, answers) {
 }
 
 export function decryptMessage(key, message) {
-  return eciesjs.decrypt(key, message)
+  return decryptEcies(key, message)
 }
 
 export function generateFlipKey(isPublic, epoch, key) {
@@ -172,7 +157,7 @@ export function encryptFlipData(publicHex, privateHex, privateKey, epoch) {
   let encryptedPublicData
   let encryptedPrivateData
   try {
-    encryptedPublicData = eciesjs.encrypt(
+    encryptedPublicData = encryptEcies(
       publicKeyCreate(publicFlipKey),
       publicHex
     )
@@ -183,7 +168,7 @@ export function encryptFlipData(publicHex, privateHex, privateKey, epoch) {
   }
 
   try {
-    encryptedPrivateData = eciesjs.encrypt(
+    encryptedPrivateData = encryptEcies(
       publicKeyCreate(privateFlipKey),
       privateHex
     )

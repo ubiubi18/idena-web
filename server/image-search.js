@@ -11,7 +11,12 @@ const CACHE_MAX_ENTRIES = 256
 const RATE_LIMIT_WINDOW_MS = 60 * 1000
 const RATE_LIMIT_MAX_REQUESTS = 30
 const RATE_LIMIT_MAX_CLIENTS = 2048
+const SOURCE_FAILURE_THRESHOLD = 2
+const SOURCE_COOLDOWN_MS = 5 * 60 * 1000
 const USER_AGENT = 'Mozilla/5.0 (Idena web image search)'
+const DUCKDUCKGO_THUMBNAIL_HOSTS = ['mm.bing.net', 'explicit.bing.net']
+const OPENVERSE_THUMBNAIL_HOSTS = ['api.openverse.org']
+const WIKIMEDIA_THUMBNAIL_HOSTS = ['upload.wikimedia.org']
 
 function stripControlCharacters(value) {
   return Array.from(String(value || ''))
@@ -92,6 +97,23 @@ function normalizeImageSearchResult(item) {
   )
 
   return image && thumbnail ? {image, thumbnail} : null
+}
+
+function isAllowedProviderHostname(hostname, allowedHosts) {
+  const normalized = String(hostname || '').toLowerCase()
+  return allowedHosts.some(
+    (allowedHost) =>
+      normalized === allowedHost || normalized.endsWith(`.${allowedHost}`)
+  )
+}
+
+function normalizeProviderThumbnail(value, allowedHosts) {
+  const thumbnail = normalizeImageSearchUrl(value)
+  if (!thumbnail) return null
+
+  const {hostname} = new URL(thumbnail)
+  if (!isAllowedProviderHostname(hostname, allowedHosts)) return null
+  return {image: thumbnail, thumbnail}
 }
 
 function requestHttpsText(
@@ -221,10 +243,10 @@ async function searchDuckDuckGoImages(query) {
   return results
     .slice(0, 30)
     .map((item) =>
-      normalizeImageSearchResult({
-        image: item && item.image,
-        thumbnail: item && (item.thumbnail || item.image),
-      })
+      normalizeProviderThumbnail(
+        item && item.thumbnail,
+        DUCKDUCKGO_THUMBNAIL_HOSTS
+      )
     )
     .filter(Boolean)
 }
@@ -239,10 +261,10 @@ async function searchOpenverseImages(query) {
   const results = Array.isArray(data && data.results) ? data.results : []
   return results
     .map((item) =>
-      normalizeImageSearchResult({
-        image: item && item.url,
-        thumbnail: item && (item.thumbnail || item.thumbnail_url || item.url),
-      })
+      normalizeProviderThumbnail(
+        item && (item.thumbnail || item.thumbnail_url),
+        OPENVERSE_THUMBNAIL_HOSTS
+      )
     )
     .filter(Boolean)
 }
@@ -273,10 +295,10 @@ async function searchWikimediaImages(query) {
       const imageInfo = Array.isArray(item && item.imageinfo)
         ? item.imageinfo[0]
         : null
-      return normalizeImageSearchResult({
-        image: imageInfo && imageInfo.url,
-        thumbnail: imageInfo && (imageInfo.thumburl || imageInfo.url),
-      })
+      return normalizeProviderThumbnail(
+        imageInfo && (imageInfo.thumburl || imageInfo.url),
+        WIKIMEDIA_THUMBNAIL_HOSTS
+      )
     })
     .filter(Boolean)
 }
@@ -292,32 +314,99 @@ function dedupeSearchResults(items) {
   return results.slice(0, RESULT_LIMIT)
 }
 
-async function runSearchSource(name, search, query) {
+async function runSearchSource(search, query) {
   try {
     const rows = await search(query)
     return {ok: true, rows: Array.isArray(rows) ? rows.filter(Boolean) : []}
   } catch (error) {
-    // Provider failures contain no query, credentials, or response body.
-    // eslint-disable-next-line no-console
-    console.warn(`Image search source failed: ${name}`, error.message)
-    return {ok: false, rows: []}
+    return {ok: false, rows: [], error}
   }
 }
+
+function boundedLogMessage(error) {
+  return stripControlCharacters(error && error.message)
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 160)
+}
+
+function createSourceRunner({
+  sources,
+  now = Date.now,
+  failureThreshold = SOURCE_FAILURE_THRESHOLD,
+  cooldownMs = SOURCE_COOLDOWN_MS,
+} = {}) {
+  const sourceStates = new Map()
+
+  return async function runSources(query) {
+    return Promise.all(
+      sources.map(async ([name, search]) => {
+        const currentTime = now()
+        const state = sourceStates.get(name) || {
+          consecutiveFailures: 0,
+          openUntil: 0,
+        }
+        if (state.openUntil > currentTime) {
+          return {ok: false, rows: [], skipped: true}
+        }
+
+        const outcome = await runSearchSource(search, query)
+        if (outcome.ok) {
+          sourceStates.set(name, {consecutiveFailures: 0, openUntil: 0})
+          return outcome
+        }
+
+        state.consecutiveFailures += 1
+        const circuitOpened = state.consecutiveFailures >= failureThreshold
+        if (circuitOpened) {
+          state.consecutiveFailures = Math.max(0, failureThreshold - 1)
+          state.openUntil = currentTime + cooldownMs
+        }
+        sourceStates.set(name, state)
+
+        const detail = boundedLogMessage(outcome.error) || 'provider error'
+        // Provider failures contain no query, credentials, or response body.
+        // eslint-disable-next-line no-console
+        console.warn(
+          `Image search source failed: ${name}${
+            circuitOpened ? ' (cooldown opened)' : ''
+          }`,
+          detail
+        )
+        return outcome
+      })
+    )
+  }
+}
+
+function parseDisabledSources(value) {
+  return new Set(
+    String(value || '')
+      .split(',')
+      .map((name) => name.trim().toLowerCase())
+      .filter(Boolean)
+  )
+}
+
+function getDefaultSources(env = process.env) {
+  const disabledSources = parseDisabledSources(
+    env.IMAGE_SEARCH_DISABLED_SOURCES
+  )
+  return [
+    ['duckduckgo', searchDuckDuckGoImages],
+    ['openverse', searchOpenverseImages],
+    ['wikimedia', searchWikimediaImages],
+  ].filter(([name]) => !disabledSources.has(name))
+}
+
+const runDefaultSources = createSourceRunner({sources: getDefaultSources()})
 
 async function searchImages(query, sources = null) {
   const normalizedQuery = normalizeImageSearchQuery(query)
   if (!normalizedQuery) return []
 
-  const configuredSources = sources || [
-    ['duckduckgo', searchDuckDuckGoImages],
-    ['openverse', searchOpenverseImages],
-    ['wikimedia', searchWikimediaImages],
-  ]
-  const outcomes = await Promise.all(
-    configuredSources.map(([name, search]) =>
-      runSearchSource(name, search, normalizedQuery)
-    )
-  )
+  const runSources = sources ? createSourceRunner({sources}) : runDefaultSources
+  const outcomes = await runSources(normalizedQuery)
   if (outcomes.every((outcome) => !outcome.ok)) {
     throw new Error('All image search sources failed')
   }
@@ -393,7 +482,13 @@ function createRateLimiter({
   }
 }
 
-function getClientId(request) {
+function shouldTrustProxy(env = process.env) {
+  return env.VERCEL === '1' || env.IMAGE_SEARCH_TRUST_PROXY === '1'
+}
+
+function getClientId(request, trustProxy = shouldTrustProxy()) {
+  if (!trustProxy) return request.socket && request.socket.remoteAddress
+
   const forwarded = request.headers && request.headers['x-forwarded-for']
   const forwardedValue = Array.isArray(forwarded) ? forwarded[0] : forwarded
   if (forwardedValue) {
@@ -404,7 +499,7 @@ function getClientId(request) {
   return request.socket && request.socket.remoteAddress
 }
 
-function createImageSearchHandler({search, rateLimiter} = {}) {
+function createImageSearchHandler({search, rateLimiter, trustProxy} = {}) {
   const executeSearch = search || createSearchCache()
   const checkRateLimit = rateLimiter || createRateLimiter()
 
@@ -421,7 +516,7 @@ function createImageSearchHandler({search, rateLimiter} = {}) {
       return response.status(400).json({error: 'Search query is required'})
     }
 
-    const limit = checkRateLimit(getClientId(request))
+    const limit = checkRateLimit(getClientId(request, trustProxy))
     if (!limit.allowed) {
       response.setHeader('Retry-After', String(limit.retryAfterSeconds))
       return response.status(429).json({error: 'Too many image searches'})
@@ -448,10 +543,16 @@ module.exports = {
   _internals: {
     createRateLimiter,
     createSearchCache,
+    createSourceRunner,
     dedupeSearchResults,
     extractDuckDuckGoVqd,
+    getDefaultSources,
+    normalizeProviderThumbnail,
     normalizeImageSearchQuery,
     normalizeImageSearchResult,
     normalizeImageSearchUrl,
+    parseDisabledSources,
+    requestHttpsText,
+    shouldTrustProxy,
   },
 }

@@ -28,11 +28,24 @@ npm run audit:compatibility
 npm run audit:privacy
 npm run lint
 npm test -- --runInBand
+npm run test:image-search:live
 npm run build
 ```
 
 Deploy the resulting commit through the normal web deployment. For Vercel,
 select Node.js 24 and leave the build command as `npm run build`.
+
+The endpoint trusts forwarding headers automatically on Vercel. A self-hosted
+deployment uses the direct socket address unless
+`IMAGE_SEARCH_TRUST_PROXY=1` is set. Only enable that setting behind a reverse
+proxy that removes client-supplied forwarding headers and writes its own.
+
+Set `IMAGE_SEARCH_DISABLED_SOURCES` to a comma-separated provider list when a
+hosting network blocks a source. For example, Hetzner currently requires:
+
+```bash
+IMAGE_SEARCH_DISABLED_SOURCES=openverse
+```
 
 ## Smoke test
 
@@ -76,12 +89,15 @@ overwrites `X-Forwarded-For` rather than accepting a client-supplied value.
 
 Openverse currently permits anonymous searches but applies provider-level
 limits. The route caches successful responses for five minutes and continues
-with the other providers when one source is unavailable.
+with the other providers when one source is unavailable. A provider enters a
+five-minute cooldown after two consecutive failures, preventing a blocked
+source from being retried for every new query.
 
-Search results remain third-party content. Loading a result in the browser
-reveals the browser's network address and request metadata to that image host,
-and provider-side moderation is not a security boundary. Treat every returned
-image as untrusted input.
+Search results remain third-party content. The API returns only CORS-enabled
+thumbnail URLs hosted by the reviewed provider proxies, rather than arbitrary
+source-site URLs. Loading a result still reveals the browser's network address
+and request metadata to that provider host, and provider-side moderation is
+not a security boundary. Treat every returned image as untrusted input.
 
 ## Recovery
 

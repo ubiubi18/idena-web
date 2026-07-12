@@ -6,7 +6,9 @@ import {
   privateKeyToAddress,
   signMessage,
   checkSignature,
+  decryptPrivateKey,
   dnaSign,
+  encryptPrivateKey,
 } from './crypto'
 import {toHexString} from './buffers'
 import {FlipGrade} from '../types'
@@ -52,6 +54,30 @@ describe('decrypt data', () => {
   it('decrypt flip parts', () => {
     expect(toHexString(decryptMessage(key1, data1))).toBe('010203')
     expect(toHexString(decryptMessage(key2, data2))).toBe('0a0b0c')
+  })
+})
+
+describe('encrypted private key compatibility', () => {
+  const KEY_FIXTURE = [
+    '00112233445566778899aabbccddeeff',
+    '00112233445566778899aabbccddeeff',
+  ].join('')
+  const encryptedKey =
+    '000102030405060708090a0bdf12be20bc338b1a6682b3aec3e95869ff3582458f055ee219b44d43309ec0e1ac84969c19e66dc59c4a85a082ec125c'
+
+  it('matches the legacy Node crypto AES-GCM format', () => {
+    jest.spyOn(window.crypto, 'getRandomValues').mockImplementation((nonce) => {
+      nonce.set([...Array(12).keys()])
+      return nonce
+    })
+
+    expect(encryptPrivateKey(KEY_FIXTURE, 'test-passphrase')).toBe(encryptedKey)
+    expect(decryptPrivateKey(encryptedKey, 'test-passphrase')).toBe(KEY_FIXTURE)
+  })
+
+  it('rejects a modified authentication tag', () => {
+    const modified = `${encryptedKey.slice(0, -2)}00`
+    expect(() => decryptPrivateKey(modified, 'test-passphrase')).toThrow()
   })
 })
 

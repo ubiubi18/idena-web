@@ -251,10 +251,6 @@ export default function MyApp({Component, pageProps, err}) {
               -moz-osx-font-smoothing: grayscale;
             }
           `}</style>
-        <script
-          type="text/javascript"
-          src="https://apis.google.com/js/api.js"
-        />
       </Head>
       <ChakraProvider theme={extendTheme(uiTheme)}>
         <IdenaApp>
