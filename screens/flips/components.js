@@ -39,7 +39,7 @@ import {useTranslation} from 'react-i18next'
 import {transparentize} from 'polished'
 import {useService} from '@xstate/react'
 import {EditIcon, ViewIcon} from '@chakra-ui/icons'
-import Jimp from 'jimp'
+import {Jimp, JimpMime} from 'jimp'
 import FlipEditor from './components/flip-editor'
 import {Step} from './types'
 import {formatKeywords, getAdversarialImage, protectFlipImage} from './utils'
@@ -874,10 +874,7 @@ export function FlipProtectStep({
     const regeneratedImageSrc = await protectFlipImage(imageSrc)
 
     const compressedImage = await Jimp.read(regeneratedImageSrc).then(raw =>
-      raw
-        .resize(240, 180)
-        .quality(60) // jpeg quality
-        .getBase64Async('image/jpeg')
+      raw.resize({w: 240, h: 180}).getBase64(JimpMime.jpeg, {quality: 60})
     )
     if (advImageScr) {
       onChangeAdversarial(advImageScr)

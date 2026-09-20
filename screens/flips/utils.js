@@ -10,7 +10,7 @@
 /* eslint-disable no-use-before-define */
 import {encode} from 'rlp'
 import axios from 'axios'
-import Jimp from 'jimp'
+import {Jimp, JimpMime} from 'jimp'
 import CID from 'cids'
 import {loadPersistentStateValue, persistItem} from '../../shared/utils/persist'
 import {FlipType} from '../../shared/types'
@@ -976,10 +976,9 @@ export async function protectFlip({
     protectedFlips.map(image =>
       image
         ? Jimp.read(image).then(raw =>
-            raw
-              .resize(240, 180)
-              .quality(60) // jpeg quality
-              .getBase64Async('image/jpeg')
+            raw.resize({w: 240, h: 180}).getBase64(JimpMime.jpeg, {
+              quality: 60,
+            })
           )
         : image
     )
@@ -995,16 +994,15 @@ export async function prepareAdversarialImages(images, send) {
   const ids = shuffle(images ?? []).slice(0, 8)
 
   await Promise.all(
-    ids.map((img, idx) =>
-      Jimp.read(img.thumbnail).then(image => {
-        image.getBase64Async('image/png').then(async nextUrl => {
-          send('CHANGE_ADVERSARIAL', {
-            image: nextUrl,
-            currentIndex: idx,
-          })
-        })
+    ids.map(async (img, idx) => {
+      const image = await Jimp.read(img.thumbnail)
+      const nextUrl = await image.getBase64(JimpMime.png)
+
+      send('CHANGE_ADVERSARIAL', {
+        image: nextUrl,
+        currentIndex: idx,
       })
-    )
+    })
   )
 }
 

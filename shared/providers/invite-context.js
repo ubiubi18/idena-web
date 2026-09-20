@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, {useEffect} from 'react'
-import nanoid from 'nanoid'
+import {nanoid} from 'nanoid'
 import {useInterval} from '../hooks/use-interval'
 import {HASH_IN_MEMPOOL, callRpc, lowerCase} from '../utils/utils'
 import {useIdentity} from './identity-context'

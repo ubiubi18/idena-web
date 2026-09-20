@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, {createRef, useRef, useCallback, useState} from 'react'
-import Jimp from 'jimp'
+import {Jimp, JimpMime} from 'jimp'
 import {useTranslation} from 'react-i18next'
 import mousetrap from 'mousetrap'
 import {
@@ -185,7 +185,7 @@ export default function FlipEditor({
           editors[idx].execute('removeObject', data.replaceObjectId)
         }
         Jimp.read(url).then(image => {
-          image.getBase64Async('image/png').then(async nextUrl => {
+          image.getBase64(JimpMime.png).then(async nextUrl => {
             const resizedNextUrl = await imageResizeSoft(
               nextUrl,
               IMAGE_WIDTH,

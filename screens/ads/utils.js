@@ -1,5 +1,5 @@
 /* eslint-disable no-use-before-define */
-import Jimp from 'jimp'
+import {Jimp, JimpMime} from 'jimp'
 import {bytes, CID} from 'multiformats'
 import i18n from '../../i18n'
 import {estimateRawTx, getRawTx, sendRawTx} from '../../shared/api'
@@ -228,24 +228,25 @@ export const adImageThumbSrc = ad =>
 export async function compressAdImage(
   // eslint-disable-next-line no-shadow
   bytes,
-  {width = 80, height = 80, type} = {width: 80, height: 80, type: 'image/jpeg'}
+  {width = 80, height = 80, type} = {
+    width: 80,
+    height: 80,
+    type: JimpMime.jpeg,
+  }
 ) {
   const image = await Jimp.read(bytes)
 
-  const imageWidth = image.getWidth()
-  const imageHeight = image.getHeight()
+  const imageWidth = image.width
+  const imageHeight = image.height
 
   const resizedImage =
     imageWidth > imageHeight
-      ? image.resize(width, Jimp.AUTO)
-      : image.resize(Jimp.AUTO, height)
+      ? image.resize({w: width})
+      : image.resize({h: height})
 
-  const compressedImage =
-    type === 'image/png'
-      ? resizedImage.deflateLevel(1)
-      : resizedImage.quality(60)
-
-  return compressedImage.getBufferAsync(type)
+  return type === JimpMime.png
+    ? resizedImage.getBuffer(type, {deflateLevel: 1})
+    : resizedImage.getBuffer(type, {quality: 60})
 }
 
 export function validateAd(ad) {
