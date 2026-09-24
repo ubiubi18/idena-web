@@ -1,5 +1,9 @@
 # Idena Web
 
+## Research disclaimer
+
+This is experimental research software. I cannot guarantee its security, correctness, or fitness for any purpose. Use it at your own risk, take responsibility for your decisions, independently verify changes, and stay vigilant.
+
 Browser-based Idena wallet and validation client built with Next.js and React.
 
 [![Build and test](https://github.com/ubiubi18/idena-web/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/ubiubi18/idena-web/actions/workflows/build.yml)
