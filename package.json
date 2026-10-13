@@ -57,7 +57,7 @@
     "google-protobuf": "^3.13.0",
     "i18next": "^19.0.1",
     "i18next-browser-languagedetector": "^6.1.4",
-    "i18next-http-backend": "^3.0.5",
+    "i18next-http-backend": "^4.0.2",
     "idena-eciesjs": "^1.0.0",
     "js-sha256": "^0.11.1",
     "js-sha3": "^0.8.0",
